@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="rs.workbuddy"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk 
+        android:minSdkVersion="8" 
+        android:targetSdkVersion="11" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="Work Buddy" >
+        <activity
+            android:label="Work Buddy - Activity Logger"
+            android:name=".Main_Activity" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+				<activity
+					android:label="Work Buddy - Activity List"
+					android:name=".Event_List">
+				</activity>
+				<activity
+					android:label="Template"
+					android:name=".Workbuddy_Activity">
+				</activity>
+				<activity
+					android:label="Work Buddy - Edit Activity"
+					android:name=".Event_Add">
+				</activity>
+  			<activity
+	  			android:label="Work Buddy - Timesheet"
+		  		android:name=".Report_Timesheet">
+			  </activity>
+    </application>
+
+</manifest>
