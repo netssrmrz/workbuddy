@@ -4,13 +4,48 @@ import java.io.IOException;
 import java.util.Arrays;
 import android.content.*;
 import java.lang.reflect.*;
+import java.io.*;
 
 public class Util
 {
   public static android.content.Context ctx=null;
   
   public static final int ROUND_DATE_DAY=1;
+	public static final long MILLIS_PER_DAY=1000*60*60*24;
 
+	public static android.net.Uri Save_File(String name, String data)
+	{
+		String state;
+		java.io.File sd_dir, csv_file;
+		java.io.FileOutputStream csv_stream;
+		android.net.Uri res=null;
+		
+		state = android.os.Environment.getExternalStorageState();
+		if (android.os.Environment.MEDIA_MOUNTED.equals(state))
+		{
+			sd_dir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+			sd_dir.mkdirs();
+			if (rs.android.Util.NotEmpty(data))
+			{
+				csv_file = new java.io.File(sd_dir, name);
+				try
+				{
+					csv_stream = new java.io.FileOutputStream(csv_file);
+					csv_stream.write(data.getBytes());
+					csv_stream.close();
+				}
+				catch (Exception e)
+				{
+					csv_file=null;
+				}
+				
+				if (csv_file!=null)
+				  res = android.net.Uri.fromFile(csv_file);
+			}
+		}
+		return res;
+	}
+	
   public static Object Add(Object val, Object inc)
   {
     Object res=val;
@@ -133,12 +168,15 @@ public class Util
   {
     boolean res=false;
     int avail;
+		String str;
     
     if (obj!=null)
     {
       res=true;
-      if (obj instanceof String && ((String)obj).length()<=0)
+      if (obj instanceof String && ((String)obj).trim().length()<=0)
         res=false;
+			else if (obj instanceof android.text.Editable && ((android.text.Editable)obj).toString().trim().length()<=0)
+			  res=false;
       else if (obj instanceof android.database.Cursor && ((android.database.Cursor)obj).getCount()<=0) 
         res=false;
       else if (obj instanceof android.database.sqlite.SQLiteDatabase && !((android.database.sqlite.SQLiteDatabase)obj).isOpen())
@@ -302,8 +340,8 @@ public class Util
     return res;
   }
 
-  public static boolean SetObjFieldValue(Object obj, String field_name, Object val) 
-	throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+  public static boolean SetObjFieldValue(Object obj, 
+	  String field_name, Object val) 
   {
     java.lang.reflect.Method method;
     java.lang.reflect.Field field;
@@ -318,8 +356,8 @@ public class Util
       field=FindClassField(class_type, field_name);
       if (NotEmpty(field))
       {
-					field.set(obj, val);
-					res=true;
+				try {field.set(obj, val); res=true;}
+				catch (Exception e) { res=false; }
       }
       else
       {
@@ -328,8 +366,8 @@ public class Util
         {
           params=new Object[1];
           params[0]=val;
-          method.invoke(obj, params);
-					res=true;
+          try {method.invoke(obj, params); res=true;}
+					catch (Exception e) {res=false;}
         }
       }
     }
@@ -759,7 +797,26 @@ public class Util
 
   // Date Functions ==================================================================================================================
 
-	public static java.sql.Date[] Week(java.sql.Date date)
+	public static java.sql.Date Round_Date(java.sql.Date date, long millis)
+	{
+		java.sql.Date res=null;
+		long round_millis, round_date;
+		
+		round_millis=(long)(((float)date.getTime()+((float)millis/2f))/(float)millis);
+		round_date=round_millis*millis;
+		res=new java.sql.Date(round_date);
+		return res;
+	}
+	
+	public static java.sql.Date Day_Start(java.sql.Date date)
+	{
+		java.sql.Date res=null;
+		
+		res=(java.sql.Date)Round(date, ROUND_DATE_DAY);
+		return res;
+	}
+	
+	public static java.sql.Date[] Month(java.sql.Date date)
 	{
 		java.sql.Date[] res=null;
 		java.util.Calendar cal;
@@ -778,6 +835,28 @@ public class Util
 		  cal.add(java.util.Calendar.DATE, 1);
 		}
 		
+		return res;
+	}
+	
+	public static java.sql.Date[] Week(java.sql.Date date)
+	{
+		java.sql.Date[] res=null;
+		java.util.Calendar cal;
+		int week_day, c;
+
+		cal=java.util.Calendar.getInstance();
+		if (date!=null)
+			cal.setTime(date);
+		week_day=cal.get(java.util.Calendar.DAY_OF_WEEK);
+		cal.add(java.util.Calendar.DATE, 1-week_day);
+
+		res=new java.sql.Date[7];
+		for (c=0; c<7; c++)
+		{
+		  res[c]=new java.sql.Date(cal.getTimeInMillis());
+		  cal.add(java.util.Calendar.DATE, 1);
+		}
+
 		return res;
 	}
 	
@@ -824,15 +903,10 @@ public class Util
 
   public static java.sql.Date Today()
   {
-    java.sql.Date res=null;
-    java.util.Calendar cal;
+    java.sql.Date res=null, now;
 
-    cal=java.util.Calendar.getInstance();
-		cal.clear(java.util.Calendar.MILLISECOND);
-    cal.clear(java.util.Calendar.SECOND);
-		cal.clear(java.util.Calendar.MINUTE);
-		cal.clear(java.util.Calendar.HOUR_OF_DAY);
-    res=new java.sql.Date(cal.getTimeInMillis());
+    now=Now();
+		res=New_Date(Date_Get_Year(now), Date_Get_Month(now)+1, Date_Get_Day(now));
     return res;
   }
   
@@ -1010,82 +1084,33 @@ public class Util
     return res;
   }
   
-  public static String Obj_To_String(Object obj)
-  {
-    String res=null;
-    Object field_val;
-    
-    if (obj!=null)
-    {
-      for (java.lang.reflect.Field field: obj.getClass().getFields())
-      {
-        try {field_val=field.get(obj);}
-        catch (java.lang.Exception e) {field_val=null;}
-        res=rs.android.Util.AppendStr(res, field.getName()+": "+rs.android.Util.To_String(field_val, "null"), ", ", null);
-      }
-    }
-    return res;
-  }
-
-  // Misc. Functions ==================================================================================================================
-  
-  public static void Err_To_Log(Exception ex)
-  {
-    String tag="rs.android.Util.Err_To_Log()";
-
-    if (ex!=null)
-      android.util.Log.d(tag, ex.getMessage());
-  }
-  
-  public static void Dump_To_Log(Object obj)
-  {
-    String fields_str, tag="rs.android.Util.Dump_To_Log()";
-    int c;
-    Object[] objs;
-    
-    if (obj instanceof java.util.Collection<?>)
-    {
-      objs=((java.util.Collection<?>)obj).toArray();
-      for (c=0; c<objs.length; c++)
-      {
-        fields_str=Obj_To_String(objs[c]);
-        android.util.Log.d(tag, fields_str);
-      }
-    }
-    else
-    {
-      fields_str=Obj_To_String(obj);
-      android.util.Log.d(tag, fields_str);
-    }
-  }
-  
   public static String Extract_Str(String prefix, String suffix, String src)
   {
     String res=null;
     int start=-1, end=-1;
-    
+
     if (NotEmpty(prefix))
       start=Find_Str(prefix, src, false, 0);
     if (start==-1)
       start=0;
     else
       start++;
-    
+
     if (NotEmpty(suffix))
       end=Find_Str(suffix, src, true, start);
     if (end==-1)
       end=src.length();
-    
+
     if (start>-1 && end>-1)
       res=src.substring(start, end);
     return res;
   }
-  
+
   public static int Find_Str(String target_str, String in_str, boolean ret_start, int start_at)
   {
     int pos=0, c, start_pos=0, res=-1;
     char ch;
-    
+
     if (NotEmpty(target_str) && NotEmpty(in_str))
     {
       for (c=start_at; c<in_str.length(); c++)
@@ -1119,12 +1144,12 @@ public class Util
   {
     return Build_Str_List(Arrays.asList(objs), field_name, separator, envelope);
   }
-  
+
   public static String Build_Str_List(java.util.List<?> objs, String field_name, String separator, String envelope)
   {
     String res=null;
     Object val;
-    
+
     if (NotEmpty(objs))
     {
       if (!NotEmpty(separator))
@@ -1141,6 +1166,64 @@ public class Util
     return res;
   }
 	
+  // Misc. Functions ==================================================================================================================
+  
+  public static void Err_To_Log(Exception ex)
+  {
+    String tag="rs.android.Util.Err_To_Log()";
+
+    if (ex!=null)
+      android.util.Log.d(tag, ex.getMessage());
+  }
+
+  public static String Obj_To_String(Object obj)
+  {
+    String res=null;
+    Object field_val;
+
+    if (obj!=null)
+    {
+      for (java.lang.reflect.Field field: rs.android.Db.Get_Fields(obj.getClass()))
+      {
+        try {field_val=field.get(obj);}
+        catch (java.lang.Exception e) {field_val=null;}
+        res=rs.android.Util.AppendStr(res, field.getName()+": "+rs.android.Util.To_String(field_val, "null"), ", ", null);
+      }
+    }
+    return res;
+  }
+	
+  public static String Objs_To_String(Object obj)
+  {
+    String res=null;
+    int c;
+    Object[] objs;
+    
+    if (obj instanceof java.util.Collection<?>)
+    {
+      objs=((java.util.Collection<?>)obj).toArray();
+      for (c=0; c<objs.length; c++)
+      {
+        res=Obj_To_String(objs[c]);
+        //android.util.Log.d(tag, fields_str);
+      }
+    }
+    else
+    {
+      res=Obj_To_String(obj);
+      //android.util.Log.d(tag, fields_str);
+    }
+		return res;
+  }
+  
+	public static void Show_Obj(android.content.Context ctx, Object obj)
+	{
+		String obj_msg;
+		
+		obj_msg=Objs_To_String(obj);
+		Show_Message(ctx, obj_msg);
+	}
+	
 	public static void Show_Message(android.content.Context ctx, String msg)
 	{
 		android.app.AlertDialog dlg;
@@ -1152,6 +1235,23 @@ public class Util
 		dlg.show();
 	}
 
+	public static void Show_Stack(android.content.Context ctx)
+	{
+		StackTraceElement[] elems;
+		String msg;
+		
+		elems=Thread.currentThread().getStackTrace();
+		if (NotEmpty(elems))
+		{
+			msg="";
+			for (StackTraceElement elem: elems)
+			{
+				msg+=elem.toString()+"\n";
+			}
+			Show_Message(ctx, msg);
+		}
+	}
+	
 	public static void Show_Note(android.content.Context ctx, String msg)
 	{
 		android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_LONG).show();

@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="rs.workbuddy"
-    android:versionCode="1"
-    android:versionName="1.0" >
+	package="rs.workbuddy"
+	android:versionCode="1"
+	android:versionName="1.0" >
 
-    <uses-sdk 
-        android:minSdkVersion="8" 
-        android:targetSdkVersion="11" />
+	<uses-sdk 
+		android:minSdkVersion="8" 
+		android:targetSdkVersion="11" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <application
-        android:icon="@drawable/ic_launcher"
-        android:label="Work Buddy" >
-        <activity
-            android:label="Work Buddy - Activity Logger"
-            android:name=".Main_Activity" >
-            <intent-filter >
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-				<activity
-					android:label="Work Buddy - Activity List"
-					android:name=".Event_List">
-				</activity>
-				<activity
-					android:label="Template"
-					android:name=".Workbuddy_Activity">
-				</activity>
-				<activity
-					android:label="Work Buddy - Edit Activity"
-					android:name=".Event_Add">
-				</activity>
-  			<activity
-	  			android:label="Work Buddy - Timesheet"
-		  		android:name=".Report_Timesheet">
-			  </activity>
-    </application>
+
+	<application
+		android:icon="@drawable/ic_launcher"
+		android:label="Work Buddy" >
+		
+		<activity
+			android:label="Work Buddy - Activity Logger"
+			android:name=".Main_Activity" >
+			<intent-filter >
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:label="Work Buddy - Activity List"
+			android:name=".Event_List">
+		</activity>
+		<activity
+			android:label="Template"
+			android:name=".Workbuddy_Activity">
+		</activity>
+		<activity
+			android:label="Work Buddy - Edit Activity"
+			android:name=".Event_Add">
+		</activity>
+		<activity
+			android:label="Work Buddy - Timesheet"
+			android:name=".Report_Timesheet">
+		</activity>
+		<activity 
+			android:label="Work Buddy - Settings"
+			android:name=".Settings_Activity">
+		</activity>
+		<activity 
+			android:label="Work Buddy - Project List"
+			android:name=".Project_List">
+		</activity>
+		<activity 
+			android:label="Work Buddy - Edit Project"
+			android:name=".Project_Add">
+		</activity>
+		<activity
+			android:label="Work Buddy - Widget Config"
+			android:name=".App_Widget_Config">
+			<intent-filter >
+				<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+			</intent-filter>
+		</activity>
+
+		<receiver android:name=".App_Widget" android:label="Work Buddy - Widget">
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="rs.workbuddy.App_Widget.BUTTON_CLICKED" />
+			</intent-filter>
+			<meta-data
+				android:name="android.appwidget.provider"
+				android:resource="@xml/widget_settings" />
+		</receiver>
+
+	</application>
 
 </manifest>
