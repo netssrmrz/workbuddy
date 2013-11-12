@@ -6,7 +6,8 @@ rs.workbuddy.Workbuddy_Activity_Add
 {
 	public android.widget.EditText name_text;
 	public android.widget.EditText notes_text;
-	public android.widget.EditText rate_text;
+	public rs.workbuddy.Project_Spinner parent_spinner;
+	public rs.workbuddy.Project_Status_Spinner status_spinner;
 	public Project project;
 
   @Override
@@ -16,9 +17,11 @@ rs.workbuddy.Workbuddy_Activity_Add
 		name_text = new android.widget.EditText(this);
 		this.Add_Field("Name", name_text);
 
-		// project rate
-		rate_text = new android.widget.EditText(this);
-		this.Add_Field("Rate", rate_text);
+		parent_spinner = new rs.workbuddy.Project_Spinner(this, this.db);
+		this.Add_Field("Parent", parent_spinner);
+		
+		status_spinner=new rs.workbuddy.Project_Status_Spinner(this, this.db);
+		this.Add_Field("Status", status_spinner);
 
 		// project notes
 		notes_text = new android.widget.EditText(this);
@@ -36,9 +39,9 @@ rs.workbuddy.Workbuddy_Activity_Add
 		if (rs.android.Util.NotEmpty(project.name))
 			this.name_text.setText(project.name);
 
-		this.rate_text.setText(null);
-		if (rs.android.Util.NotEmpty(project.rate))
-			this.rate_text.setText(rs.android.Util.To_String(project.rate));
+		this.parent_spinner.Set_Selection(project.parent_id);
+		
+		this.status_spinner.Set_Selection(project.status_type_id);
 	}
 
 	@Override
@@ -50,7 +53,7 @@ rs.workbuddy.Workbuddy_Activity_Add
 	@Override
 	void On_Load_Obj(Long id)
 	{
-		this.project = (Project)this.db.SelectObj(Project.class, id);
+		this.project = Project.Select(this.db, id);
 	}
 
 	@Override
@@ -58,7 +61,8 @@ rs.workbuddy.Workbuddy_Activity_Add
 	{
 		project.notes = Get_Text(this.notes_text);
 		project.name = Get_Text(this.name_text);
-		project.rate = rs.android.Util.ToDouble(Get_Text(this.rate_text));
+		project.parent_id=this.parent_spinner.Get_Selected_Id();
+		project.status_type_id = this.status_spinner.Get_Selected_Id();
 		this.db.Save(project);
 	}
 }

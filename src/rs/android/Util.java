@@ -13,6 +13,16 @@ public class Util
   public static final int ROUND_DATE_DAY=1;
 	public static final long MILLIS_PER_DAY=1000*60*60*24;
 
+	public static Class<?> Class_For_Name(String name)
+	{
+		Class<?> res=null;
+		
+		try {res=Class.forName(name);}
+		catch (java.lang.ClassNotFoundException e) {res=null;}
+		
+		return res;
+	}
+	
 	public static android.net.Uri Save_File(String name, String data)
 	{
 		String state;
@@ -151,6 +161,17 @@ public class Util
     return res;
   }
   
+	public static boolean Equals(Object a, Object b)
+	{
+		boolean res=false;
+		
+		if (a==null && b==null)
+			res=true;
+		else if (a!=null && b!=null)
+		  res=a.equals(b);
+		return res;
+	}
+	
   /**
    * 
    * Used to test whether strings, arrays, JDBC result sets, and lists are empty, or if a given 
@@ -797,14 +818,17 @@ public class Util
 
   // Date Functions ==================================================================================================================
 
-	public static java.sql.Date Round_Date(java.sql.Date date, long millis)
+	public static java.sql.Date Round_Date(java.sql.Date date, Long millis)
 	{
-		java.sql.Date res=null;
+		java.sql.Date res=date;
 		long round_millis, round_date;
 		
-		round_millis=(long)(((float)date.getTime()+((float)millis/2f))/(float)millis);
-		round_date=round_millis*millis;
-		res=new java.sql.Date(round_date);
+		if (millis!=null)
+		{
+		  round_millis=(long)(((float)date.getTime()+((float)millis/2f))/(float)millis);
+		  round_date=round_millis*millis;
+		  res=new java.sql.Date(round_date);
+		}
 		return res;
 	}
 	
@@ -837,23 +861,65 @@ public class Util
 		
 		return res;
 	}
-	
-	public static java.sql.Date[] Week(java.sql.Date date)
+
+	public static java.sql.Date Week_First_Day(java.sql.Date date)
 	{
-		java.sql.Date[] res=null;
+		java.sql.Date res=null;
 		java.util.Calendar cal;
-		int week_day, c;
+		int week_day;
 
 		cal=java.util.Calendar.getInstance();
 		if (date!=null)
 			cal.setTime(date);
 		week_day=cal.get(java.util.Calendar.DAY_OF_WEEK);
 		cal.add(java.util.Calendar.DATE, 1-week_day);
+		res=new java.sql.Date(cal.getTimeInMillis());
+
+		return res;
+	}
+	
+	public static java.sql.Date[] Week(java.sql.Date date)
+	{
+		java.sql.Date first_day, res[]=null;
+		java.util.Calendar cal;
+		int c;
+
+		cal=java.util.Calendar.getInstance();
+		if (date!=null)
+		{
+		  first_day=Week_First_Day(date);
+			cal.setTime(first_day);
+		}
 
 		res=new java.sql.Date[7];
 		for (c=0; c<7; c++)
 		{
 		  res[c]=new java.sql.Date(cal.getTimeInMillis());
+		  cal.add(java.util.Calendar.DATE, 1);
+		}
+
+		return res;
+	}
+
+
+	public static Long[] Week_In_Millis(java.sql.Date date)
+	{
+		java.sql.Date first_day;
+		Long[] res=null;
+		java.util.Calendar cal;
+		int c;
+
+		cal=java.util.Calendar.getInstance();
+		if (date!=null)
+		{
+		  first_day=Week_First_Day(date);
+			cal.setTime(first_day);
+		}
+
+		res=new Long[7];
+		for (c=0; c<7; c++)
+		{
+		  res[c]=cal.getTimeInMillis();
 		  cal.add(java.util.Calendar.DATE, 1);
 		}
 
@@ -1037,6 +1103,24 @@ public class Util
     }
     return res;
   }
+	
+	public static java.sql.Date Date_Set_Time(java.sql.Date date, java.sql.Date time)
+	{
+		java.sql.Date res=null;
+    java.util.Calendar cal;
+
+    if (date!=null && time!=null)
+    {
+      cal=java.util.Calendar.getInstance();
+      cal.clear();
+      cal.setTime(date);
+      cal.set(java.util.Calendar.HOUR_OF_DAY, Date_Get_Hour(time));
+			cal.set(java.util.Calendar.MINUTE, Date_Get_Minute(time));
+			res=new java.sql.Date(cal.getTimeInMillis());
+    }
+		
+		return res;
+	}
 	
   // String Functions ==================================================================================================================
   

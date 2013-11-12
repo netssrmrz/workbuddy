@@ -1,21 +1,12 @@
 package rs.workbuddy;
-import java.sql.*;
-import java.lang.reflect.*;
-import java.util.*;
 
 public class Work_Event
 {
 	public Long id;
-  public Long event_type;
+  public Long event_type_id;
   public java.sql.Date start_date;
 	public String notes;
 	public Long project_id;
-
-	public static Long EVENT_TYPE_WORK=(long)1;
-	public static Long EVENT_TYPE_LUNCH=(long)2;
-	public static Long EVENT_TYPE_HOME=(long)3;
-	public static Long EVENT_TYPE_TRAVEL=(long)4;
-	public static Long EVENT_TYPE_MEETING=(long)5;
 
 	public String Get_Project_Name(rs.android.Db db)
 	{
@@ -27,110 +18,49 @@ public class Work_Event
 		  res=project.name;
 		return res;
 	}
-	
-	public String Get_Event_Description()
-	{
-    return Get_Event_Description(this.event_type);
-	}
-
-	public static String Get_Event_Description(Long event_type)
-	{
-		String res="n/a";
-
-		if (event_type != null)
-		{
-			if (event_type.equals(EVENT_TYPE_WORK))
-				res = "Work";
-			else if (event_type.equals(EVENT_TYPE_LUNCH))
-				res = "Lunch";
-			else if (event_type.equals(EVENT_TYPE_HOME))
-				res = "Home";
-			else if (event_type.equals(EVENT_TYPE_MEETING))
-				res = "Meeting";
-			else if (event_type.equals(EVENT_TYPE_TRAVEL))
-				res = "Travel";
-			else
-			  res="unknown";
-		}
-
-		return res;
-	}
 
   public void Save(rs.android.Db db) 
   {
-    String sql;
     Work_Event we;
+		Long id;
 
-		db.Log("rs.workbuddy.Work_Event.Save()");
+		//db.Log("rs.workbuddy.Work_Event.Save()");
 		if (rs.android.Util.NotEmpty(this.id)) // is update
 		{
       db.Save(this);
 		}
 		else // is insert
     {
-			sql =
-				"select * " +
-				"from work_event " +
-				"where start_date<=? " +
-				"order by start_date desc";
-			we = (Work_Event)db.SelectObj(Work_Event.class, sql, this.start_date);
-			if (!(we != null && we.event_type != null && we.event_type.equals(this.event_type)))
+			id=Work_Event.Select_Prev_Event_Id(db, this.start_date);
+			we=Work_Event.Select(db, id);
+			
+			if (!rs.android.Util.Equals(we.event_type_id, this.event_type_id) && !rs.android.Util.Equals(we.project_id, this.project_id))
 			{
 				db.Save(this);
 			}
 		}
   }
-
-	public static Work_Event Save_New(rs.android.Db db, Long event_type, Long rounding)
-	{
-		return Save_New(db, event_type, rs.android.Util.Now(), null, rounding);
-	}
-
-	public static Work_Event Save_New(rs.android.Db db, Long event_type, Long project_id, Long rounding) 
-	{
-		return Save_New(db, event_type, rs.android.Util.Now(), project_id, rounding);
-	}
-
-	public static Work_Event Save_New(rs.android.Db db, Long event_type, int hour, int minute) 
-	{
-		return Save_New(db, event_type, rs.android.Util.New_Time(hour, minute, 0), null, null);
-	}
-
-	public static Work_Event Save_New(
-	  rs.android.Db db, 
-	  Long event_type, 
-		java.sql.Date date_time, 
-		Long project_id, 
-		Long rounding) 
-	{
-		Work_Event we;
-
-		db.Log("rs.workbuddy.Work_Event.Save_New()");
-		if (rs.android.Util.NotEmpty(rounding))
-		{
-			date_time = rs.android.Util.Round_Date(date_time, rounding);
-		}
-
-		we = new Work_Event();
-		we.event_type = event_type;
-		we.start_date = date_time;
-		we.project_id = project_id;
-		we.Save(db);
-
-		return we;
-	}
-
+	
   public static Long[] Select_Day_Events(rs.android.Db db, java.sql.Date day, Long event_type)
   {
-    String sql, where="";
     java.sql.Date day_start, day_end;
     Long[] res=null;
-		Object[] col;
 
     day_start = (java.sql.Date)rs.android.Util.Round(day, rs.android.Util.ROUND_DATE_DAY);
     day_end = rs.android.Util.Add_Days(day_start, 1);
+		res=Select_Timespan_Events(db, day_start, day_end, event_type);
+	
+    return res;
+  }
+
+  public static Long[] Select_Timespan_Events(rs.android.Db db, java.sql.Date start_time, java.sql.Date end_time, Long event_type)
+  {
+    String sql, where="";
+    Long[] res=null;
+		Object[] col;
+
 		if (rs.android.Util.NotEmpty(event_type))
-			where = "and event_type=?";
+			where = "and event_type_id=?";
 
     sql =
       "select id " +
@@ -138,9 +68,9 @@ public class Work_Event
       "where start_date>=? and start_date<? " + where + " " +
       "order by start_date asc ";
 		if (rs.android.Util.NotEmpty(event_type))
-      col = db.Select_Column(Long.class, sql, day_start, day_end, event_type);
+      col = db.Select_Column(Long.class, sql, start_time, end_time, event_type);
 		else
-      col = db.Select_Column(Long.class, sql, day_start, day_end);
+      col = db.Select_Column(Long.class, sql, start_time, end_time);
 		if (rs.android.Util.NotEmpty(col))
 		{
 			res = (Long[])java.lang.reflect.Array.newInstance(Long.class, col.length);
@@ -148,7 +78,7 @@ public class Work_Event
 		}
     return res;
   }
-
+	
 	public static Long Get_Day_Events_Duration(rs.android.Db db, java.sql.Date day, Long event_type)
 	{
 		Long[] ids;
@@ -192,7 +122,7 @@ public class Work_Event
         "from work_event " +
         "where start_date>? " +
 				"order by start_date asc";
-      res = (java.sql.Date)db.Select_Value(sql, java.sql.Date.class, this.start_date);
+      res = (java.sql.Date)db.Select_Value(java.sql.Date.class, sql, this.start_date);
 			if (res == null)
 			{
 				now = rs.android.Util.Now();
@@ -204,6 +134,16 @@ public class Work_Event
     return res;
   }
 
+	public double Get_Event_Duration_Min(rs.android.Db db)
+	{
+		return (double)Get_Event_Duration(db)/(double)1000/(double)60;
+	}
+	
+	public double Get_Event_Duration_Hr(rs.android.Db db)
+	{
+		return Get_Event_Duration_Min(db)/(double)60;
+	}
+	
   public long Get_Event_Duration(rs.android.Db db)
   {
     long res=0;
@@ -224,7 +164,7 @@ public class Work_Event
 		boolean res=false;
 
 		sql = "select id from work_event order by start_date desc";
-		id = (Long)db.Select_Value(sql, Long.class);
+		id = (Long)db.Select_Value(Long.class, sql);
 		if (id != null && db.Delete("work_event", "id=?", id) > 0)
 			res = true;
 		return res;
@@ -258,6 +198,17 @@ public class Work_Event
 		return res;
 	}
 
+	public static Long[] Select_Ids(rs.android.Db db)
+	{
+    Long[] res=null;
+		String sql;
+
+		sql = "select id from work_event order by start_date desc";
+		if (db != null)
+		  res = (Long[])db.Select_Column(Long.class, sql);
+		return res;
+	}
+	
 	public static Long Select_Prev_Event_Id(rs.android.Db db, java.sql.Date date)
 	{
 		Long res=null;
@@ -266,11 +217,24 @@ public class Work_Event
 		if (rs.android.Util.NotEmpty(db))
 		{
 			sql = "select id from work_event where start_date<? order by start_date desc";
-			res = (Long)db.Select_Value(sql, Long.class, date);
+			res = (Long)db.Select_Value(Long.class, sql, date);
 		}
 		return res;
 	}
 
+	public static Long Select_Next_Event_Id(rs.android.Db db, java.sql.Date date)
+	{
+		Long res=null;
+		String sql;
+
+		if (rs.android.Util.NotEmpty(db))
+		{
+			sql = "select id from work_event where start_date>? order by start_date asc";
+			res = (Long)db.Select_Value(Long.class, sql, date);
+		}
+		return res;
+	}
+	
 	public static Work_Event Select_Prev_Event(rs.android.Db db, java.sql.Date date)
 	{
 		Long id;
@@ -282,5 +246,20 @@ public class Work_Event
 			res = (Work_Event)db.SelectObj(Work_Event.class, id);
 		}
 		return res;
+	}
+	
+	public Integer Get_Colour(rs.android.Db db)
+	{
+		Integer res;
+		
+		res = rs.workbuddy.db.Event_Type.Get_Colour(db, this.event_type_id);
+		if (res==null)
+			res=0xffffffff;
+		return res;
+	}
+	
+	public String Get_Type_Name(rs.android.Db db)
+	{
+		return rs.workbuddy.db.Event_Type.Get_Name(db, this.event_type_id);
 	}
 }

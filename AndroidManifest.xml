@@ -34,6 +34,10 @@
 			android:name=".Event_Add">
 		</activity>
 		<activity
+			android:label="Work Buddy - View Activity"
+			android:name=".Event_View">
+		</activity>
+		<activity
 			android:label="Work Buddy - Timesheet"
 			android:name=".Report_Timesheet">
 		</activity>
@@ -49,25 +53,6 @@
 			android:label="Work Buddy - Edit Project"
 			android:name=".Project_Add">
 		</activity>
-		<activity
-			android:label="Work Buddy - Widget Config"
-			android:name=".App_Widget_Config">
-			<intent-filter >
-				<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-			</intent-filter>
-		</activity>
-
-		<receiver android:name=".App_Widget" android:label="Work Buddy - Widget">
-			<intent-filter>
-				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-			</intent-filter>
-			<intent-filter>
-				<action android:name="rs.workbuddy.App_Widget.BUTTON_CLICKED" />
-			</intent-filter>
-			<meta-data
-				android:name="android.appwidget.provider"
-				android:resource="@xml/widget_settings" />
-		</receiver>
 
 	</application>
 

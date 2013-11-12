@@ -4,8 +4,6 @@ public class Workbuddy_Activity_Add
 extends 
 rs.workbuddy.Workbuddy_Activity
 {
-	public static final int MENUITEM_DONE=20;
-
 	public android.view.MenuItem done_menu;
 	public android.widget.LinearLayout main_view;
 	public boolean finish;
@@ -31,16 +29,20 @@ rs.workbuddy.Workbuddy_Activity
 		}
   }
 
+  @Override
+	public boolean onCreateOptionsMenu(android.view.Menu menu) 
+	{
+		super.onCreateOptionsMenu(menu);
+		menu.findItem(Menus.MENUITEM_DONE).setVisible(true);
+		return true;
+	}
+	
 	@Override
-  public boolean onCreateOptionsMenu(android.view.Menu menu) 
-  {
-		boolean res=false;
-
-		res = super.onCreateOptionsMenu(menu);
-		this.done_menu = this.options_menu.add(1, MENUITEM_DONE, android.view.Menu.NONE, "Done");
-		this.done_menu.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-		return res;
+	public void On_Done()
+	{
+		On_Save_Obj();
+		if (this.finish)
+			this.finish();
 	}
 
 	public static String Get_Text(android.widget.EditText v)
@@ -76,32 +78,6 @@ rs.workbuddy.Workbuddy_Activity
 		row.addView(widget);
 
 		main_view.addView(row);
-	}
-
-	@Override
-  public boolean onOptionsItemSelected(android.view.MenuItem item)
-  {
-    boolean res=false;
-
-		try
-		{
-			res = super.onOptionsItemSelected(item);
-			if (!res)
-			{
-				if (item.getItemId() == MENUITEM_DONE)
-				{
-					On_Save_Obj();
-					if (this.finish)
-					  this.finish();
-					res = true;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			rs.android.Util.Show_Error(this, e);
-		}
-		return res;
 	}
 
 	@Override

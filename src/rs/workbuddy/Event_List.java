@@ -5,58 +5,55 @@ extends rs.workbuddy.Workbuddy_Activity_List
 {
 	public Event_List()
 	{
-		this.has_menuitem_add = true;
 		this.has_menuitem_delete = true;
-		this.has_menuitem_edit = true;
-
-		edit_class = (java.lang.Class<android.app.Activity>)Event_Add.class;
-		add_class = (java.lang.Class<android.app.Activity>)Event_Add.class;
+		this.menuitem_edit_class = Event_Add.class;
+		this.menuitem_view_class = Event_View.class;
+		this.menuitem_add_class = Event_Add.class;
 	}
 
 	@Override
 	public void On_Build_Header_Row(android.widget.TableRow row)
 	{
-		Add_Header_Cell(row, "Start");
-		Add_Header_Cell(row, "Activity");
-		Add_Header_Cell(row, "Duration");
+		row.addView(New_Header_Cell("Date"));
+		row.addView(New_Header_Cell("Time"));
+		row.addView(New_Header_Cell("Activity"));
+		row.addView(New_Header_Cell("Hrs"));
+		row.addView(New_Header_Cell("Mins"));
+		row.addView(New_Header_Cell("Project"));
 	}
 
 	@Override
-	public long Get_Obj_Id(Object obj)
+	public void On_Build_Row(Long id, android.widget.TableRow row)
 	{
+		String event_date, event_duration;
+		double dur_hr, dur_min;
 		Work_Event event;
 
-		event = (Work_Event)obj;
-		return event.id;
+		event = Work_Event.Select(this.db, id);
+
+		event_date = rs.android.Util.To_String(event.start_date, "n/a", "EEE dd/MM/yyyy");
+		row.addView(New_Cell(event_date));
+		
+		event_date=rs.android.Util.To_String(event.start_date, "n/a", "h:mm a");
+		row.addView(New_Cell(event_date));
+
+		row.addView(New_Cell(event.Get_Type_Name(this.db)));
+
+		dur_hr = event.Get_Event_Duration_Hr(this.db);
+		dur_min=event.Get_Event_Duration_Min(this.db);
+		event_duration = rs.android.Util.To_String(dur_hr, null, "#,##0.##");
+		row.addView(New_Cell(event_duration));
+		
+		event_duration=rs.android.Util.To_String(dur_min, null, "#,##0.##");
+		row.addView(New_Cell(event_duration));
+		
+		row.addView(New_Cell(event.Get_Project_Name(this.db)));
 	}
 
 	@Override
-	public void On_Build_Row(Object obj, android.widget.TableRow row)
+	public Long[] On_Get_List()
 	{
-		String event_start_date, event_duration;
-		long duration;
-		Work_Event event;
-
-		event = (Work_Event)obj;
-
-		event_start_date = rs.android.Util.To_String(event.start_date, "n/a", "EEE dd/MM/yyyy h:mm a");
-		Add_Cell(row, event_start_date);
-
-		Add_Cell(row, event.Get_Event_Description());
-
-		duration = event.Get_Event_Duration(this.db);
-		event_duration =
-			rs.android.Util.To_String((double)duration / (double)1000 / (double)60 / (double)60, null, "#,##0.##") + "hr " +
-			"(" + rs.android.Util.To_String((double)duration / (double)1000 / (double)60, null, "#,##0.##") + "min)";
-		Add_Cell(row, event_duration);
-	}
-
-	@Override
-	public java.util.List<Object> On_Get_List()
-	{
-		if (this.db == null)
-			rs.android.Util.Show_Note(this, "no db!");
-    return (java.util.List<Object>)Work_Event.Select_All(this.db);
+    return Work_Event.Select_Ids(this.db);
 	}
 
 	@Override
@@ -65,7 +62,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		Work_Event.Delete(this.db, id);
 	}
 
-	@Override
+	/*@Override
 	public void Set_Row_Border(int c)
 	{
 		rs.workbuddy.Border_Drawable border;
@@ -102,5 +99,5 @@ extends rs.workbuddy.Workbuddy_Activity_List
 				row.setBackgroundDrawable(border);
 			}
 		}
-	}
+	}*/
 }

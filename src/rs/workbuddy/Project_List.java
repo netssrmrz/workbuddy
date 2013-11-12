@@ -3,44 +3,53 @@ package rs.workbuddy;
 public class Project_List
 extends rs.workbuddy.Workbuddy_Activity_List
 {
+  public String ct="rs.workbuddy.Workbuddy_Activity_List";
+	
 	public Project_List()
 	{
-		this.has_menuitem_add=true;
 		this.has_menuitem_delete=true;
-		this.has_menuitem_edit=true;
-
-		edit_class=(java.lang.Class<android.app.Activity>)Project_Add.class;
-		add_class=(java.lang.Class<android.app.Activity>)Project_Add.class;
+		
+		menuitem_edit_class=Project_Add.class;
+		menuitem_add_class=Project_Add.class;
 	}
 
 	@Override
 	public void On_Build_Header_Row(android.widget.TableRow row)
 	{
-		Add_Header_Cell(row, "Name");
-		Add_Header_Cell(row, "Rate");
+		row.addView(New_Header_Cell("Name"));
+		row.addView(New_Header_Cell("Status"));
+		row.addView(New_Header_Cell("Parents"));
 	}
 
 	@Override
-	public long Get_Obj_Id(Object obj)
-	{
-		return ((Project)obj).id;
-	}
-
-	@Override
-	public void On_Build_Row(Object obj, android.widget.TableRow row)
+	public void On_Build_Row(Long id, android.widget.TableRow row)
 	{
 		Project p;
+	
+		p=Project.Select(this.db, id);
 
-		p=(Project)obj;
-
-		Add_Cell(row, p.name);
-		Add_Cell(row, rs.android.Util.To_String(p.rate, null, "#,##0.00"));
+		row.addView(New_Cell(p.name));
+		row.addView(New_Cell(rs.android.Util.To_String(p.Get_Status_Name(this.db), "n/a")));
+		row.addView(New_Cell(Build_Path(this.db, p.parent_id)));
+	}
+	
+	public String Build_Path(rs.android.Db db, Long id)
+	{
+		String res=null;
+		Project p;
+		
+		if (id!=null)
+		{
+			p=Project.Select(db, id);
+			res=rs.android.Util.AppendStr(Build_Path(db, p.parent_id), p.name, " / ");
+		}
+		return res;
 	}
 
 	@Override
-	public java.util.List<Object> On_Get_List()
+	public Long[] On_Get_List()
 	{
-    return (java.util.List<Object>)Project.Select_All(this.db);
+    return Project.Select_Ids(this.db);
 	}
 
 	@Override

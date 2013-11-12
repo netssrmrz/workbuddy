@@ -109,4 +109,15 @@ public class Util
 		  label.setWidth(width);
 		return label;
 	}
+	
+	public static void Add_Views(android.view.ViewGroup layout, android.view.View[] views)
+	{
+		if (rs.android.Util.NotEmpty(views) && layout!=null)
+		{
+			for (android.view.View v: views)
+			{
+				layout.addView(v);
+			}
+		}
+	}
 }
