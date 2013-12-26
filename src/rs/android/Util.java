@@ -12,7 +12,24 @@ public class Util
   
   public static final int ROUND_DATE_DAY=1;
 	public static final long MILLIS_PER_DAY=1000*60*60*24;
-
+	
+	public static void Dump_Dir(java.io.File dir)
+	{
+		String[] filenames;
+		
+		if (dir!=null && dir.isDirectory())
+		{
+		  filenames=dir.list();
+		  if (NotEmpty(filenames))
+		  {
+			  for (String filename: filenames)
+				{
+					android.util.Log.d("Dump_Dir", filename);
+				}
+		  }
+		}
+	}
+	
 	public static Class<?> Class_For_Name(String name)
 	{
 		Class<?> res=null;

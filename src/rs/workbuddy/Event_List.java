@@ -3,101 +3,231 @@ package rs.workbuddy;
 public class Event_List 
 extends rs.workbuddy.Workbuddy_Activity_List
 {
+	/*public static final int SORT_DATE=1;
+	public static final int SORT_DURATION=2;
+	public static final int SORT_ACTIVITY=3;
+	public static final int SORT_PROJECT=4;*/
+	
+	public java.text.SimpleDateFormat date_formatter, time_formatter, short_time_formatter;
+	public java.text.DecimalFormat num_formatter;
+	public java.sql.Date week_of, max_day, min_day;
+		
 	public Event_List()
 	{
+		this.date_formatter=new java.text.SimpleDateFormat("EEE dd/MM/yyyy");
+		this.short_time_formatter=new java.text.SimpleDateFormat("h:mm a");	
+		this.time_formatter=new java.text.SimpleDateFormat("h:mm:ss a");
+		this.num_formatter=new java.text.DecimalFormat("#,##0.##");
+		
+		/*this.Add_Sort(SORT_DATE, "Date & Time");
+		this.Add_Sort(SORT_DURATION, "Duration");
+		this.Add_Sort(SORT_ACTIVITY, "Activity Type");
+		this.Add_Sort(SORT_PROJECT, "Project");*/
+		
+		this.has_paging=true;
 		this.has_menuitem_delete = true;
 		this.menuitem_edit_class = Event_Add.class;
 		this.menuitem_view_class = Event_View.class;
 		this.menuitem_add_class = Event_Add.class;
+
+		this.Add_Column("date", "Date");
+		this.Add_Column("time", "Time");
+		this.Add_Column("full_time", "Full Time");
+		this.Add_Column("activity", "Activity");
+		this.Add_Column("hrs", "Hrs");
+		this.Add_Column("mins", "Mins");
+    this.Add_Column("project", "Project", true);
+		this.Add_Column("proj_or_note", "Project / Notes", true);
 	}
 
 	@Override
-	public void On_Build_Header_Row(android.widget.TableRow row)
+	public void onCreate(android.os.Bundle state)
 	{
-		row.addView(New_Header_Cell("Date"));
-		row.addView(New_Header_Cell("Time"));
-		row.addView(New_Header_Cell("Activity"));
-		row.addView(New_Header_Cell("Hrs"));
-		row.addView(New_Header_Cell("Mins"));
-		row.addView(New_Header_Cell("Project"));
+		super.onCreate(state);
+		
+		this.min_day=(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date asc");
+		this.max_day=(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date desc");
+    this.week_of=this.max_day;
+		this.Set_Title();
 	}
-
-	@Override
-	public void On_Build_Row(Long id, android.widget.TableRow row)
+	
+	public void Set_Title()
 	{
-		String event_date, event_duration;
+		java.sql.Date[] week_days;
+		
+		if (this.week_of==null)
+		  this.week_of = rs.android.Util.Now();
+		week_days = rs.android.Util.Week(this.week_of);
+		if (rs.android.Util.NotEmpty(week_days))
+		{
+			this.title =
+			  rs.android.Util.To_String(week_days[0], "n/a", "MMMM") + ": " + 
+			  "Week starting " + rs.android.Util.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
+		}
+	}
+	
+	/*@Override
+	public void onCreate(android.os.Bundle state)
+	{
+		super.onCreate(state);
+		android.os.Debug.startMethodTracing("workbuddy");
+	}*/
+	
+	/*@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		android.os.Debug.stopMethodTracing();
+	}*/
+	
+	@Override
+	public android.view.View On_Get_Col_View(Object obj, String col_id)
+	{
+		android.view.View res=null;
 		double dur_hr, dur_min;
 		Work_Event event;
 
-		event = Work_Event.Select(this.db, id);
+		event = (Work_Event)obj;
 
-		event_date = rs.android.Util.To_String(event.start_date, "n/a", "EEE dd/MM/yyyy");
-		row.addView(New_Cell(event_date));
-		
-		event_date=rs.android.Util.To_String(event.start_date, "n/a", "h:mm a");
-		row.addView(New_Cell(event_date));
+		if (col_id.equals("date") && event.start_date!=null)
+		  res = this.New_Cell(this.date_formatter.format(event.start_date));
 
-		row.addView(New_Cell(event.Get_Type_Name(this.db)));
+		else if (col_id.equals("time") && event.start_date!=null)
+		  res = this.New_Cell(this.short_time_formatter.format(event.start_date));
 
-		dur_hr = event.Get_Event_Duration_Hr(this.db);
-		dur_min=event.Get_Event_Duration_Min(this.db);
-		event_duration = rs.android.Util.To_String(dur_hr, null, "#,##0.##");
-		row.addView(New_Cell(event_duration));
-		
-		event_duration=rs.android.Util.To_String(dur_min, null, "#,##0.##");
-		row.addView(New_Cell(event_duration));
-		
-		row.addView(New_Cell(event.Get_Project_Name(this.db)));
+		else if (col_id.equals("full_time") && event.start_date!=null)
+		  res = this.New_Cell(this.time_formatter.format(event.start_date));
+
+		else if (col_id.equals("activity"))
+		  res = this.New_Cell(event.Get_Type_Name(this.db));
+
+		else if (col_id.equals("hrs"))
+		{
+			dur_hr = event.Get_Event_Duration_Hr(this.db);
+			res = this.New_Cell(this.num_formatter.format(dur_hr));
+		}
+
+		else if (col_id.equals("mins"))
+		{
+			dur_min = event.Get_Event_Duration_Min(this.db);
+			res = this.New_Cell(this.num_formatter.format(dur_min));
+		}
+
+		else if (col_id.equals("project"))
+		  res=this.New_Cell(event.Get_Project_Name(this.db));
+			
+		else if (col_id.equals("proj_or_note"))
+		{
+			res=this.New_Cell_Lines(event.Get_Project_Name(this.db), event.notes);
+		}
+
+		return res;
+	}
+
+	@Override
+	public Object On_Get_Obj(Long id)
+	{
+		return Work_Event.Select(this.db, id);
 	}
 
 	@Override
 	public Long[] On_Get_List()
 	{
-    return Work_Event.Select_Ids(this.db);
+		Long[] res=null;
+		java.sql.Date week[];
+		String order_by=null;
+		//int active_sort;
+
+		/*active_sort=rs.android.ui.Sort_Option.Load(this);
+		if (active_sort!=0)
+		{
+			if (active_sort==SORT_DATE)
+				order_by="start_date asc";
+
+			else if (active_sort==SORT_DURATION)
+				order_by="status_type_id asc";
+
+			else if (active_sort==SORT_ACTIVITY)
+				order_by="parent_id asc";
+				
+		  SORT_PROJECT
+		}*/
+		
+		week=rs.android.Util.Week(this.week_of);
+    res = Work_Event.Select_Timespan_Events(this.db, week[0], rs.android.Util.Add_Days(week[6], 1), null, null, order_by);
+		return res;
 	}
 
 	@Override
-	public void On_Delete(Long id)
+	public void On_Delete()
 	{
-		Work_Event.Delete(this.db, id);
+		if (rs.android.Util.NotEmpty(this.selected))
+		{
+			for (Long id: this.selected)
+			{
+				Work_Event.Delete(this.db, id);
+			}
+			this.refresh_data = true;
+			this.Update_UI();
+		}
 	}
 
-	/*@Override
-	public void Set_Row_Border(int c)
+	@Override
+	public void On_Update_Row(int c)
 	{
 		rs.workbuddy.Border_Drawable border;
-		Long event_id;
+		Long id;
 		android.view.View row;
 		Work_Event event, next_event=null;
 
-		row = this.table_layout.getChildAt(c);
-		event_id = (long)row.getId();
-		event = (Work_Event)row.getTag();
-		if (event != null)
+		id = this.Get_Row_Id(c);
+		if (id != null)
 		{
+			event = rs.workbuddy.Work_Event.Select(this.db, id);
 			if (c < this.table_layout.getChildCount() - 1)
-				next_event = (Work_Event)this.table_layout.getChildAt(c + 1).getTag();
-
-			if (this.selected.contains(event_id))
 			{
-				row.setBackgroundColor(0xff004400);				
+				id = this.Get_Row_Id(c + 1);
+				next_event = rs.workbuddy.Work_Event.Select(this.db, id);
 			}
-			else
+
+			if (next_event != null && rs.android.Util.Date_Get_Day_Of_Week(next_event.start_date) != rs.android.Util.Date_Get_Day_Of_Week(event.start_date))
 			{
 				border = new rs.workbuddy.Border_Drawable();
 				border.top = false;
 				border.right = false;
 				border.left = false;
+				border.bottom_paint.setColor(0xff44bb44);
 
-				if (next_event != null && rs.android.Util.Date_Get_Day_Of_Week(next_event.start_date) != rs.android.Util.Date_Get_Day_Of_Week(event.start_date))
-				{
-					border.bottom_paint.setColor(0xff44bb44);
-				}
-				else
-					border.bottom_paint.setColor(0xff444444);
-
+				row = this.table_layout.getChildAt(c);
 				row.setBackgroundDrawable(border);
 			}
 		}
-	}*/
+	}
+
+	@Override
+	public void On_Next()
+	{
+	  this.Set_Page(7);
+	}
+
+	@Override
+	public void On_Prev()
+	{
+		this.Set_Page(-7);
+	}
+	
+	public void Set_Page(int date_diff)
+	{
+		java.sql.Date next_week;
+
+		next_week = rs.android.Util.Add_Days(this.week_of, date_diff);
+		if ((date_diff>0 && !next_week.after(this.max_day)) || 
+		  (date_diff<0 && !next_week.before(this.min_day)))
+		{
+			this.week_of=next_week;
+			this.Set_Title();
+		  this.refresh_data = true;
+		  this.Update_UI();
+		}
+	}
 }

@@ -109,54 +109,16 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		}
   }
 
-	/*public android.widget.Button Create_Button(String text, Integer colour)
-	 {
-	 android.widget.Button res=null;
-
-	 this.db.Log("rs.workbuddy.Main_Activity.Create_Button()");
-	 res = new android.widget.Button(this);
-	 res.setText(text);
-	 res.setOnClickListener(this);
-	 res.setOnLongClickListener(this);
-	 res.setTextSize(20);
-	 if (colour != null)
-	 Set_Button_Colour(res, colour);
-	 return res;
-	 }
-
-	 public android.widget.Button[] Create_Project_Buttons(rs.android.Db db)
-	 {
-	 android.widget.Button[] res=null;
-	 java.util.List<Project> projects;
-	 int c;
-	 Project project;
-
-	 this.db.Log("rs.workbuddy.Main_Activity.Create_Project()");
-	 projects = Project.Select_All(db);
-	 if (rs.android.Util.NotEmpty(projects))
-	 {
-	 res = new android.widget.Button[projects.size()];
-	 for (c = 0; c < projects.size(); c++)
-	 {
-	 project = projects.get(c);
-	 res[c] = Create_Button("Work on " + project.name, 0xbbff0000);
-	 res[c].setTextSize(12);
-	 res[c].setTag(project.id);
-	 }
-	 }
-
-	 return res;
-	 }*/
-
   public void onClick(android.view.View v)
   {
 		Long rounding=null;
 		Work_Event event;
 
-		//this.db.Log("rs.workbuddy.Main_Activity.onClick()");
+		android.util.Log.d("workbuddy", "onClick()");
+		
 		event = (Work_Event)v.getTag();
 		
-		//rounding = rs.workbuddy.Settings_Activity.Get_Rounding(this);
+		rounding = rs.workbuddy.Settings_Activity.Get_Rounding(this);
 
 		event.id=null;
 		event.notes=null;
@@ -202,7 +164,6 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		double hrs, mins;
 		Work_Event we;
 
-		//this.db.Log("rs.workbuddy.Main_Activity.Get_Event_Text()");
 		label_str = "No Activities.";
 
 		we = Work_Event.Select_Prev_Event(db, date);
@@ -228,34 +189,6 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		return label_str;
 	}
 
-  /*public void Layout_Work_Buttons(android.widget.Button[] buttons)
-	 {
-	 android.widget.LinearLayout row=null;
-	 int rows=0, num_layouts, l, b;
-	 float layout_weight;
-
-	 this.db.Log("rs.workbuddy.Main_Activity.Layout_Work_Buttons()");
-	 if (rs.android.Util.NotEmpty(buttons))
-	 {
-	 num_layouts = (int)java.lang.Math.ceil((double)buttons.length / (double)4);
-	 layout_weight = 5 / (num_layouts + 1);
-
-	 this.main_layout.addView(this.bottom_layout, new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, layout_weight));
-
-	 for (l = 0; l < num_layouts; l++)
-	 {
-	 row = new android.widget.LinearLayout(this);
-	 row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-	 for (b = 0; b < 4 && rows * 4 + b < buttons.length; b++)
-	 {
-	 row.addView(buttons[rows * 4 + b], new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
-	 }
-	 rows++;
-	 this.main_layout.addView(row, new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, layout_weight));
-	 }
-	 }
-	 }*/
-
 	public android.widget.Button New_Project_Button(rs.android.Db db, Long project_id, Long event_type_id)
 	{
 		android.widget.Button res=null;
@@ -268,6 +201,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		event.project_id=project_id;
 		
 		res.setText(res.getText() + ": " + rs.workbuddy.Project.Get_Project_Name(db, project_id));
+		res.setTextSize(15);
 		
 		return res;
 	}
@@ -361,6 +295,36 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		return res;
 	}
 
+	public void Do_Stuff()
+	{
+		rs.workbuddy.db.Status_Type s;
+		
+		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+		  "select * from status_type where name='Pending'");
+		s.colour=0xffffff00;
+		this.db.Save(s);
+		
+		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+		  "select * from status_type where name='In Progress'");
+		s.colour=0xff00ff00;
+		this.db.Save(s);
+		
+		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+		  "select * from status_type where name='Completed'");
+		s.colour=0xffff0000;
+		this.db.Save(s);
+		
+		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+		  "select * from status_type where name='On Hold'");
+		s.colour=0xffffff00;
+		this.db.Save(s);
+		
+		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+		  "select * from status_type where name='Cancelled'");
+		s.colour=0xffff0000;
+		this.db.Save(s);
+	}
+	
 	@Override
 	public void On_Update_UI()
 	{
@@ -370,6 +334,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		int c;
 		rs.android.ui.Bar b;
 
+		//this.Do_Stuff();
 		//this.db.Log("rs.workbuddy.Main_Activity.On_Update_UI()");
 		now = rs.android.Util.Now();
 
@@ -393,7 +358,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		b = New_Bar(Work_Event.Select_Prev_Event_Id(this.db, rs.android.Util.Today()));
 		this.clock.Add_Bar(b);
 
-		ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, now, null);
+		ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, now, null, null);
 		if (rs.android.Util.NotEmpty(ids))
 		{
 			for (c = 0; c < ids.length; c++)

@@ -18,6 +18,7 @@ rs.workbuddy.Workbuddy_Activity_Add
 		this.Add_Field("Name", name_text);
 
 		parent_spinner = new rs.workbuddy.Project_Spinner(this, this.db);
+		((Project_Adapter)this.parent_spinner.getAdapter()).view_text_size=20;
 		this.Add_Field("Parent", parent_spinner);
 		
 		status_spinner=new rs.workbuddy.Project_Status_Spinner(this, this.db);
@@ -39,7 +40,7 @@ rs.workbuddy.Workbuddy_Activity_Add
 		if (rs.android.Util.NotEmpty(project.name))
 			this.name_text.setText(project.name);
 
-		this.parent_spinner.Set_Selection(project.parent_id);
+		this.parent_spinner.Set_Selection(this.db, project.parent_id);
 		
 		this.status_spinner.Set_Selection(project.status_type_id);
 	}

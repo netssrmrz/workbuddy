@@ -22,6 +22,11 @@ public class Zip_Entry
 		{}
 	}
 
+	public static void Write_Zip_Entry(java.util.zip.ZipOutputStream zip, Zip_Entry entry)
+	{
+		Write_Zip_Entry(zip, entry.data, entry.entry.getName());
+	}
+	
 	public static Zip_Entry Read_Zip_Entry(java.util.zip.ZipInputStream zip)
 	{
 		Zip_Entry res=null;

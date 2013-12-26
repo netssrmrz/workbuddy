@@ -11,6 +11,7 @@ public class Menus
 	public static final int MENUITEM_TIMESHEET_SEND=52;
 	public static final int MENUITEM_SETTINGS=60;
 
+	public static final int MENUITEM_FILTER_PROJ=12;
 	public static final int MENUITEM_NEXT=2;
 	public static final int MENUITEM_PREV=1;
 	public static final int MENUITEM_ADD=3;
@@ -66,6 +67,16 @@ public class Menus
 		item = menu.add(1, MENUITEM_DONE, MENUITEM_DONE, "Done");
 		item.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
 		item.setVisible(false);
+		
+		item = menu.add(1, MENUITEM_COLS, MENUITEM_COLS, "Edit Columns");
+		item.setVisible(false);
+		
+		item = menu.add(1, MENUITEM_SORT, MENUITEM_SORT, "Sort");
+		item.setVisible(false);
+		
+		item = menu.add(1, MENUITEM_FILTER_PROJ, MENUITEM_FILTER_PROJ, "Project");
+		item.setVisible(false);
+		item.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
 	}
 
 	public static boolean Options_Item_Selected(android.view.MenuItem item, android.content.Context ctx)

@@ -45,7 +45,7 @@ extends android.graphics.drawable.Drawable
 		this.bk_paint.setColor(0xff000000);
 		this.bk_paint.setStyle(android.graphics.Paint.Style.FILL);
 		
-		this.gap=20;
+		this.gap=0;
 	}
 
 	@Override
@@ -71,8 +71,8 @@ extends android.graphics.drawable.Drawable
 				this.right_paint);
 		if (this.bottom)
 			c.drawLine(
-				this.bounds_rect.right-this.gap, this.bounds_rect.bottom-1,
-				this.bounds_rect.left+this.gap, this.bounds_rect.bottom-1,
+				this.bounds_rect.right, this.bounds_rect.bottom-1,
+				this.bounds_rect.left, this.bounds_rect.bottom-1,
 				this.bottom_paint);
 		if (this.left)
 			c.drawLine(
@@ -95,6 +95,11 @@ extends android.graphics.drawable.Drawable
 	{
 		// TODO: Implement this method
 		return 0;
+	}
+	
+	public static void Add_Border(android.view.View v, int colour)
+	{
+		Add_Border(v, 1, 1, 1, 1, colour);
 	}
 	
 	public static void Add_Border(
@@ -147,7 +152,7 @@ extends android.graphics.drawable.Drawable
 	
 	public void Set_Color(int c)
 	{
-		this.bottom_paint.setColor(c);
+		this.top_paint.setColor(c);
 		this.right_paint.setColor(c);
 		this.bottom_paint.setColor(c);
 		this.left_paint.setColor(c);

@@ -8,8 +8,9 @@ implements android.widget.SpinnerAdapter
   public static final long ID_NA=-1;
   public Long[] ids;
 	public String[] items;
+	public Float text_size;
 
-  public Db_Adapter(rs.android.Db db, String sql, Object ... params)
+  public Db_Adapter(rs.android.Db db, String na_label, String sql, Object ... params)
 	{
 		android.database.Cursor query_res;
 		java.util.ArrayList<Object> items;
@@ -22,8 +23,13 @@ implements android.widget.SpinnerAdapter
 		{
 			ids = new java.util.ArrayList<Long>();
 			items = new java.util.ArrayList<Object>();
+			
 			ids.add(ID_NA);
-			items.add("n/a");
+			if (rs.android.Util.NotEmpty(na_label))
+				items.add(na_label);
+			else
+			  items.add("n/a");
+			
 			while (query_res.moveToNext())
 			{
 				id = query_res.getLong(0);
@@ -106,6 +112,8 @@ implements android.widget.SpinnerAdapter
 		android.widget.TextView res=null;
 
 		res = rs.android.ui.Util.New_Label(p.getContext(), items[i], null);
+		if (this.text_size!=null)
+		  res.setTextSize(this.text_size);
 		return res;
 	}
 
@@ -140,6 +148,8 @@ implements android.widget.SpinnerAdapter
 			res.getPaddingRight() + 10,
 			res.getPaddingBottom() + 15
 		);
+		if (this.text_size!=null)
+		  res.setTextSize(this.text_size-2);
 		return res;
 	}
 }

@@ -11,12 +11,12 @@ extends rs.android.Db
 
     this.context=context;
     this.db_name="WorkBuddyDb";
-    this.db_version=22;
+    this.db_version=23;
     this.tables = new Table[6];
 		
 		t=new Table();
 		t.name="Work_Event";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_ALTER;
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_NONE;
 		t.create_sql=
 		  "CREATE TABLE Work_Event (" +
 				"id INTEGER PRIMARY KEY, " +
@@ -29,7 +29,7 @@ extends rs.android.Db
 		
 		t=new Table();
 		t.name="Project";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_ALTER;
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_NONE;
 		t.create_sql=
 		  "CREATE TABLE Project (" +
 			"id INTEGER PRIMARY KEY, " +
@@ -41,12 +41,13 @@ extends rs.android.Db
 		
 		t=new Table();
 		t.name="Status_Type";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_CREATE;
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_ALTER;
 		t.create_sql=
 		  "CREATE TABLE Status_Type ("+
 			"id INTEGER PRIMARY KEY, "+
 			"name TEXT, "+
-			"display_home INTEGER)";
+			"display_home INTEGER, "+
+			"colour INTEGER)";
 		t.init_sqls=new String[5];
     t.init_sqls[0]="insert into Status_Type (name, display_home) values ('Pending', 0)";
     t.init_sqls[1]="insert into Status_Type (name, display_home) values ('In Progress', 1)";
@@ -57,7 +58,7 @@ extends rs.android.Db
 		
 		t=new Table();
 		t.name="Event_Type";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_CREATE;
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_NONE;
 		t.create_sql=
 		  "CREATE TABLE Event_Type ("+
 			"id INTEGER PRIMARY KEY, "+
@@ -65,9 +66,9 @@ extends rs.android.Db
 			"name TEXT, "+
 			"colour INTEGER)";
 		t.init_sqls=new String[3];
-    t.init_sqls[0]="insert into Event_Type (name, display_home_projects, colour) values ('Work', 1, 4294901760)";
-    t.init_sqls[1]="insert into Event_Type (name, display_home_projects, colour) values ('Break', 0, 4294967040)";
-    t.init_sqls[2]="insert into Event_Type (name, display_home_projects, colour) values ('Home', 0, 4278255360)";
+    t.init_sqls[0]="insert into Event_Type (name, display_home_projects, colour, template_id) values ('Work', 1, 4294901760)";
+    t.init_sqls[1]="insert into Event_Type (name, display_home_projects, colour, template_id) values ('Break', 0, 4294967040)";
+    t.init_sqls[2]="insert into Event_Type (name, display_home_projects, colour, temppate_id) values ('Home', 0, 4278255360)";
 		this.tables[3]=t;
 
 		// dropped tables ===========================================================

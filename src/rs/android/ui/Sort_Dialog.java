@@ -3,24 +3,17 @@ package rs.android.ui;
 public class Sort_Dialog
 implements 
 android.content.DialogInterface.OnClickListener
-//android.app.DatePickerDialog.OnDateSetListener
 {
-  public class Option
-	{
-		public int id;
-		public String label;
-	}
-	
 	public interface On_Sort_Set_Listener
 	{
-		public void On_Sort_Set(Option which);
+		public void On_Sort_Set(Sort_Option which);
 	}
 
 	public android.content.Context ctx;
 	public boolean dlg_ok;
 	public On_Sort_Set_Listener on_sort_set_listener;
-	public java.util.ArrayList<Option> options;
-	public Option selected;
+	public java.util.ArrayList<Sort_Option> options;
+	public Sort_Option selected;
 
 	public Sort_Dialog(android.content.Context ctx, On_Sort_Set_Listener listener)
 	{
@@ -31,12 +24,12 @@ android.content.DialogInterface.OnClickListener
 
 	public void Add(int id, String label)
 	{
-		Option option;
+		Sort_Option option;
 		
 		if (this.options==null)
-			this.options=new java.util.ArrayList<Option>();
+			this.options=new java.util.ArrayList<Sort_Option>();
 			
-		option=new Option();
+		option=new Sort_Option();
 		option.id=id;
 		option.label=label;
 		this.options.add(option);

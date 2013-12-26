@@ -722,7 +722,6 @@ public class Db
     Object id;
 		boolean res=false;
 
-		this.Log("rs.android.Db.Save(Object)");
     if (obj != null)
     {
       if (obj instanceof java.util.List<?>)

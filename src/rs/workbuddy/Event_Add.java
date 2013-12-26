@@ -28,6 +28,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 		this.Add_Field("Start Time", start_time_button);
 
 		this.project_spinner=new Project_Spinner(this, this.db);
+		((Project_Adapter)this.project_spinner.getAdapter()).view_text_size=20;
 		this.Add_Field("Project", project_spinner);
 
 		// event notes
@@ -44,7 +45,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 
 		this.start_time_button.Set_Time(this.event.start_date);
 
-		this.project_spinner.Set_Selection(this.event.project_id);
+		this.project_spinner.Set_Selection(this.db, this.event.project_id);
 
     this.notes_text.setText(null);
 		if (rs.android.Util.NotEmpty(this.event.notes))

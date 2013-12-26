@@ -8,7 +8,7 @@ extends rs.android.ui.Db_Spinner
 		super(ctx);
 		rs.android.ui.Db_Adapter types;
 		
-		types=new rs.android.ui.Db_Adapter(db, "select id, name from Event_Type order by name asc");
+		types=new rs.android.ui.Db_Adapter(db, null, "select id, name from Event_Type order by name asc");
 		this.setAdapter(types);
 	}
 }
