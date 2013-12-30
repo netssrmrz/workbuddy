@@ -31,8 +31,11 @@ public class Event_Type
 		Long[] res=null;
 		String sql;
 		
-		sql="select id from Event_Type order by name asc";
-		res=(Long[])db.Select_Column(Long.class, sql);
+		if (db!=null)
+		{
+		  sql="select id from Event_Type order by name asc";
+		  res=(Long[])db.Select_Column(Long.class, sql);
+		}
 		return res;
 	}
 

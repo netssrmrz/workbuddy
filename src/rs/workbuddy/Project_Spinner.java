@@ -74,4 +74,9 @@ android.view.View.OnClickListener
 			this.onDetachedFromWindow();
 		}
 	}
+	
+	public Project_Adapter Get_Adapter()
+	{
+		return (Project_Adapter)this.getAdapter();
+	}
 }

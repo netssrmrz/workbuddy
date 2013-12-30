@@ -112,17 +112,23 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
   public void onClick(android.view.View v)
   {
 		Long rounding=null;
-		Work_Event event;
+		Work_Event event, prev_event;
+		rs.workbuddy.db.Event_Type event_type;
 
-		android.util.Log.d("workbuddy", "onClick()");
-		
-		event = (Work_Event)v.getTag();
-		
+		//android.util.Log.d("workbuddy", "onClick()");
 		rounding = rs.workbuddy.Settings_Activity.Get_Rounding(this);
 
-		event.id=null;
-		event.notes=null;
+		event = (Work_Event)v.getTag();
+		event.id = null;
+		event.notes = null;
 		event.start_date = rs.android.Util.Round_Date(rs.android.Util.Now(), rounding);
+		// if user selected a break event with no particular project
+		if (rs.android.Util.Equals(event.Get_Type_Name(this.db), "Break") && event.project_id == null)
+		{
+			prev_event = Work_Event.Select_Prev_Event(this.db, event.start_date);
+			if (prev_event!=null && prev_event.project_id != null)
+				event.project_id = prev_event.project_id;
+		}
 		event.Save(this.db);
 
 		this.Update_UI();
@@ -132,9 +138,9 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	{
 		boolean res=true;
 		rs.android.ui.Date_Dialog date_dlg;
-		
-		this.dlg_event=(Work_Event)v.getTag();
-		date_dlg=new rs.android.ui.Date_Dialog(this, this);
+
+		this.dlg_event = (Work_Event)v.getTag();
+		date_dlg = new rs.android.ui.Date_Dialog(this, this);
 		date_dlg.Show(null);
 		return res;
 	}
@@ -142,19 +148,19 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	public void On_Date_Set(java.sql.Date date)
 	{
 		rs.android.ui.Time_Dialog time_dlg;
-		
-		this.dlg_event.start_date=date;
-		time_dlg=new rs.android.ui.Time_Dialog(this, this);
+
+		this.dlg_event.start_date = date;
+		time_dlg = new rs.android.ui.Time_Dialog(this, this);
 		time_dlg.Show(date);
 	}
-	
+
 	public void On_Time_Set(java.sql.Date time)
 	{
-		this.dlg_event.start_date=rs.android.Util.Date_Set_Time(this.dlg_event.start_date, time);
-		this.dlg_event.id=null;
-		this.dlg_event.notes=null;
+		this.dlg_event.start_date = rs.android.Util.Date_Set_Time(this.dlg_event.start_date, time);
+		this.dlg_event.id = null;
+		this.dlg_event.notes = null;
 		this.dlg_event.Save(this.db);
-		
+
 		this.Update_UI();
 	}
 
@@ -196,13 +202,13 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 		//this.db.Log("rs.workbuddy.Main_Activity.Create_Button()");
 		res = this.New_Type_Button(db, event_type_id);
-		
-		event=(Work_Event)res.getTag();
-		event.project_id=project_id;
-		
+
+		event = (Work_Event)res.getTag();
+		event.project_id = project_id;
+
 		res.setText(res.getText() + ": " + rs.workbuddy.Project.Get_Project_Name(db, project_id));
 		res.setTextSize(15);
-		
+
 		return res;
 	}
 
@@ -212,9 +218,9 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		Work_Event event;
 
 		//this.db.Log("rs.workbuddy.Main_Activity.Create_Button()");
-		event=new Work_Event();
-		event.event_type_id=event_type_id;
-		
+		event = new Work_Event();
+		event.event_type_id = event_type_id;
+
 		res = new android.widget.Button(this);
 		res.setText(rs.workbuddy.db.Event_Type.Get_Name(db, event_type_id));
 		res.setOnClickListener(this);
@@ -242,7 +248,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 			for (c = 0; c < ids.length; c++)
 				res[c / BUTTONS_PER_ROW].addView(this.New_Type_Button(db, ids[c]), 
-																				 new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
+					new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		}
 		return res;
 	}
@@ -290,41 +296,41 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 			for (c = 0; c < ids.length; c++)
 				res[c / BUTTONS_PER_ROW].addView(this.New_Project_Button(db, ids[c], event_type_id), 
-																				 new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
+					new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		}
 		return res;
 	}
 
-	public void Do_Stuff()
-	{
-		rs.workbuddy.db.Status_Type s;
-		
-		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
-		  "select * from status_type where name='Pending'");
-		s.colour=0xffffff00;
-		this.db.Save(s);
-		
-		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
-		  "select * from status_type where name='In Progress'");
-		s.colour=0xff00ff00;
-		this.db.Save(s);
-		
-		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
-		  "select * from status_type where name='Completed'");
-		s.colour=0xffff0000;
-		this.db.Save(s);
-		
-		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
-		  "select * from status_type where name='On Hold'");
-		s.colour=0xffffff00;
-		this.db.Save(s);
-		
-		s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
-		  "select * from status_type where name='Cancelled'");
-		s.colour=0xffff0000;
-		this.db.Save(s);
-	}
-	
+	/*public void Do_Stuff()
+	 {
+	 rs.workbuddy.db.Status_Type s;
+
+	 s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+	 "select * from status_type where name='Pending'");
+	 s.colour=0xffffff00;
+	 this.db.Save(s);
+
+	 s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+	 "select * from status_type where name='In Progress'");
+	 s.colour=0xff00ff00;
+	 this.db.Save(s);
+
+	 s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+	 "select * from status_type where name='Completed'");
+	 s.colour=0xffff0000;
+	 this.db.Save(s);
+
+	 s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+	 "select * from status_type where name='On Hold'");
+	 s.colour=0xffffff00;
+	 this.db.Save(s);
+
+	 s=(rs.workbuddy.db.Status_Type)this.db.SelectObj(rs.workbuddy.db.Status_Type.class, 
+	 "select * from status_type where name='Cancelled'");
+	 s.colour=0xffff0000;
+	 this.db.Save(s);
+	 }*/
+
 	@Override
 	public void On_Update_UI()
 	{

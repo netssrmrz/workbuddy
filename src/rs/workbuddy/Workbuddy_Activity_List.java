@@ -27,11 +27,13 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	public boolean has_footer;
 	public boolean has_col_select;
 	public boolean has_paging;
+	public boolean has_tree_layout;
 	public String title;
 
 	public Workbuddy_Activity_List()
 	{
 		this.has_col_select = true;
+		this.has_tree_layout=false;
 	}
 
 	@Override
@@ -54,6 +56,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 		this.refresh_data = true;
 
+		this.On_Create_Columns();
 		if (rs.android.Util.NotEmpty(this.cols))
 			rs.android.ui.Column.Load(this, this.getClass().getName(), this.cols);
 	}
@@ -542,9 +545,27 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 	public void On_Build_Footer_Row(android.widget.TableRow row)
 	{
+		android.view.View cell_view;
+		android.widget.TableRow.LayoutParams layout;
 
+		if (rs.android.Util.NotEmpty(this.cols))
+		{
+			for (rs.android.ui.Column col: this.cols)
+			{
+				if (col.visible)
+				{
+					cell_view = this.On_Get_Col_Footer_View(col.id);
+					if (cell_view != null)
+					{
+						layout = new android.widget.TableRow.LayoutParams();
+						layout.gravity = android.view.Gravity.CENTER_VERTICAL;
+					  row.addView(cell_view, layout);
+					}
+				}
+			}
+		}
 	}
-
+	
 	public void On_Build_Row(Long id, android.widget.TableRow row)
 	{
 		Object obj;
@@ -570,7 +591,12 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			}
 		}
 	}
-
+	
+	public android.view.View On_Get_Col_Footer_View(String col_id)
+	{
+		return null;
+	}
+	
 	public android.view.View On_Get_Col_View(Object obj, String col_id)
 	{
 		return null;
@@ -623,5 +649,10 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		rs.android.ui.Sort_Option.Save(this, this.getClass().getName(), which.id);
 		this.refresh_data = true;
 		this.Update_UI();
+	}
+	
+	public void On_Create_Columns()
+	{
+		
 	}
 }

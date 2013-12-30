@@ -25,6 +25,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 	public Report_Timesheet()
 	{
+
 	}
 
 	@Override
@@ -42,6 +43,25 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		this.Set_Title();
 	}
 
+	@Override
+	public void On_Create_Columns()
+	{
+		Long[] ids;
+		String type_name;
+
+		this.Add_Column("date", "Date");
+		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
+		if (rs.android.Util.NotEmpty(ids))
+		{
+			for (Long id: ids)
+			{
+				type_name = rs.workbuddy.db.Event_Type.Get_Name(this.db, id);
+				this.Add_Column("mins_" + id, type_name + "\n(Minutes)");
+				this.Add_Column("hrs_" + id, type_name + "\n(Hours)");
+			}
+		}
+	}
+	
 	public void Set_Title()
 	{
 		java.sql.Date[] week_days;
@@ -57,101 +77,105 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		}
 	}
 
-  @Override
-	public void On_Build_Header_Row(android.widget.TableRow row)
-	{
-		Long[] ids;
-		String type_name;
-
-		row.addView(New_Header_Cell("Date"));
-		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
-		if (rs.android.Util.NotEmpty(ids))
-		{
-			for (Long id: ids)
-			{
-				type_name = rs.workbuddy.db.Event_Type.Get_Name(this.db, id);
-
-				row.addView(New_Header_Cell(type_name + "\n(Hours)"));
-				row.addView(New_Header_Cell(type_name + "\n(Minutes)"));
-			}
-		}
-	}
-
 	@Override
-	public void On_Build_Footer_Row(android.widget.TableRow row)
+	public android.view.View On_Get_Col_Footer_View(String col_id)
 	{
-		Long[] ids, week_event_ids;
-		Long total_dur;
+		Long[] week_event_ids;
+		Long total_dur, event_type_id;
 		String total_dur_str;
 		java.sql.Date week_start, week_end;
 		Double tot_dur_hr, tot_dur_min;
+		android.widget.TextView cell=null;
 
-		row.addView(New_Header_Cell(" "));
-		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
-		if (rs.android.Util.NotEmpty(ids))
+		if (col_id.equals("date"))
+		  cell = New_Header_Cell("Totals");
+
+		else if (col_id.startsWith("mins"))
 		{
 			week_start = rs.android.Util.Week_First_Day(this.week_of);
 			week_end = rs.android.Util.Add_Days(week_start, 7);
-			for (Long id: ids)
-			{
-				week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, id, this.project_id, null);
-				total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
-				if (total_dur != null)
-				{
-					tot_dur_min = (double)total_dur / (double)1000 / (double)60;
-					tot_dur_hr = tot_dur_min / (double)60;
-				}
-				else
-				{
-					tot_dur_min = null;
-				  tot_dur_hr = null;
-				}
-				total_dur_str = rs.android.Util.To_String(tot_dur_hr, "n/a", "#,##0.##");
-				row.addView(New_Header_Cell(total_dur_str));
+			event_type_id = rs.android.Util.To_Long(col_id.substring(5));
+			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
+			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
+			if (total_dur != null)
+				tot_dur_min = (double)total_dur / (double)1000 / (double)60;
+			else
+				tot_dur_min = null;
 
-				total_dur_str = rs.android.Util.To_String(tot_dur_min, "n/a", "#,##0.##");
-				row.addView(New_Header_Cell(total_dur_str));
-			}
+			total_dur_str = rs.android.Util.To_String(tot_dur_min, "n/a", "#,##0.##");
+			cell=New_Header_Cell(total_dur_str);
 		}
+		
+		else if (col_id.startsWith("hrs"))
+		{
+			week_start = rs.android.Util.Week_First_Day(this.week_of);
+			week_end = rs.android.Util.Add_Days(week_start, 7);
+			event_type_id = rs.android.Util.To_Long(col_id.substring(4));
+			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
+			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
+			if (total_dur != null)
+				tot_dur_hr = (double)total_dur / (double)1000 / (double)60 / (double)60;
+			else
+				tot_dur_hr = null;
+			
+			total_dur_str = rs.android.Util.To_String(tot_dur_hr, "n/a", "#,##0.##");
+			cell=New_Header_Cell(total_dur_str);
+		}
+		
+		return cell;
 	}
 
 	@Override
-	public void On_Build_Row(Long day, android.widget.TableRow row)
+	public android.view.View On_Get_Col_View(Object obj, String col_id)
 	{
-		Long[] ids, day_event_ids;
-		java.sql.Date date;
-		Long dur;
 		Double dur_hr, dur_min;
-		android.widget.TextView cell;
+		java.sql.Date date;
+		android.widget.TextView cell=null;
+		Long[] day_event_ids;
+		Long event_type_id, dur;
 
-		date = new java.sql.Date(day);
-		cell = New_Cell(rs.android.Util.To_String(date, "n/a", "EEEE"));
-		cell.setTextSize(18);
-		row.addView(cell);
+		date = new java.sql.Date((Long)obj);
 
-		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
-		if (rs.android.Util.NotEmpty(ids))
+		if (col_id.equals("date"))
 		{
-			for (Long id: ids)
-			{
-				day_event_ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, date, id, this.project_id);
-				dur = Work_Event.Get_Events_Duration(this.db, day_event_ids);
-				if (dur != null)
-				{
-					dur_min = (double)dur / (double)1000 / (double)60;
-					dur_hr = dur_min / (double)60;
-				}
-				else
-				{
-					dur_min = null;
-				  dur_hr = null;
-				}
-
-				row.addView(New_Cell(rs.android.Util.To_String(dur_hr, "n/a", "#,##0.##")));
-				row.addView(New_Cell(rs.android.Util.To_String(dur_min, "n/a", "#,##0.##")));
-			}
+			cell = this.New_Cell(rs.android.Util.To_String(date, "n/a", "EEEE"));
+			cell.setTextSize(18);
 		}
-  }
+
+		else if (col_id.startsWith("mins"))
+		{
+			event_type_id = rs.android.Util.To_Long(col_id.substring(5));
+			day_event_ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, date, event_type_id, this.project_id);
+			dur = Work_Event.Get_Events_Duration(this.db, day_event_ids);
+			if (dur != null)
+				dur_min = (double)dur / (double)1000 / (double)60;
+			else
+				dur_min = null;
+
+			cell = New_Cell(rs.android.Util.To_String(dur_min, "n/a", "#,##0.##"));
+		}
+
+		else if (col_id.startsWith("hrs"))
+		{
+			event_type_id = rs.android.Util.To_Long(col_id.substring(4));
+			day_event_ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, date, event_type_id, this.project_id);
+			dur = Work_Event.Get_Events_Duration(this.db, day_event_ids);
+			if (dur != null)
+				dur_hr = (double)dur / (double)1000 / (double)60 / (double)60;
+			else
+				dur_hr = null;
+
+			cell = New_Cell(rs.android.Util.To_String(dur_hr, "n/a", "#,##0.##"));
+		}
+
+		return cell;
+	}
+
+	@Override
+	public Object On_Get_Obj(Long id)
+	{
+		return id;
+	}
 
 	@Override
 	public Long[] On_Get_List()
@@ -172,14 +196,15 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		proj_spinner = new Project_Spinner(this, this.db);
 		proj_spinner.setOnItemSelectedListener(this);
+		proj_spinner.Get_Adapter().view_text_size = 15;
 		menu_item = menu.findItem(Menus.MENUITEM_FILTER_PROJ);
 		menu_item.setActionView(proj_spinner);
 		menu_item.setVisible(true);
 
 		return true;
 	}
-	
-	public void onItemSelected (AdapterView<?> parent, 
+
+	public void onItemSelected(AdapterView<?> parent, 
 	  android.view.View view, int position, long itemId)
 	{
 		if (itemId == rs.android.ui.Db_Adapter.ID_NA)
@@ -190,12 +215,12 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		this.refresh_data = true;
 		this.Update_UI();
 	}
-	
-	public void onNothingSelected (AdapterView<?> parent)
+
+	public void onNothingSelected(AdapterView<?> parent)
 	{
-		
+
 	}
-	
+
 	@Override
 	public void On_Next()
 	{
