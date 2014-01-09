@@ -569,14 +569,15 @@ public class Util
       {
         for (Object list_obj: (java.util.Collection<?>)obj)
         {
-          fields_str=null;
+					res=rs.android.Util.AppendStr(res, rs.android.Util.To_String(list_obj), ", ");
+          /*fields_str=null;
           for (java.lang.reflect.Field field: list_obj.getClass().getFields())
           {
             try {field_val=field.get(list_obj);}
             catch (java.lang.Exception e) {field_val=null;}
             fields_str=AppendStr(fields_str, field.getName()+": "+To_String(field_val, "null", null), ", ", null);
           }
-          res+=fields_str+"\n";
+          res+=fields_str+"\n";*/
         }
       }
       else if (obj instanceof java.lang.Boolean)

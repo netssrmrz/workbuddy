@@ -75,9 +75,7 @@ implements android.content.DialogInterface.OnClickListener
 		super.onResume();
 
 		if (this.db == null)
-		{
 			this.db = new Db(this);
-		}
 
 		On_Resume();
 
@@ -87,14 +85,13 @@ implements android.content.DialogInterface.OnClickListener
 	@Override
 	public void onPause()
 	{
-		super.onPause();
-
 		On_Pause();
 		if (this.db != null)
 		{
 			this.db.Close();
 			this.db = null;
 		}
+		super.onPause();
 	}
 
 	public void onClick(android.content.DialogInterface dlg, int which)

@@ -24,6 +24,22 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		this.Add_Sort(SORT_STATUS, "Status");
 	  this.Add_Sort(SORT_PARENT, "Parent");
 	}
+	
+	@Override
+	public void onCreate(android.os.Bundle state)
+	{
+		int active_sort;
+		
+		super.onCreate(state);
+		
+		active_sort=rs.android.ui.Sort_Option.Load(this, this.getClass().getName());
+		if (active_sort==SORT_PARENT)
+			this.Set_Tree_Layout(true);
+		  //this.has_tree_layout=true;
+		else
+			this.Set_Tree_Layout(false);
+		  //this.has_tree_layout=false;
+	}
 
 	@Override
 	public android.view.View On_Get_Col_View(Object obj, String col_id)
@@ -74,26 +90,62 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	{
 		String order_by=null;
 		int active_sort;
+		Long[] res=null;
 		
 		active_sort=rs.android.ui.Sort_Option.Load(this, this.getClass().getName());
 		
 		if (active_sort!=0)
 		{
 			if (active_sort==SORT_NAME)
+			{
 				order_by="name asc";
+			}
 
 			else if (active_sort==SORT_STATUS)
+			{
 				order_by="status_type_id asc";
-
-			else if (active_sort==SORT_PARENT)
-				order_by="parent_id asc";
+			}
 		}
-    return Project.Select_Ids(this.db, order_by);
+		
+		if (this.has_tree_layout)
+			res = Project.Select_Root_Projects(this.db);
+		else
+      res = Project.Select_Ids(this.db, order_by);
+		
+		return res;
 	}
 
 	@Override
 	public void On_Delete(Long id)
 	{
 		this.db.Delete("project", "id=?", id);
+	}
+
+	@Override
+	public int On_Get_Branch_Level(Long id)
+	{
+		return Project.Count_Parents(this.db, id);
+	}
+
+	@Override
+	public boolean On_Has_Children(Long id)
+	{
+		return Project.Has_Children(this.db, id);
+	}
+	
+	@Override
+	public Long[] On_Get_Children(Long id)
+	{
+		return Project.Select_Children(this.db, id);
+	}
+	
+	@Override
+	public void On_Sort_Set(rs.android.ui.Sort_Option which)
+	{
+		if (which.id==SORT_PARENT)
+		  this.Set_Tree_Layout(true);
+		else
+		  this.Set_Tree_Layout(false);
+		super.On_Sort_Set(which);
 	}
 }

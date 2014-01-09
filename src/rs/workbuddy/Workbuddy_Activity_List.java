@@ -2,6 +2,7 @@ package rs.workbuddy;
 import android.widget.*;
 import java.util.*;
 import rs.android.ui.*;
+import android.view.View.*;
 
 public class Workbuddy_Activity_List
 extends rs.workbuddy.Workbuddy_Activity
@@ -29,11 +30,12 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	public boolean has_paging;
 	public boolean has_tree_layout;
 	public String title;
+	public java.util.ArrayList<Long> open_ids;
+	public int data_start_pos;
 
 	public Workbuddy_Activity_List()
 	{
 		this.has_col_select = true;
-		this.has_tree_layout=false;
 	}
 
 	@Override
@@ -42,9 +44,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		super.onCreate(state);
 
 		this.selected = new java.util.ArrayList<Long>();
-
 		this.table_layout = new android.widget.TableLayout(this);
-		//this.table_layout.setShrinkAllColumns(true);
 
 		main_view = new android.widget.ScrollView(this);
 		main_view.setBackgroundColor(android.R.color.transparent);
@@ -59,6 +59,12 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		this.On_Create_Columns();
 		if (rs.android.Util.NotEmpty(this.cols))
 			rs.android.ui.Column.Load(this, this.getClass().getName(), this.cols);
+	}
+
+	public void Set_Tree_Layout(boolean has_tree_layout)
+	{
+		this.open_ids = new java.util.ArrayList<Long>();
+		this.has_tree_layout = has_tree_layout;
 	}
 
 	@Override
@@ -203,6 +209,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			title.setPadding(0, 10, 0, 0);
 
 			table.addView(title, table_layout);
+			this.data_start_pos++;
 		}
 	}
 
@@ -235,6 +242,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 		On_Build_Header_Row(row);
 		table.addView(row, table_layout);
+		this.data_start_pos++;
 	}
 
 	public void Build_Footer_Row(android.widget.TableLayout table)
@@ -262,16 +270,13 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		}
 	}
 
-	public void Build_Row(Long[] ids, int c, android.widget.TableLayout table)
+	public android.widget.TableRow Build_Row(Long id)
 	{
-		android.widget.TableLayout.LayoutParams table_layout;
 		android.widget.TableRow.LayoutParams row_layout;
 		android.widget.TableRow row;
 		android.widget.TextView cell;
 		android.widget.CheckBox check;
 
-		table_layout = new android.widget.TableLayout.LayoutParams();
-		table_layout.setMargins(0, 0, 0, 0);
 		row = new android.widget.TableRow(this);
 		row.setPadding(0, 0, 0, 0);
 		//rs.workbuddy.Border_Drawable.Add_Border(row, 0xff0000ff);
@@ -281,7 +286,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		row_layout.setMargins(0, 0, 0, 0);
 		row_layout.gravity = android.view.Gravity.CENTER_VERTICAL | android.view.Gravity.RIGHT;
 		cell = new android.widget.TextView(this);
-		cell.setText(rs.android.Util.To_String(c + 1));
+		cell.setText("x");
 		cell.setTextColor(0xff999999);
 		cell.setPadding(0, 0, 10, 0);
 		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
@@ -298,49 +303,94 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			check = new android.widget.CheckBox(this);
 			check.setPadding(0, 0, 0, 0);
 			check.setOnClickListener(this);
-			check.setTag(ids[c]);
+			check.setTag(id);
 			//rs.workbuddy.Border_Drawable.Add_Border(check, 0xff00ff00);
 			row.addView(check, row_layout);
 		}
 
 		// add data cells
-		On_Build_Row(ids[c], row);
-
-		table.addView(row, table_layout);
+		Build_Cells(id, row);
+    return row;
 	}
 
 	@Override
 	public void On_Update_UI()
 	{
 		Long ids[];
-		int c;
-		android.widget.TextView no_data;
-		android.view.View child;
 
 		if (this.refresh_data)
 		{
+			this.data_start_pos = 0;
 			this.table_layout.removeAllViews();
 			this.Build_Title_Row(this.table_layout);
 			this.Build_Header_Row(this.table_layout);
 
 			ids = On_Get_List();
-			if (rs.android.Util.NotEmpty(ids))
-			{
-				for (c = 0; c < ids.length; c++)
-				{
-					Build_Row(ids, c, this.table_layout);
-				}
-			}
-			else
-			{
-				no_data = new android.widget.TextView(this);
-				no_data.setText("No Data Available");
-				this.table_layout.addView(no_data);
-			}
+			this.Insert_Rows(ids);
 
 			this.Build_Footer_Row(this.table_layout);
 			this.refresh_data = false;
 		}
+
+		this.Update_Rows();
+
+		this.Set_Actions();
+	}
+
+	public void Insert_Rows(Long[] ids)
+	{
+		int c;
+		android.widget.TextView no_data;
+		android.widget.TableLayout.LayoutParams table_layout;
+		android.widget.TableRow row;
+
+		if (rs.android.Util.NotEmpty(ids))
+		{
+			for (c = 0; c < ids.length; c++)
+			{
+				row = this.Build_Row(ids[c]);
+
+				table_layout = new android.widget.TableLayout.LayoutParams();
+				table_layout.setMargins(0, 0, 0, 0);
+				this.table_layout.addView(row, table_layout);
+
+				if (this.has_tree_layout && this.Is_Open(ids[c]))
+				{
+					this.Insert_Children(ids[c]);
+				}
+			}
+		}
+		else
+		{
+			no_data = new android.widget.TextView(this);
+			no_data.setText("No Data Available");
+			this.table_layout.addView(no_data);
+		}
+	}
+
+	public void Insert_Children(Long id)
+	{
+		Long ids[];
+		android.widget.TableRow row;
+		android.widget.TableLayout.LayoutParams table_layout;
+
+		ids = this.On_Get_Children(id);
+		for (Long child_id: ids)
+		{
+			row = this.Build_Row(child_id);
+			table_layout = new android.widget.TableLayout.LayoutParams();
+			table_layout.setMargins(0, 0, 0, 0);
+			this.table_layout.addView(row, table_layout);
+
+			if (this.Is_Open(child_id))
+				this.Insert_Children(child_id);
+		}
+	}
+
+	public void Update_Rows()
+	{
+		int c;
+		android.view.View child;
 
 		if (rs.android.Util.NotEmpty(this.table_layout))
 		{
@@ -351,25 +401,45 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 				  Update_Row(c);
 			}
 		}
-
-		Set_Actions();
 	}
 
 	public void Update_Row(int row_idx)
 	{
-		android.widget.CheckBox check;
+		android.widget.CheckBox check, open_button;
+		android.widget.TextView row_num_view;
+		int row_num;
 		Long id;
 		android.widget.TableRow row;
+		android.widget.LinearLayout view;
 
 		row = (android.widget.TableRow)this.table_layout.getChildAt(row_idx);
 		if (row.getChildAt(1) instanceof android.widget.CheckBox)
 		{
+			row_num_view = (android.widget.TextView)row.getChildAt(0);
+			row_num = row_idx - this.data_start_pos + 1;
+			row_num_view.setText(rs.android.Util.To_String(row_num));
+
 			check = (android.widget.CheckBox)row.getChildAt(1);
 			id = (Long)check.getTag();
 			if (this.selected.contains(id))
 				check.setChecked(true);
 			else
 				check.setChecked(false);
+
+			if (this.has_tree_layout)
+			{
+				view = (android.widget.LinearLayout)row.getChildAt(2);
+				open_button = (android.widget.CheckBox)view.getChildAt(0);
+			  if (this.Is_Open(id))
+				{
+			    open_button.setChecked(true);
+				}
+				else
+				{
+					open_button.setChecked(false);
+				}
+			}
+
 			this.On_Update_Row(row_idx);
 		}
 	}
@@ -381,7 +451,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		android.widget.CheckBox check;
 
 		row = (android.widget.TableRow)this.table_layout.getChildAt(idx);
-		if (row.getChildAt(1) instanceof android.widget.CheckBox)
+		if (row != null && row.getChildAt(1) instanceof android.widget.CheckBox)
 		{
 			check = (android.widget.CheckBox)row.getChildAt(1);
 			res = (Long)check.getTag();
@@ -445,8 +515,6 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 		cell = new android.widget.TextView(this);
 		cell.setText(rs.android.Util.To_String(label, "n/a"));
-		//cell.setTextSize(20);
-		//cell.setTextColor(0xffffffff);
 		cell.setPadding(0, 0, 10, 0);
 		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
 		return cell;
@@ -464,18 +532,6 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		cell.setTextColor(0xffffffff);
 		return cell;
 	}
-
-	/*public void Add_Footer_Cell(android.view.ViewGroup row, String text)
-	 {
-	 android.widget.TextView cell;
-
-	 cell = new android.widget.TextView(this);
-	 cell.setText(text);
-	 cell.setPadding(10, 2, 10, 10);
-	 cell.setTextSize(20);
-	 cell.setTextColor(0xffeeeeee);
-	 row.addView(cell);
-	 }*/
 
 	public void Add_Column(String id, String title)
 	{
@@ -510,11 +566,6 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		this.sort_options.add(sort);
 	}
 
-	public void On_Update_Row(int c)
-	{
-
-	}
-
 	public void On_Build_Header_Row(android.widget.TableRow row)
 	{
 		int c;
@@ -529,8 +580,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 					cell = New_Header_Cell(col.title);
 				  row.addView(cell);
 					c = row.indexOfChild(cell);
-					//android.util.Log.d("On_Build_Header_Row", col.title+": "+c);
-					
+
 					if (col.wrap)
 					{
 						this.table_layout.setColumnShrinkable(c, true);
@@ -565,12 +615,13 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			}
 		}
 	}
-	
-	public void On_Build_Row(Long id, android.widget.TableRow row)
+
+	public void Build_Cells(Long id, android.widget.TableRow row)
 	{
 		Object obj;
 		android.view.View cell_view;
 		android.widget.TableRow.LayoutParams layout;
+		boolean is_first_view=true;
 
 		if (rs.android.Util.NotEmpty(this.cols))
 		{
@@ -583,6 +634,12 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 					cell_view = this.On_Get_Col_View(obj, col.id);
 					if (cell_view != null)
 					{
+						//rs.workbuddy.Border_Drawable.Add_Border(cell_view, 0xffff0000);
+						if (this.has_tree_layout && is_first_view)
+						{
+							cell_view = this.Add_Branch_Selector(cell_view, id, obj);
+							is_first_view = false;
+						}
 						layout = new android.widget.TableRow.LayoutParams();
 						layout.gravity = android.view.Gravity.CENTER_VERTICAL;
 					  row.addView(cell_view, layout);
@@ -591,12 +648,214 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			}
 		}
 	}
-	
+
+	public android.widget.LinearLayout Add_Branch_Selector(android.view.View name_label,
+	  Long id, Object obj)
+	{
+		android.widget.LinearLayout res=null, layout;
+		android.widget.LinearLayout.LayoutParams params;
+		android.content.Context ctx;
+		int branch_level;
+		android.widget.CheckBox open_button;
+
+		ctx = name_label.getContext();
+		branch_level = this.On_Get_Branch_Level(id);
+
+		open_button = new android.widget.CheckBox(ctx);
+		open_button.setVisibility(android.view.View.INVISIBLE);
+
+		layout = new android.widget.LinearLayout(ctx);
+
+		params = new android.widget.LinearLayout.LayoutParams(
+		  android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+			android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(branch_level * 20, 0, 0, 0);
+		//rs.workbuddy.Border_Drawable.Add_Border(open_button, 0xff00ff00);
+		layout.addView(open_button, params);
+
+		params = new android.widget.LinearLayout.LayoutParams(
+		  android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+			android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+		layout.addView(name_label, params);
+
+		if (this.On_Has_Children(id))
+		{
+			open_button.setVisibility(android.view.View.VISIBLE);
+			open_button.setOnClickListener(new On_Branch_Click_Listener());
+			open_button.setTag(id);
+		}
+		//rs.workbuddy.Border_Drawable.Add_Border(layout, 0xff0000ff);
+		res = layout;
+
+		return res;
+	}
+
+	public class On_Branch_Click_Listener
+	implements android.view.View.OnClickListener
+	{
+		public void onClick(android.view.View widget)
+		{
+			android.widget.CheckBox checkbox;
+			Long id;
+
+			checkbox = (android.widget.CheckBox)widget;
+			id = (Long)checkbox.getTag();
+			if (id != null)
+			{
+				if (checkbox.isChecked() && !Is_Open(id))
+				{
+					open_ids.add(id);
+					refresh_data = true;
+					Update_UI();
+				}
+				else if (!checkbox.isChecked() && Is_Open(id))
+				{
+					open_ids.remove(id);
+					refresh_data = true;
+					Update_UI();
+				}
+			}
+		}
+	}
+
+	/*public class On_Branch_Click_Listener
+	 implements android.view.View.OnClickListener
+	 {
+	 public void onClick(android.view.View widget)
+	 {
+	 android.widget.CheckBox checkbox;
+	 Long id;
+
+	 checkbox = (android.widget.CheckBox)widget;
+	 id = (Long)checkbox.getTag();
+	 if (id != null)
+	 {
+	 if (checkbox.isChecked())
+	 Set_Projects(id, true);
+	 else
+	 Set_Projects(id, false);
+	 }
+	 }
+	 }*/
+
+	/*public void Set_Projects(Long id, boolean include_children)
+	 {
+	 // remove children recursively
+	 if (!include_children && this.Is_Open(id))
+	 {
+	 this.Remove_Children(id);
+	 }
+	 // insert children
+	 else if (include_children && !this.Is_Open(id))
+	 {
+	 this.Insert_Children(id);
+	 }
+	 this.Update_Rows();
+	 }*/
+
+	/*public void Insert_Children(Long id)
+	 {
+	 Long ids[];
+	 android.widget.TableRow row;
+	 android.widget.TableLayout.LayoutParams table_layout;
+	 int c;
+	 Integer idx;
+
+	 idx = this.Get_Row_Idx(id);
+	 if (idx != null)
+	 {
+	 ids = this.Get_Children(id);
+	 for (c = 0; c < ids.length; c++)
+	 {
+	 row = this.Build_Row(ids[c]);
+	 table_layout = new android.widget.TableLayout.LayoutParams();
+	 table_layout.setMargins(0, 0, 0, 0);
+	 this.table_layout.addView(row, idx + c + 1, table_layout);
+
+	 if (this.Is_Open(ids[c]))
+	 this.Insert_Children(ids[c]);
+	 }
+
+	 this.open_ids.add(id);
+	 }
+	 }*/
+
+	/*public void Remove_Children(Long id)
+	 {
+	 Integer idx;
+	 int child_count, c;
+	 Long row_id; 
+
+	 idx = this.Get_Row_Idx(id);
+	 if (idx != null)
+	 {
+	 child_count = this.Count_Children(id);;
+
+	 for (c = 0; c < child_count; c++)
+	 {
+	 row_id = this.Get_Row_Id(idx+1);
+	 if (this.Is_Open(row_id))
+	 this.Remove_Children(row_id);
+	 this.table_layout.removeViewAt(idx+1);
+	 }
+
+	 this.open_ids.remove(id);
+	 }
+	 }*/
+
+	public Integer Get_Row_Idx(Long id)
+	{
+		Integer res=null;
+		android.view.View v, row=null;
+		int idx;
+
+		v = this.table_layout.findViewWithTag(id);
+		if (v != null)
+		{
+			row = this.Get_Row(v.getParent());
+			if (row != null)
+			{
+				for (idx = 0; idx < this.table_layout.getChildCount(); idx++)
+				{
+					if (this.table_layout.getChildAt(idx) == row)
+						res = idx;
+				}
+			}
+		}
+		return res;
+	}
+
+	public android.widget.TableRow Get_Row(android.view.ViewParent v)
+	{
+		android.widget.TableRow res=null;
+
+		if (v instanceof android.widget.TableRow)
+			res = (android.widget.TableRow)v;
+		else
+			res = Get_Row(v.getParent());
+		return res;
+	}
+
+	public int On_Get_Branch_Level(Long id)
+	{
+		return 0;
+	}
+
+	public boolean On_Has_Children(Long id)
+	{
+		return false;
+	}
+
+	public boolean Is_Open(Long id)
+	{
+		return this.open_ids.contains(id.longValue());
+	}
+
 	public android.view.View On_Get_Col_Footer_View(String col_id)
 	{
 		return null;
 	}
-	
+
 	public android.view.View On_Get_Col_View(Object obj, String col_id)
 	{
 		return null;
@@ -650,9 +909,19 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		this.refresh_data = true;
 		this.Update_UI();
 	}
-	
+
 	public void On_Create_Columns()
 	{
-		
+
+	}
+
+	public Long[] On_Get_Children(Long id)
+	{
+		return null;
+	}
+
+	public void On_Update_Row(int c)
+	{
+
 	}
 }

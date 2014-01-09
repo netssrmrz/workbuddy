@@ -9,7 +9,7 @@ public class Status_Type
 
 	public static Integer Get_Colour(rs.android.Db db, Long id)
 	{
-		Integer res=null;
+		Integer res=0xffbbbbbb;
 
 		if (id!=null)
 		  res=(Integer)db.Select_Value(Integer.class, "select colour from Status_Type where id=?", id);

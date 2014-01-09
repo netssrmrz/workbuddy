@@ -70,13 +70,28 @@ public class Project
 		return rs.workbuddy.db.Status_Type.Get_Name(db, this.status_type_id);
 	}
 
+	public static int Count_Children(rs.android.Db db, Long parent_id)
+	{
+    Integer c=null;
+		int res=0;
+		
+		c = (Integer)db.Select_Value(Integer.class, 
+		  "select count(*) from project where parent_id=?", parent_id);
+		if (c!=null)
+			res=c.intValue();
+		return res;
+	}
+	
+	public static Long[] Select_Root_Projects(rs.android.Db db)
+	{
+		return (Long[])db.Select_Column(Long.class, 
+		  "select id from project where parent_id is null order by name asc");
+	}
+	
 	public static Long[] Select_Children(rs.android.Db db, Long parent_id)
 	{
-		Long[] res=null;
-
-		res = (Long[])db.Select_Column(Long.class, 
+		return (Long[])db.Select_Column(Long.class, 
 		  "select id from project where parent_id=? order by status_type_id asc, name asc", parent_id);
-		return res;
 	}
 
 	public static boolean Is_Family(rs.android.Db db, Long parent_id, Long child_id)
