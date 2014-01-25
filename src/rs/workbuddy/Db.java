@@ -10,9 +10,9 @@ extends rs.android.Db
 		Table t;
 
     this.context=context;
-    this.db_name="WorkBuddyDb";
-    this.db_version=23;
-    this.tables = new Table[6];
+    db_name="WorkBuddyDb";
+    this.db_version=25;
+    this.tables = new Table[5];
 		
 		t=new Table();
 		t.name="Work_Event";
@@ -41,7 +41,7 @@ extends rs.android.Db
 		
 		t=new Table();
 		t.name="Status_Type";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_ALTER;
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_NONE;
 		t.create_sql=
 		  "CREATE TABLE Status_Type ("+
 			"id INTEGER PRIMARY KEY, "+
@@ -70,9 +70,22 @@ extends rs.android.Db
     t.init_sqls[1]="insert into Event_Type (name, display_home_projects, colour, template_id) values ('Break', 0, 4294967040)";
     t.init_sqls[2]="insert into Event_Type (name, display_home_projects, colour, temppate_id) values ('Home', 0, 4278255360)";
 		this.tables[3]=t;
+		
+		t=new Table();
+		t.name="Log";
+		t.update_type=rs.android.Db.Table.UPDATE_TYPE_CREATE;
+		t.create_sql=
+		  "CREATE TABLE Log (" +
+			"id INTEGER PRIMARY KEY, " +
+			"obj_class TEXT, " +
+			"obj_id INTEGER, " +
+			"obj_data TEXT, "+
+			"operation INTEGER, "+
+			"log_date INTEGER)";
+		this.tables[4]=t;
 
 		// dropped tables ===========================================================
-		t=new Table();
+		/*t=new Table();
 		t.name="Log";
 		t.update_type=rs.android.Db.Table.UPDATE_TYPE_DROP;
 		t.create_sql=
@@ -80,18 +93,7 @@ extends rs.android.Db
 			"id INTEGER PRIMARY KEY, " +
 			"log_date INTEGER, " +
 			"msg TEXT)";
-		this.tables[4]=t;
-
-		t=new Table();
-		t.name="App_Widget";
-		t.update_type=rs.android.Db.Table.UPDATE_TYPE_DROP;
-		t.create_sql=
-		  "CREATE TABLE App_Widget (" +
-			"id INTEGER PRIMARY KEY, " +
-			"event_type INTEGER, " +
-			"project_id INTEGER "+
-			")";
-		this.tables[5]=t;
+		this.tables[4]=t;*/
 
     open_helper=new OpenHelper();
     if (open_helper!=null)

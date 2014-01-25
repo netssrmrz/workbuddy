@@ -3,11 +3,6 @@ package rs.workbuddy;
 public class Event_List 
 extends rs.workbuddy.Workbuddy_Activity_List
 {
-	/*public static final int SORT_DATE=1;
-	public static final int SORT_DURATION=2;
-	public static final int SORT_ACTIVITY=3;
-	public static final int SORT_PROJECT=4;*/
-	
 	public java.text.SimpleDateFormat date_formatter, time_formatter, short_time_formatter;
 	public java.text.DecimalFormat num_formatter;
 	public java.sql.Date week_of, max_day, min_day;
@@ -19,16 +14,12 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		this.time_formatter=new java.text.SimpleDateFormat("h:mm:ss a");
 		this.num_formatter=new java.text.DecimalFormat("#,##0.##");
 		
-		/*this.Add_Sort(SORT_DATE, "Date & Time");
-		this.Add_Sort(SORT_DURATION, "Duration");
-		this.Add_Sort(SORT_ACTIVITY, "Activity Type");
-		this.Add_Sort(SORT_PROJECT, "Project");*/
-		
 		this.has_paging=true;
 		this.has_menuitem_delete = true;
 		this.menuitem_edit_class = Event_Add.class;
 		this.menuitem_view_class = Event_View.class;
 		this.menuitem_add_class = Event_Add.class;
+		this.list_obj_class=Work_Event.class;
 
 		this.Add_Column("date", "Date");
 		this.Add_Column("time", "Time");
@@ -65,20 +56,6 @@ extends rs.workbuddy.Workbuddy_Activity_List
 			  "Week starting " + rs.android.Util.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
 		}
 	}
-	
-	/*@Override
-	public void onCreate(android.os.Bundle state)
-	{
-		super.onCreate(state);
-		android.os.Debug.startMethodTracing("workbuddy");
-	}*/
-	
-	/*@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
-		android.os.Debug.stopMethodTracing();
-	}*/
 	
 	@Override
 	public android.view.View On_Get_Col_View(Object obj, String col_id)
@@ -136,22 +113,6 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		Long[] res=null;
 		java.sql.Date week[];
 		String order_by=null;
-		//int active_sort;
-
-		/*active_sort=rs.android.ui.Sort_Option.Load(this);
-		if (active_sort!=0)
-		{
-			if (active_sort==SORT_DATE)
-				order_by="start_date asc";
-
-			else if (active_sort==SORT_DURATION)
-				order_by="status_type_id asc";
-
-			else if (active_sort==SORT_ACTIVITY)
-				order_by="parent_id asc";
-				
-		  SORT_PROJECT
-		}*/
 		
 		week=rs.android.Util.Week(this.week_of);
     res = Work_Event.Select_Timespan_Events(this.db, week[0], rs.android.Util.Add_Days(week[6], 1), null, null, order_by);

@@ -7,7 +7,10 @@ implements android.widget.SpinnerAdapter,
 android.view.View.OnClickListener
 {
 	public static final Long ID_NA=(long)-1;
-
+	public static android.graphics.drawable.PictureDrawable branch_opened_drawable;
+	public static android.graphics.drawable.PictureDrawable branch_closed_drawable;
+	public static android.graphics.drawable.PictureDrawable branch_pressed_drawable;
+	
 	public java.util.ArrayList<Long> ids, open_ids;
 	public rs.android.Db db;
 	public android.database.DataSetObserver observer;
@@ -105,7 +108,26 @@ android.view.View.OnClickListener
 			res = false;
 		return res;
 	}
+	
+	public android.graphics.drawable.StateListDrawable Get_Branch_Drawable()
+	{
+		android.graphics.drawable.StateListDrawable res=null;
 
+		if (branch_opened_drawable==null)
+			branch_opened_drawable=rs.android.ui.Util.Get_Opened_Pic();
+		if (branch_closed_drawable==null)
+			branch_closed_drawable=rs.android.ui.Util.Get_Closed_Pic();
+		if (branch_pressed_drawable==null)
+			branch_pressed_drawable=rs.android.ui.Util.Get_Pressed_Pic();
+
+		res = new android.graphics.drawable.StateListDrawable();
+		res.addState(new int[] {-android.R.attr.state_checked}, this.branch_opened_drawable);
+		res.addState(new int[] {android.R.attr.state_checked}, this.branch_closed_drawable);
+		res.addState(new int[] {android.R.attr.state_selected}, this.branch_pressed_drawable);
+
+		return res;
+	}
+	
 	@Override
 	public android.view.View getDropDownView(int idx, android.view.View p2, android.view.ViewGroup container)
 	{
@@ -148,6 +170,7 @@ android.view.View.OnClickListener
 
 		project_open_button = new android.widget.CheckBox(ctx);
 		project_open_button.setVisibility(android.view.View.INVISIBLE);
+		project_open_button.setButtonDrawable(this.Get_Branch_Drawable());
 		//rs.workbuddy.Border_Drawable.Add_Border(project_open_button, 0xff00ff00);
 
 		layout = new android.widget.LinearLayout(ctx);

@@ -1,6 +1,7 @@
 package rs.workbuddy;
 
 public class Work_Event
+implements java.io.Serializable
 {
 	public Long id;
   public Long event_type_id;
@@ -233,13 +234,9 @@ public class Work_Event
 		return res;
 	}
 
-	public static boolean Delete(rs.android.Db db, Long id)
+	public static int Delete(rs.android.Db db, Long id)
 	{
-		boolean res=false;
-
-		if (id != null && db.Delete("work_event", "id=?", id) > 0)
-			res = true;
-		return res;
+		return db.Delete(id, Work_Event.class);
 	}
 
 	public static Work_Event Select(rs.android.Db db, Long id)

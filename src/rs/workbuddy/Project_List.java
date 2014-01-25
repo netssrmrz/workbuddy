@@ -11,14 +11,19 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	
 	public Project_List()
 	{
+		rs.android.ui.Column col;
+		
 		this.has_menuitem_delete=true;
 		
 		menuitem_edit_class=Project_Add.class;
 		menuitem_add_class=Project_Add.class;
+		this.list_obj_class=Project.class;
 
 		this.Add_Column("name", "Name");
 		this.Add_Column("status", "Status");
 		this.Add_Column("parents", "Parents");
+		col=this.Add_Column("events", "Activities");
+		col.align=rs.android.ui.Column.ALIGN_RIGHT;
 		
 		this.Add_Sort(SORT_NAME, "Name");
 		this.Add_Sort(SORT_STATUS, "Status");
@@ -35,10 +40,8 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		active_sort=rs.android.ui.Sort_Option.Load(this, this.getClass().getName());
 		if (active_sort==SORT_PARENT)
 			this.Set_Tree_Layout(true);
-		  //this.has_tree_layout=true;
 		else
 			this.Set_Tree_Layout(false);
-		  //this.has_tree_layout=false;
 	}
 
 	@Override
@@ -62,6 +65,9 @@ extends rs.workbuddy.Workbuddy_Activity_List
 
 		else if (col_id.equals("parents"))
 		  res = this.New_Cell(Build_Path(this.db, p.parent_id));
+		
+		else if (col_id.equals("events"))
+			res=this.New_Cell(rs.android.Util.To_String(p.Get_Event_Count(this.db), "n/a", "#,##0"));
 
 		return res;
 	}
@@ -116,9 +122,13 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	}
 
 	@Override
-	public void On_Delete(Long id)
+	public boolean On_Delete(Long id)
 	{
-		this.db.Delete("project", "id=?", id);
+		boolean res=false;
+		
+		if (Project.Delete(this.db, id)>0)
+			res=true;
+		return res;
 	}
 
 	@Override
@@ -147,5 +157,21 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		else
 		  this.Set_Tree_Layout(false);
 		super.On_Sort_Set(which);
+	}
+	
+	@Override
+	public String On_Get_Delete_Msg()
+	{
+		String res=null;
+		int total=0;
+		
+		if (rs.android.Util.NotEmpty(this.selected))
+		{
+			for (Long id: this.selected)
+			  total=total+Project.Count_Events(this.db, id);
+			if (total>0)
+		    res=rs.android.Util.To_String(total, null, "#,##0") + " related activities will also be deleted.";
+		}
+		return res;
 	}
 }

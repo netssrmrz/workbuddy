@@ -1,12 +1,12 @@
 package rs.android.ui;
 
-public class Tree_Branch_View
+public class xTree_Branch_View
 extends android.widget.CheckBox
 {
   public int level;
 	public boolean has_children;
 	
-  public Tree_Branch_View(android.content.Context ctx)
+  public xTree_Branch_View(android.content.Context ctx)
 	{
 		super(ctx);
 	}

@@ -40,6 +40,33 @@ public class Util
 		return res;
 	}
 	
+	public static void Copy_File(String in_filepath, String out_filepath)
+	{
+		java.io.FileInputStream in_stream;
+		java.io.OutputStream out_stream;
+		byte[] buffer = new byte[1024];
+		int length;
+
+		try
+		{
+			in_stream = new java.io.FileInputStream(in_filepath);
+			out_stream = new java.io.FileOutputStream(out_filepath);
+			
+			while ((length = in_stream.read(buffer)) > 0)
+			{
+				out_stream.write(buffer, 0, length);
+			}
+
+			out_stream.flush();
+			out_stream.close();
+			in_stream.close();			
+		}
+		catch (Exception e)
+		{
+			android.util.Log.d("rs.android.Util.Copy_File()", e.toString());
+		}
+	}
+	
 	public static android.net.Uri Save_File(String name, String data)
 	{
 		String state;
@@ -1369,5 +1396,81 @@ public class Util
 		e.printStackTrace(stream);
 
 		rs.android.Util.Show_Message(ctx, buffer.toString());
+	}
+	
+	public static String Serialise(Object obj)
+	{
+		java.io.ObjectOutputStream so;
+		java.io.ByteArrayOutputStream bo;
+		String res=null;
+
+		if (obj != null)
+		{
+			try
+			{
+				bo = new java.io.ByteArrayOutputStream();
+				so = new java.io.ObjectOutputStream(bo);
+				so.writeObject(obj);
+				so.flush();
+				res=android.util.Base64.encodeToString(bo.toByteArray(), 
+				  android.util.Base64.DEFAULT);
+			}
+			catch (java.io.IOException e)
+			{
+				android.util.Log.d("rs.android.Util.Serialise()", e.toString());
+				res = null;
+			}
+		}
+		return res;
+	}
+	
+	public static void Save_Data(android.content.Context ctx, String key, Object data)
+	{
+		android.content.SharedPreferences.Editor prefs;
+		String data_str=null;
+
+		data_str=Util.Serialise(data);
+		if (data_str != null)
+		{
+			prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(ctx).edit();
+			prefs.putString(key, data_str);
+			prefs.apply();
+	  }
+	}
+	
+	public static Object Deserialise(String data_str)
+	{
+		byte b[];
+    Object res=null;
+		java.io.ByteArrayInputStream bi;
+		java.io.ObjectInputStream si;
+		
+		if (data_str != null)
+		{
+			try 
+			{
+				b = android.util.Base64.decode(data_str, android.util.Base64.DEFAULT);
+				bi = new java.io.ByteArrayInputStream(b);
+				si = new java.io.ObjectInputStream(bi);
+				res = si.readObject();
+			} 
+			catch (Exception e) 
+			{
+				res = null;
+			}
+		}
+		return res;
+	}
+	
+	public static Object Load_Data(android.content.Context ctx, String key)
+	{
+		Object res=null;
+		String data_str=null;
+
+		data_str = android.preference.PreferenceManager.
+		  getDefaultSharedPreferences(ctx).getString(key, null);
+    res=Util.Deserialise(data_str);
+		
+		return res;
 	}
 }

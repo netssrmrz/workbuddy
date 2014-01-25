@@ -35,6 +35,7 @@ implements android.content.DialogInterface.OnClickListener
 		boolean res=true;
 		android.app.AlertDialog.Builder b;
 		android.app.AlertDialog dlg;
+		String msg;
 		
 		//android.util.Log.d("Workbuddy_Activity.onOptionsItemSelected()", "Entry");
 		if (item.getItemId() == Menus.MENUITEM_EDIT)
@@ -55,8 +56,10 @@ implements android.content.DialogInterface.OnClickListener
 			On_Sort();
 		else if (item.getItemId()==Menus.MENUITEM_DELETE)
 		{
+			msg=rs.android.Util.AppendStr("Are you sure?", this.On_Get_Delete_Msg(), "\n");
+			
 			b = new android.app.AlertDialog.Builder(this);
-			b.setMessage("Are you sure?");
+			b.setMessage(msg);
 			b.setTitle("Warning");
 			b.setPositiveButton("OK", this);
 			b.setNegativeButton("Cancel", this);
@@ -100,6 +103,11 @@ implements android.content.DialogInterface.OnClickListener
 			On_Delete();
 	}
 
+	public String On_Get_Delete_Msg()
+	{
+		return null;
+	}
+	
 	public void On_Delete()
 	{
 		

@@ -2,6 +2,7 @@ package rs.workbuddy;
 import java.util.*;
 
 public class Project
+implements java.io.Serializable
 {
 	public Long id;
 	public String name;
@@ -182,5 +183,20 @@ public class Project
 		if (res == null)
 			res = 0xffffffff;
 		return res;
+	}
+	
+	public Integer Get_Event_Count(rs.android.Db db)
+	{
+		return Count_Events(db, this.id);
+	}
+	
+	public static int Count_Events(rs.android.Db db, Long id)
+	{
+		return (Integer)db.Select_Value(Integer.class, "select count(*) from Work_Event where project_id=?", id);
+	}
+	
+	public static int Delete(rs.android.Db db, Long id)
+	{
+		return db.Delete(id, Project.class);
 	}
 }

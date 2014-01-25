@@ -4,10 +4,15 @@ import java.util.*;
 
 public class Column
 {
+	public static final int ALIGN_RIGHT = 1;
+	public static final int ALIGN_LEFT = 2;
+	public static final int ALIGN_CENTRE = 3;
+	
 	public String id;
 	public String title;
 	public boolean visible;
 	public boolean wrap;
+	public int align;
 	
 	public static void Save(android.content.Context ctx, String prefix, java.util.ArrayList<Column> cols)
 	{

@@ -23,7 +23,7 @@ public class Menus
 	public static final int MENUITEM_COLS=9;
 	public static final int MENUITEM_EXPORT=10;
 	public static final int MENUITEM_SEARCH=11;
-
+	public static final int MENUITEM_IMPORT=13; 
 	public String ct="rs.workbuddy.Menus";
 
 	public static void Create_Options_Menu(android.view.Menu menu)
@@ -35,11 +35,13 @@ public class Menus
 		menu.add(1, MENUITEM_EVENTS, MENUITEM_EVENTS, "Activities");
 		menu.add(1, MENUITEM_PROJECTS, MENUITEM_PROJECTS, "Projects");
 		menu.add(1, MENUITEM_TIMESHEET, MENUITEM_TIMESHEET, "Timesheet");
+		menu.add(1, MENUITEM_SETTINGS, MENUITEM_SETTINGS, "Settings");
+		
 		item=menu.add(1, MENUITEM_TIMESHEET_VIEW, MENUITEM_TIMESHEET_VIEW, "View Timesheet");
 		item.setVisible(false);
+		
 		item=menu.add(1, MENUITEM_TIMESHEET_SEND, MENUITEM_TIMESHEET_SEND, "Send Timesheet");
 		item.setVisible(false);
-		menu.add(1, MENUITEM_SETTINGS, MENUITEM_SETTINGS, "Settings");
 
 		item = menu.add(1, MENUITEM_NEXT, MENUITEM_NEXT, ">");
 		item.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -77,6 +79,12 @@ public class Menus
 		item = menu.add(1, MENUITEM_FILTER_PROJ, MENUITEM_FILTER_PROJ, "Project");
 		item.setVisible(false);
 		item.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
+		
+		item=menu.add(1, MENUITEM_EXPORT, MENUITEM_EXPORT, "Export");
+		item.setVisible(false);
+		
+		item=menu.add(1, MENUITEM_IMPORT, MENUITEM_IMPORT, "Import");
+		item.setVisible(false);
 	}
 
 	public static boolean Options_Item_Selected(android.view.MenuItem item, android.content.Context ctx)

@@ -1,6 +1,7 @@
 package rs.android.ui;
 import android.view.*;
 import android.widget.*;
+import android.graphics.drawable.*;
 
 public class Util
 {
@@ -119,5 +120,91 @@ public class Util
 				layout.addView(v);
 			}
 		}
+	}
+	
+	public static final float BRANCH_WIDTH=43;
+	public static final float BRANCH_FRAME_WIDTH=11;
+	public static final float BRANCH_PIC_FRAME_WIDTH=4; 
+	public static final int BRANCH_PIC_COLOR=0xff55bbee;
+	
+	public static android.graphics.drawable.PictureDrawable Get_Opened_Pic()
+	{
+		android.graphics.drawable.PictureDrawable pic_drawable;
+		android.graphics.Picture pic;
+		android.graphics.Canvas c;
+		android.graphics.Paint frame_paint, pic_paint;
+		
+		frame_paint=new android.graphics.Paint();
+		frame_paint.setColor(0xff333333);
+		frame_paint.setStrokeWidth(1);
+		frame_paint.setStyle(android.graphics.Paint.Style.STROKE);
+		
+		pic_paint=new android.graphics.Paint();
+		pic_paint.setColor(BRANCH_PIC_COLOR);
+		pic_paint.setStrokeWidth(4);
+		pic_paint.setStyle(android.graphics.Paint.Style.STROKE);
+		
+		pic=new android.graphics.Picture();
+		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, pic_paint);
+		c.drawLine(BRANCH_WIDTH/2f, BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, pic_paint);
+		pic.endRecording();
+		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
+		
+		return pic_drawable;
+	}
+	
+	public static android.graphics.drawable.PictureDrawable Get_Closed_Pic()
+	{
+		android.graphics.drawable.PictureDrawable pic_drawable;
+		android.graphics.Picture pic;
+		android.graphics.Canvas c;
+		android.graphics.Paint frame_paint, pic_paint;
+
+		frame_paint=new android.graphics.Paint();
+		frame_paint.setColor(0xff333333);
+		frame_paint.setStrokeWidth(1);
+		frame_paint.setStyle(android.graphics.Paint.Style.STROKE);
+
+		pic_paint=new android.graphics.Paint();
+		pic_paint.setColor(BRANCH_PIC_COLOR);
+		pic_paint.setStrokeWidth(4);
+		pic_paint.setStyle(android.graphics.Paint.Style.STROKE);
+		
+		pic=new android.graphics.Picture();
+		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, pic_paint);
+		pic.endRecording();
+		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
+
+		return pic_drawable;
+	}
+	
+	public static android.graphics.drawable.PictureDrawable Get_Pressed_Pic()
+	{
+		android.graphics.drawable.PictureDrawable pic_drawable;
+		android.graphics.Picture pic;
+		android.graphics.Canvas c;
+		android.graphics.Paint frame_paint, pic_paint;
+
+		frame_paint=new android.graphics.Paint();
+		frame_paint.setColor(0xff333333);
+		frame_paint.setStrokeWidth(1);
+		frame_paint.setStyle(android.graphics.Paint.Style.STROKE);
+
+		pic_paint=new android.graphics.Paint();
+		pic_paint.setColor(BRANCH_PIC_COLOR);
+		pic_paint.setStrokeWidth(4);
+		pic_paint.setStyle(android.graphics.Paint.Style.STROKE);
+		
+		pic=new android.graphics.Picture();
+		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		pic.endRecording();
+		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
+
+		return pic_drawable;
 	}
 }

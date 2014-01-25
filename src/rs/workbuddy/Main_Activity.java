@@ -2,6 +2,7 @@ package rs.workbuddy;
 import android.widget.*;
 import rs.workbuddy.db.*;
 import android.view.*;
+import java.sql.*;
 
 public class Main_Activity 
 extends rs.workbuddy.Workbuddy_Activity
@@ -47,6 +48,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	public UI_Receiver ui_receiver;
 	public java.util.Timer ui_timer;
 	public Work_Event dlg_event;
+  public boolean has_type_buttons;
+  public java.sql.Date last_update_time;
 
 	public static void Set_Button_Colour(android.widget.Button button, Integer colour)
 	{
@@ -126,7 +129,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		if (rs.android.Util.Equals(event.Get_Type_Name(this.db), "Break") && event.project_id == null)
 		{
 			prev_event = Work_Event.Select_Prev_Event(this.db, event.start_date);
-			if (prev_event!=null && prev_event.project_id != null)
+			if (prev_event != null && prev_event.project_id != null)
 				event.project_id = prev_event.project_id;
 		}
 		event.Save(this.db);
@@ -345,13 +348,21 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		now = rs.android.Util.Now();
 
 		// set event type buttons
-		this.event_type_layout.removeAllViews();
-		rs.android.ui.Util.Add_Views(this.event_type_layout, this.Build_Type_Rows(this.db));
+		if (!this.has_type_buttons)
+		{
+			this.event_type_layout.removeAllViews();
+			rs.android.ui.Util.Add_Views(this.event_type_layout, this.Build_Type_Rows(this.db));
+			this.has_type_buttons = true;
+		}
 
 		// set project buttons
-		this.project_layout.removeAllViews();
-		rs.android.ui.Util.Add_Views(this.project_layout, this.Build_Project_Rows(this.db));
-
+    if (rs.android.Log.Has_Changes(this.db, Project.class, this.last_update_time))
+    {
+		  this.project_layout.removeAllViews();
+		  rs.android.ui.Util.Add_Views(this.project_layout, this.Build_Project_Rows(this.db));
+    }
+    this.last_update_time=rs.android.Util.Now();
+    
 	  // update duration header
 		this.event_text.setText(this.Get_Prev_Event_Description(this.db, now));
 
@@ -437,7 +448,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 			ui_task.ctx = this;
 
 			this.ui_timer = new java.util.Timer();
-			this.ui_timer.schedule(ui_task, 0, 5000);
+			this.ui_timer.schedule(ui_task, 0, 1000);
 		}
 	}
 

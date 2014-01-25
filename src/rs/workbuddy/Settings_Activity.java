@@ -14,6 +14,7 @@ implements android.preference.Preference.OnPreferenceChangeListener
 	public static final String SETTING_KEY_TIMESHEET_JOB="timesheet_job";
 	public static final String SETTING_KEY_TIMESHEET_MAN="timesheet_man";
 	public static final String SETTING_KEY_TIMESHEET_SIG="timesheet_sig";	
+	public static final String SETTING_KEY_BACKUP="backup";
 
   public android.preference.PreferenceScreen ps;
 	android.preference.ListPreference round_pref;
@@ -116,9 +117,64 @@ implements android.preference.Preference.OnPreferenceChangeListener
 		text_pref.setOnPreferenceChangeListener(this);
 		text_pref.setSummary(this.ps.getSharedPreferences().getString(SETTING_KEY_TIMESHEET_SIG, null));
 		ps.addPreference(text_pref);
+		
+
+		text_pref = new android.preference.EditTextPreference(this);
+		text_pref.setKey(SETTING_KEY_BACKUP);
+		text_pref.setTitle("Import / Export Database Filename");
+		text_pref.setOnPreferenceChangeListener(this);
+		text_pref.setSummary(this.ps.getSharedPreferences().getString(SETTING_KEY_BACKUP, null));
+		text_pref.setDefaultValue(rs.workbuddy.Db.db_name+"_copy.db");
+		ps.addPreference(text_pref);
+		
 		this.setPreferenceScreen(ps);
   }
+	
+	@Override
+	public boolean onCreateOptionsMenu(android.view.Menu menu) 
+	{
+		super.onCreateOptionsMenu(menu);
+		
+		rs.workbuddy.Menus.Create_Options_Menu(menu);
+		menu.findItem(Menus.MENUITEM_EXPORT).setVisible(true);
+		menu.findItem(Menus.MENUITEM_IMPORT).setVisible(true);
 
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(android.view.MenuItem item)
+	{
+		boolean res=true;
+
+		if (item.getItemId() == Menus.MENUITEM_EXPORT)
+			On_Export();
+		else if (item.getItemId()==Menus.MENUITEM_IMPORT)
+		  On_Import();
+		else
+			res=rs.workbuddy.Menus.Options_Item_Selected(item, this);
+
+		return res;
+	}
+	
+	public void On_Export()
+	{
+		String filename;
+		
+		filename=Settings_Activity.Get_Backup_Filename(this);
+		rs.workbuddy.Db.Backup(filename);
+		rs.android.Util.Show_Note(this, "Export to file \""+filename+"\" in Downloads directory complete.");
+	}
+	
+	public void On_Import()
+	{
+		String filename;
+
+		filename=Settings_Activity.Get_Backup_Filename(this);
+		rs.workbuddy.Db.Restore(filename);
+		rs.android.Util.Show_Note(this, "Import from file \""+filename+"\" in Downloads directory complete.");
+	}
+	
 	public boolean onPreferenceChange(android.preference.Preference p, Object newValue)
 	{
 		boolean res=true;
@@ -202,4 +258,11 @@ implements android.preference.Preference.OnPreferenceChangeListener
 			getDefaultSharedPreferences(ctx).
 			getString(SETTING_KEY_TIMESHEET_SIG, "");
 	}	
+	
+	public static String Get_Backup_Filename(android.content.Context ctx)
+	{
+		return android.preference.PreferenceManager.
+			getDefaultSharedPreferences(ctx).
+			getString(SETTING_KEY_BACKUP, "");
+	}
 }

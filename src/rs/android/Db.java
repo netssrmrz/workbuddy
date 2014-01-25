@@ -1,17 +1,18 @@
 package rs.android;
 import java.lang.reflect.*;
 import java.util.*;
+import android.content.*;
 //import java.lang.reflect.*;
 
 public class Db
 {
   public android.database.sqlite.SQLiteDatabase conn;
   public android.content.Context context;
-  public String db_name;
+  public static String db_name;
   public int db_version;
   public Table[] tables;
   public boolean log;
-	public String log_text;
+	//public String log_text;
   public java.util.HashMap<String, Object> cache;
 	public java.lang.Exception last_exception;
 
@@ -21,8 +22,7 @@ public class Db
 
   public Db()
   {    
-    this.log = false;
-		this.log_text = "";
+    this.log = true;
     this.cache = new java.util.HashMap<String, Object>();
   }
 
@@ -111,45 +111,11 @@ public class Db
     return res;
   }
 
-  /*public void Open() 
-	 {
-	 String db_file_name;
-
-	 db_file_name=GetDbPath();
-	 if (DbExists() && Util.NotEmpty(db_file_name))
-	 {
-	 this.conn=android.database.sqlite.SQLiteDatabase.openDatabase(db_file_name, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE);
-	 }
-	 }*/
-
   public void Close()
   {
     if (this.conn != null)
       this.conn.close();
   }
-
-	public void Log(String msg)
-	{
-		if (this.log)
-		{
-			this.log_text += msg + "\n";
-		}
-	}
-
-	public void Log(String name, java.sql.Date date)
-	{
-		Log(name + ": " + rs.android.Util.To_String(date) + " (" + date.getTime() + ")");
-	}
-
-	public void Log(String name, float value)
-	{
-		Log(name + ": " + rs.android.Util.To_String(value));
-	}
-
-	public void Show_Log()
-	{
-		rs.android.Util.Show_Message(this.context, this.log_text);
-	}
 
   // Query Support ========================================================================================
 
@@ -162,7 +128,7 @@ public class Db
     return res;
   }
 
-  void Put_Content_value(android.content.ContentValues values, String field_name, Object field_value)
+  public static void Put_Content_Value(android.content.ContentValues values, String field_name, Object field_value)
   {
     if (values != null)
     {
@@ -210,7 +176,27 @@ public class Db
 		return res;
 	}
 
-  public android.content.ContentValues BuildSaveParams(Object obj)
+	public static android.content.ContentValues Build_Save_Params(Object ... params)
+	{
+		int c;
+		android.content.ContentValues res=null;
+		String field_name;
+		Object field_value;
+		
+		if (rs.android.Util.NotEmpty(params))
+		{
+			res = new android.content.ContentValues();
+			for (c=0; c<params.length; c+=2)
+			{
+				field_name=(String)params[c];
+				field_value=params[c+1];
+				Put_Content_Value(res, field_name, field_value);
+			}
+		}
+		return res;
+	}
+	
+  public static android.content.ContentValues BuildSaveParams(Object obj)
   {
     String field_name;
     android.content.ContentValues values=null;
@@ -223,7 +209,7 @@ public class Db
       {
 				field_name = field.getName();
 				field_value = rs.android.Util.GetObjFieldValue(obj, field_name);
-				Put_Content_value(values, field_name, field_value);
+				Put_Content_Value(values, field_name, field_value);
       }
     }
     return values;
@@ -414,8 +400,6 @@ public class Db
 
     if (Util.NotEmpty(sql))
     {
-      if (log)
-        android.util.Log.d("Execute_SQL", SQL_To_Str(sql, params));
       sqlite_params = BuildSQLParams(params);
       query_res = this.conn.rawQuery(sql, sqlite_params);
     }
@@ -428,8 +412,6 @@ public class Db
 
     if (Util.NotEmpty(sql))
     {
-      if (log)
-        android.util.Log.d("Execute_SQL_No_Result", SQL_To_Str(sql, params));
       sqlite_params = BuildSQLParams(params);
       if (Util.NotEmpty(sqlite_params))
         this.conn.execSQL(sql, sqlite_params);
@@ -478,21 +460,6 @@ public class Db
         res = Util.AppendStr(res, elem.toString(), "\r\n");
     }
     return res;
-  }
-
-  public int Delete(String from, String where, Object ... params)
-  {
-    String[] sqlite_params=null;
-		int res=0;
-
-		this.Log("rs.android.Db.Delete(from, where, params)");
-    if (Util.NotEmpty(from))
-    {
-			this.Log("...has from: " + from);
-      sqlite_params = BuildSQLParams(params);
-      res = this.conn.delete(from, where, sqlite_params);
-    }
-		return res;
   }
 
   // Select ===============================================================================================
@@ -597,8 +564,6 @@ public class Db
       {
         res[c] = Get_Value_As(String.class, query_res, c);
       }
-      if (this.log)
-        android.util.Log.d("Select_Row", "result: " + rs.android.Util.Build_Str_List(res, null, ", ", null));
     }
     if (query_res != null)
       query_res.close();
@@ -624,8 +589,6 @@ public class Db
 					row[c] = Get_Value_As(String.class, query_res, c);
 				}
 				rows.add(row);
-				if (this.log)
-					android.util.Log.d("Select_Rows", "result: " + rs.android.Util.Build_Str_List(row, null, ", ", null));
 			}
     }
     if (query_res != null)
@@ -708,7 +671,7 @@ public class Db
       values = new android.content.ContentValues();
       for (c = 0; c < params.length; c += 2)
       {
-        Put_Content_value(values, (String)params[c], params[c + 1]);
+        Put_Content_Value(values, (String)params[c], params[c + 1]);
       }
       insert_res = this.conn.insert(table_name, null, values);
       if (insert_res != -1)
@@ -755,20 +718,24 @@ public class Db
     android.content.ContentValues values;
     long id, res=0;
 		Boolean table_avail;
+		Class<?> obj_class;
 
-		this.Log("rs.android.Db.Insert(Object)");
     if (obj != null && rs.android.Util.NotEmpty(this.conn))
     {
       values = BuildSaveParams(obj);
 			table_avail = Table_Avail_For_Obj(obj);
       if (rs.android.Util.NotEmpty(values) && table_avail)
       {
-        table_name = DeriveTableName(obj.getClass());
+				obj_class=obj.getClass();
+        table_name = DeriveTableName(obj_class);
         id = this.conn.insert(table_name, null, values);
 				if (id != -1)
 				{
           Util.SetObjFieldValue(obj, "id", id);
 					res = id;
+					
+					if (this.log)
+						rs.android.Log.Save(this, id, obj, obj_class, rs.android.Log.OP_INSERT);
 				}
 				else
 				{
@@ -778,7 +745,7 @@ public class Db
     }
 		return res;
   }
-
+	
   public boolean Update(Object obj)
   {
     String table_name;
@@ -787,11 +754,12 @@ public class Db
     String[] id_param;
 		boolean res=false;
 		int update_res;
+		Class<?> obj_class;  
 
-    this.Log("rs.android.Db.Update(Object)");
     if (obj != null && rs.android.Util.NotEmpty(this.conn))
     {
-      table_name = DeriveTableName(obj.getClass());
+			obj_class=obj.getClass();
+      table_name = DeriveTableName(obj_class);
       values = BuildSaveParams(obj);
       if (rs.android.Util.NotEmpty(values))
       {
@@ -800,40 +768,61 @@ public class Db
         id_param[0] = Util.To_String(id);
         update_res = this.conn.update(table_name, values, "id=?", id_param);
 				if (update_res > 0)
+				{
 					res = true;
+					
+					if (this.log)
+						rs.android.Log.Save(this, id, obj, obj_class, rs.android.Log.OP_UPDATE);
+				}
       }
     }
 		return res;
   }
 
-  public int Delete(Object obj)
-  {
+	public int Delete(Long id, Class<?> obj_class)
+	{
     int res=0;
     String table_name;
-    Long id;
 
-		this.Log("rs.android.Db.Delete(Object)");
-    if (obj != null && rs.android.Util.NotEmpty(this.conn))
+    if (obj_class != null)
     {
-			this.Log("...object and connection available");
-      table_name = DeriveTableName(obj.getClass());
-      id = (Long)Util.GetObjFieldValue(obj, "id");
+      table_name = DeriveTableName(obj_class);
       if (rs.android.Util.NotEmpty(table_name) && id != null)
       {
-				this.Log("...table name and id field available");
         res = this.Delete(table_name, "id=?", id);
+				if (res>0 && this.log)
+					rs.android.Log.Save(this, id, null, obj_class, rs.android.Log.OP_DELETE);
       }
-			else
-			{
-				if (id == null)
-					this.Log("...no object id.");
-				if (!rs.android.Util.NotEmpty(table_name))
-					this.Log("...no table name.");
-			}
     }
     return res;
   }
+	
+  public int Delete(Object obj)
+  {
+    int res=0;
+    Long id;
 
+    if (obj != null)
+    {
+			id = (Long)Util.GetObjFieldValue(obj, "id");
+			res=this.Delete(id, obj.getClass());
+    }
+    return res;
+  }
+	
+	public int Delete(String from, String where, Object ... params)
+  {
+    String[] sqlite_params=null;
+		int res=0;
+
+    if (Util.NotEmpty(from))
+    {
+      sqlite_params = BuildSQLParams(params);
+      res = this.conn.delete(from, where, sqlite_params);
+    }
+		return res;
+  }
+	
   // Misc ===============================================================================================
 
   public boolean Table_Avail_For_Obj(Object obj)
@@ -1022,20 +1011,7 @@ public class Db
       DumpCursorToLog(query_res, field_details);
     }
     query_res.close();
-  }
-
-  /*public void DumpObjsToLog(Class<? extends Object> obj_class)
-	 {
-	 String table_name;
-	 java.util.ArrayList<?> objs;
-
-	 table_name = this.DeriveTableName(obj_class);
-	 if (rs.android.Util.NotEmpty(table_name)) 
-	 {
-	 objs = this.Select_Objs(obj_class, "select * from " + table_name);
-	 rs.android.Util.Dump_To_Log(objs);
-	 }
-	 }*/
+  }  
 
 	public String Dump_Cursor_To_Dialog(android.content.Context ctx, String sql, Object ... field_details)
 	{
@@ -1111,7 +1087,29 @@ public class Db
       res = true;
     return res;
   }
+	
+	public static boolean Restore(String in_filename)
+	{
+		String in_filepath, out_filepath;
 
+		out_filepath = "/data/data/rs.workbuddy/databases/"+db_name;
+		in_filepath= android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+in_filename;
+
+		rs.android.Util.Copy_File(in_filepath, out_filepath);
+		return true;
+	}
+	
+	public static boolean Backup(String out_filename)
+	{
+		String in_filepath, out_filepath;
+		
+		in_filepath = "/data/data/rs.workbuddy/databases/"+db_name;
+		out_filepath= android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+out_filename;
+		
+		rs.android.Util.Copy_File(in_filepath, out_filepath);
+		return true;
+	}
+	
 	public class Table
   {
 		public static final int UPDATE_TYPE_NONE=1; 
@@ -1163,18 +1161,21 @@ public class Db
 			java.util.ArrayList<?> objs;
       String tag="rs.android.Db.OpenHelper.onUpgrade()";
 
-			android.util.Log.d(tag, "Entry2");
-			if (Backup())
+			android.util.Log.d(tag, "Db upgrade started.");
+			if (Backup("upgrade_db.db"))
 			{
-        android.util.Log.d(tag, "backup succeeded.");
+        android.util.Log.d(tag, "Backup completed.");
 				conn = db;
 				if (rs.android.Util.NotEmpty(tables))
 				{
+					android.util.Log.d(tag, "Tables to process: "+tables.length);
 					for (Table table: tables)
 					{
+						android.util.Log.d(tag, "Processing table: "+table.name);
 						switch (table.update_type)
 						{
 							case Table.UPDATE_TYPE_CREATE:
+								android.util.Log.d(tag, "Creating table.");
 								db.execSQL(table.create_sql);
 								if (Util.NotEmpty(table.init_sqls))
 								{
@@ -1186,11 +1187,13 @@ public class Db
 								break;
 
 							case Table.UPDATE_TYPE_DROP:
-                android.util.Log.d(tag, "update type isbdrop for table "+table.name);
+                android.util.Log.d(tag, "Deleting table.");
 								db.execSQL("drop table if exists " + table.name);
 								break;
 
 							case Table.UPDATE_TYPE_ALTER:
+								android.util.Log.d(tag, "Updating table.");
+								
 							  // backup table
 								if (Table_Avail(table.name))
 								{
@@ -1225,46 +1228,15 @@ public class Db
 										}
 									}
 								}
-								android.util.Log.d(tag, "done");
 								break;
+								
+							default:
+							  android.util.Log.d(tag, "Unknown update.");
+							  break;
 						}
 					}
 				}
 			}
     } 
-
-		public boolean Backup()
-		{
-			boolean res=false;
-			String inFileName;
-			java.io.File dbFile;
-			
-			inFileName = "/data/data/rs.workbuddy/databases/"+db_name;
-			dbFile = new java.io.File(inFileName);
-
-			try
-			{
-				java.io.FileInputStream fis = new java.io.FileInputStream(dbFile);
-
-				String outFileName = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+db_name+"_copy.db";
-				java.io.OutputStream output = new java.io.FileOutputStream(outFileName);
-				byte[] buffer = new byte[1024];
-				int length;
-				while ((length = fis.read(buffer)) > 0)
-				{
-					output.write(buffer, 0, length);
-				}
-
-				output.flush();
-				output.close();
-				fis.close();			
-				res=true;
-			}
-			catch (Exception e)
-			{
-				android.util.Log.d("rs.android.Db.OpenHelper.Backup2()", e.toString());
-			}
-			return res;
-		}
   }
 }
