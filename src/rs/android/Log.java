@@ -44,21 +44,12 @@ public class Log
 		String sql;
 		Integer changes;
 
-		//android.util.Log.d("Has_Changes()", "entry");
 		if (obj_class != null && db != null && since != null)
 		{
-			//android.util.Log.d("Has_Changes()", "params valid");
 			sql = "select count(*) from Log where obj_class=? and log_date>?";
 			changes = (Integer)db.Select_Value(Integer.class, sql, obj_class.getName(), since);
 			if (rs.android.Util.NotEmpty(changes))
-			{
-				android.util.Log.d("Has_Changes()", "has changes since "+since.toLocaleString());
-				java.sql.Date max=(java.sql.Date)db.Select_Value(java.sql.Date.class, "select max(log_date) from Log");
-				android.util.Log.d("Has_Changes()", "last change at "+max.toLocaleString());
-				android.util.Log.d("Has_Changes()", "changes found: "+changes);
-				android.util.Log.d("Has_Changes()", "type is "+changes.getClass().getName());
 				res = true;
-			}
 			else
 				res=false;
 		}

@@ -117,7 +117,8 @@ public class Util
 		{
 			for (android.view.View v: views)
 			{
-				layout.addView(v);
+				layout.addView(v, new android.widget.LinearLayout.LayoutParams(
+				  android.widget.LinearLayout.LayoutParams.FILL_PARENT, 0, 1f));
 			}
 		}
 	}
@@ -146,9 +147,17 @@ public class Util
 		
 		pic=new android.graphics.Picture();
 		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
-		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
-		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, pic_paint);
-		c.drawLine(BRANCH_WIDTH/2f, BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, pic_paint);
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
+		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		
+		// draw cross
+		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, 
+		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH+1f, BRANCH_WIDTH/2f, 
+			pic_paint);
+		c.drawLine(BRANCH_WIDTH/2f, BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, 
+		  BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH+1, 
+			pic_paint);
+			
 		pic.endRecording();
 		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
 		
@@ -174,8 +183,14 @@ public class Util
 		
 		pic=new android.graphics.Picture();
 		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
-		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
-		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, pic_paint);
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
+		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+			
+		// draw dash
+		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, 
+		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH-BRANCH_PIC_FRAME_WIDTH+1, BRANCH_WIDTH/2f, 
+			pic_paint);
+			
 		pic.endRecording();
 		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
 
@@ -206,5 +221,145 @@ public class Util
 		pic_drawable=new android.graphics.drawable.PictureDrawable(pic);
 
 		return pic_drawable;
+	}
+	
+	public static android.graphics.PointF To_Canvas_Pt(android.graphics.RectF world_window, 
+		android.graphics.RectF canvas_window, float x, float y)
+  {
+    android.graphics.PointF res=null;
+    float cw, ww;
+
+    res=new android.graphics.PointF();
+
+    cw=canvas_window.right-canvas_window.left;
+    ww=world_window.right-world_window.left;
+    res.x=((x-world_window.left)*cw/ww)+canvas_window.left;
+
+    cw=canvas_window.bottom-canvas_window.top;
+    ww=world_window.top-world_window.bottom;
+    res.y=canvas_window.bottom-((y-world_window.bottom)*cw/ww);
+
+    return res;
+  }
+	
+	@SuppressWarnings("unchecked")
+  public static void SetWidgets(android.app.Activity activity, java.lang.Class<? extends Object> ids_class) 
+  {
+    int id;
+    android.view.View widget;
+    String id_name, tag;
+    java.lang.reflect.Field activity_field;
+    java.util.Collection<Object> list;
+
+    for (java.lang.reflect.Field field: ids_class.getFields())
+    {
+      if (field.getType().equals(int.class))
+      {
+        try 
+        {
+          id=field.getInt(null);
+          id_name=field.getName();
+        }
+        catch (java.lang.Exception e) 
+        {
+          id=0;
+          id_name=null;
+        }
+
+        widget=activity.findViewById(id);
+        if (widget!=null)
+        {
+          tag=(String)widget.getTag();
+          if (rs.android.Util.NotEmpty(tag))
+            id_name=tag;
+
+          try {activity_field=activity.getClass().getField(id_name);}
+          catch (java.lang.Exception e) {activity_field=null;}
+          if (activity_field!=null)
+          {
+            if (rs.android.Util.IsGenericList(activity_field, widget.getClass()))
+            {
+              try {list=(java.util.Collection<Object>)activity_field.get(activity);}
+              catch (java.lang.Exception e) {list=null;}
+              if (list==null)
+              {
+                try {list=(java.util.Collection<Object>)activity_field.getType().newInstance();}
+                catch (java.lang.Exception e) {list=null;}
+                if (list!=null)
+                {
+                  try {activity_field.set(activity, list);}
+                  catch (java.lang.Exception e) {e.printStackTrace();}
+                }
+              }
+              if (list!=null)
+                list.add(widget);
+            }
+            else
+            {
+              try {activity_field.set(activity, widget);} 
+              catch (java.lang.Exception e) {e.printStackTrace();}
+            }
+          }
+
+          if (activity instanceof android.view.View.OnClickListener)
+            if (!(widget instanceof android.widget.ListView))
+              widget.setOnClickListener((android.view.View.OnClickListener)activity);
+          widget.setOnCreateContextMenuListener(activity);
+        }
+      }
+    }
+  }
+	
+	public static void Show_Obj(android.content.Context ctx, Object obj)
+	{
+		String obj_msg;
+
+		obj_msg=rs.android.Util.Objs_To_String(obj);
+		Show_Message(ctx, obj_msg);
+	}
+
+	public static void Show_Message(android.content.Context ctx, String msg)
+	{
+		android.app.AlertDialog dlg;
+
+		//android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_LONG).show();
+		dlg = new android.app.AlertDialog.Builder(ctx).create();
+		dlg.setTitle("Message");
+		dlg.setMessage(msg);
+		dlg.show();
+	}
+
+	public static void Show_Stack(android.content.Context ctx)
+	{
+		StackTraceElement[] elems;
+		String msg;
+
+		elems=Thread.currentThread().getStackTrace();
+		if (rs.android.Util.NotEmpty(elems))
+		{
+			msg="";
+			for (StackTraceElement elem: elems)
+			{
+				msg+=elem.toString()+"\n";
+			}
+			Show_Message(ctx, msg);
+		}
+	}
+
+	public static void Show_Note(android.content.Context ctx, String msg)
+	{
+		android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_LONG).show();
+	}
+
+	public static void Show_Error(android.content.Context ctx, Exception e)
+	{
+		java.io.ByteArrayOutputStream buffer;
+		java.io.PrintStream stream;
+
+		buffer=new java.io.ByteArrayOutputStream();
+		stream=new java.io.PrintStream(buffer);
+		e.printStackTrace(stream);
+
+		rs.android.ui.Util.Show_Message(ctx, buffer.toString());
 	}
 }

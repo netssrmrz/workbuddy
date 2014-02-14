@@ -25,7 +25,7 @@ rs.workbuddy.Workbuddy_Activity
 		}
 		catch (Exception e)
 		{
-			rs.android.Util.Show_Error(this, e);
+			rs.android.ui.Util.Show_Error(this, e);
 		}
   }
 
@@ -97,7 +97,7 @@ rs.workbuddy.Workbuddy_Activity
 		}
 		catch (Exception e)
 		{
-			rs.android.Util.Show_Error(this, e);
+			rs.android.ui.Util.Show_Error(this, e);
 		}
 	}
 

@@ -36,7 +36,7 @@ public class Bar
 	public void Draw(android.graphics.Canvas c)
 	{
 		if (this.bounds==null)
-			rs.android.Util.Show_Note(this.ctx, "bounds is null");
+			rs.android.ui.Util.Show_Note(this.ctx, "bounds is null");
 		else
 		if (this.size_angle>0)
 			c.drawArc(this.bounds, start_angle+90, size_angle, false, this.paint);

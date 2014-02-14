@@ -80,8 +80,9 @@ android.view.View.OnClickListener
 		  project_name = rs.workbuddy.Project.Get_Project_Name(this.db, project_id);
 
 		project_name_label = new android.widget.TextView(container.getContext());
-		if (this.view_text_size > 0)
-		  project_name_label.setTextSize(this.view_text_size);
+		//if (this.view_text_size > 0)
+		  //project_name_label.setTextSize(this.view_text_size);
+	  project_name_label.setTextSize(20);
 		project_name_label.setText(project_name);
 
 		return project_name_label;
@@ -163,9 +164,10 @@ android.view.View.OnClickListener
 		project_name_label.setOnClickListener(this);
 		project_name_label.setGravity(android.view.Gravity.CENTER_VERTICAL);
 		project_name_label.setTag(idx);
-		project_name_label.setTextColor(project_colour);
-		if (this.dropdown_text_size > 0)
-		  project_name_label.setTextSize(this.dropdown_text_size);
+		project_name_label.setTextSize(17);
+		//project_name_label.setTextColor(project_colour);
+		//if (this.dropdown_text_size > 0)
+		  //project_name_label.setTextSize(this.dropdown_text_size);
 		//rs.workbuddy.Border_Drawable.Add_Border(project_name_label, 0xffff0000);
 
 		project_open_button = new android.widget.CheckBox(ctx);
@@ -184,6 +186,8 @@ android.view.View.OnClickListener
 		params = new android.widget.LinearLayout.LayoutParams(
 		  android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
 			android.widget.LinearLayout.LayoutParams.MATCH_PARENT);
+		//params.topMargin=10;
+		//params.bottomMargin=10;
 		layout.addView(project_name_label, params);
 
 		//rs.workbuddy.Border_Drawable.Add_Border(layout, 0xff0000ff);

@@ -2,6 +2,10 @@ package rs.workbuddy.db;
 
 public class Event_Type
 {
+	public static final String NAME_WORK="Work";
+	public static final String NAME_BREAK="Break";
+	public static final String NAME_HOME="Home";
+	
   public Long id;
 	public String name;
 	public Boolean display_home_projects;
@@ -48,5 +52,11 @@ public class Event_Type
 																 "from Event_Type "+
 																 "where display_home_projects=1");
 		return res;
+	}
+	
+	public static Long Select_By_Name(rs.android.Db db, String name)
+	{
+		return (Long)db.Select_Value(Long.class, 
+		  "select id from Event_Type where name=?", name);
 	}
 }

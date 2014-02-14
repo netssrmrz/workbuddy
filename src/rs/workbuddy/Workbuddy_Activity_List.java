@@ -1,5 +1,8 @@
 package rs.workbuddy;
 import java.sql.*;
+import android.widget.*;
+import android.widget.TableRow.*;
+import rs.android.ui.*;
 
 public class Workbuddy_Activity_List
 extends rs.workbuddy.Workbuddy_Activity
@@ -47,6 +50,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 		this.selected = new java.util.ArrayList<Long>();
 		this.table_layout = new android.widget.TableLayout(this);
+		//rs.workbuddy.Border_Drawable.Add_Border(table_layout, 0xffff0000);
 
 		main_view = new android.widget.ScrollView(this);
 		main_view.setBackgroundColor(android.R.color.transparent);
@@ -245,10 +249,11 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		{
 			table_layout = new android.widget.TableLayout.LayoutParams();
 			table_layout.setMargins(0, 0, 0, 0);
-			title = this.New_Header_Cell(this.title);
+			title = this.New_Title_Cell(this.title);
 			title.setPadding(0, 10, 0, 0);
-
+      //rs.workbuddy.Border_Drawable.Add_Border(title, 0xff00ff00);
 			table.addView(title, table_layout);
+			
 			this.data_start_pos++;
 		}
 	}
@@ -257,7 +262,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	{
 		android.widget.TableRow row;
 		android.widget.TableLayout.LayoutParams table_layout;
-		android.widget.TableRow.LayoutParams row_layout;
+		android.widget.TableRow.LayoutParams cell_layout;
 		android.widget.TextView cell;
 
 		table_layout = new android.widget.TableLayout.LayoutParams();
@@ -266,18 +271,15 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		row.setPadding(0, 10, 0, 0);
 		//rs.workbuddy.Border_Drawable.Add_Border(row, 0xff00ff00);
 
-		row_layout = new android.widget.TableRow.LayoutParams();
-		row_layout.setMargins(0, 0, 0, 0);
-		row_layout.gravity = android.view.Gravity.CENTER_VERTICAL | android.view.Gravity.RIGHT;
-		cell = New_Header_Cell("#");
-		cell.setPadding(0, 0, 10, 0);
-		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xffff0000);
-		row.addView(cell, row_layout);
+		row.addView(New_Header_Cell("#"), 
+		  android.widget.TableRow.LayoutParams.FILL_PARENT,
+			android.widget.TableRow.LayoutParams.FILL_PARENT);
 
 		if (this.has_col_select)
 		{
-			cell.setPadding(0, 0, 0, 0);
-		  row.addView(New_Header_Cell(" "));
+		  row.addView(New_Header_Cell(" "),
+				android.widget.TableRow.LayoutParams.FILL_PARENT,
+				android.widget.TableRow.LayoutParams.FILL_PARENT);
 		}
 
 		On_Build_Header_Row(row);
@@ -288,22 +290,16 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	public void Build_Footer_Row(android.widget.TableLayout table)
 	{
 		android.widget.TableRow row;
-		//rs.workbuddy.Border_Drawable border;
 
 		if (this.has_footer)
 		{
 			row = new android.widget.TableRow(this);
+			rs.android.ui.Border_Drawable.Add_Border_Top(row, 0xff333333, 5, 10);
+			row.setPadding(0, 15, 0, 0);
 
-			/*border = new rs.workbuddy.Border_Drawable();
-			 border.top = false;
-			 border.right = false;
-			 border.left = false;
-			 border.bottom_paint.setStrokeWidth(3);
-			 row.setBackgroundDrawable(border);*/
-
-			row.addView(New_Header_Cell(" "));
+			row.addView(New_Footer_Cell(" "));
 			if (this.has_col_select)
-				row.addView(New_Header_Cell(" "));
+				row.addView(New_Footer_Cell(" "));
 
 			On_Build_Footer_Row(row);
 			table.addView(row);
@@ -327,7 +323,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		row_layout.gravity = android.view.Gravity.CENTER_VERTICAL | android.view.Gravity.RIGHT;
 		cell = new android.widget.TextView(this);
 		cell.setText("x");
-		cell.setTextColor(0xff999999);
+		cell.setTextColor(0xff333333);
 		cell.setPadding(0, 0, 10, 0);
 		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
 		row.addView(cell, row_layout);
@@ -570,30 +566,56 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		return res;
 	}
 
-	public android.widget.TextView New_Cell(String label)
+	public android.widget.TextView New_Title_Cell(String text)
 	{
 		android.widget.TextView cell;
 
 		cell = new android.widget.TextView(this);
-		cell.setText(rs.android.Util.To_String(label, "n/a"));
-		cell.setPadding(0, 0, 10, 0);
-		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
+		cell.setText(text);
+		cell.setPadding(0, 0, 0, 0); // l t r b
+		cell.setTextSize(19);
+		cell.setGravity(android.view.Gravity.CENTER);
+		//cell.setTextColor(0xffffffff);
 		return cell;
 	}
-
+	
 	public android.widget.TextView New_Header_Cell(String text)
 	{
 		android.widget.TextView cell;
 
 		cell = new android.widget.TextView(this);
 		cell.setText(text);
-		cell.setPadding(0, 0, 10, 0);
-		cell.setTextSize(18);
-		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xffff0000);
-		cell.setTextColor(0xffffffff);
+		cell.setPadding(15, 5, 15, 5); // l t r b
+		cell.setTextSize(15);
+		cell.setGravity(android.view.Gravity.CENTER);
+		rs.android.ui.Border_Drawable.Add_Border(cell, 0xff000000, 0xff333333);
+		//cell.setTextColor(0xffffffff);
 		return cell;
 	}
+	
+	public android.widget.TextView New_Cell(String label)
+	{
+		android.widget.TextView cell;
 
+		cell = new android.widget.TextView(this);
+		cell.setText(rs.android.Util.To_String(label, "n/a"));
+		cell.setPadding(10, 5, 10, 5);
+		if (!rs.android.Util.NotEmpty(label))
+			cell.setTextColor(0xff333333);
+		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
+		return cell;
+	}
+	
+	public android.widget.TextView New_Footer_Cell(String text)
+	{
+		android.widget.TextView cell;
+
+		cell = new android.widget.TextView(this);
+		cell.setText(text);
+		cell.setPadding(10, 5, 10, 5); // l t r b
+		return cell;
+	}
+	
 	public rs.android.ui.Column Add_Column(String id, String title)
 	{
 		return this.Add_Column(id, title, false);
@@ -641,7 +663,9 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 				if (col.visible)
 				{
 					cell = New_Header_Cell(col.title);
-				  row.addView(cell);
+				  row.addView(cell,
+						android.widget.TableRow.LayoutParams.FILL_PARENT,
+						android.widget.TableRow.LayoutParams.FILL_PARENT);
 					c = row.indexOfChild(cell);
 
 					if (col.wrap)
@@ -650,7 +674,10 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 						this.table_layout.setColumnStretchable(c, true);
 					}
 					else
-						this.table_layout.setColumnShrinkable(c, false);
+					{
+						this.table_layout.setColumnStretchable(c, true);
+						//this.table_layout.setColumnShrinkable(c, false);
+					}
 				}
 			}
 		}
@@ -659,7 +686,6 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	public void On_Build_Footer_Row(android.widget.TableRow row)
 	{
 		android.view.View cell_view;
-		android.widget.TableRow.LayoutParams layout;
 
 		if (rs.android.Util.NotEmpty(this.cols))
 		{
@@ -670,9 +696,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 					cell_view = this.On_Get_Col_Footer_View(col.id);
 					if (cell_view != null)
 					{
-						layout = new android.widget.TableRow.LayoutParams();
-						layout.gravity = android.view.Gravity.CENTER_VERTICAL;
-					  row.addView(cell_view, layout);
+					  row.addView(cell_view, this.Set_Layout(col));
 					}
 				}
 			}
@@ -683,7 +707,6 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	{
 		Object obj;
 		android.view.View cell_view;
-		android.widget.TableRow.LayoutParams layout;
 		boolean is_first_view=true;
 
 		if (rs.android.Util.NotEmpty(this.cols))
@@ -704,19 +727,34 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 							is_first_view = false;
 						}
 						
-						layout = new android.widget.TableRow.LayoutParams();
-						if (col.align==rs.android.ui.Column.ALIGN_RIGHT)
-							layout.gravity=android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.RIGHT;
-						else if (col.align==rs.android.ui.Column.ALIGN_CENTRE)
-							layout.gravity=android.view.Gravity.CENTER;
-						else
-							layout.gravity = android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.LEFT;
-							
-					  row.addView(cell_view, layout);
+					  row.addView(cell_view, this.Set_Layout(col));
 					}
 				}
 			}
 		}
+	}
+	
+	public android.widget.TableRow.LayoutParams Set_Layout
+	  (rs.android.ui.Column col)
+	{
+		android.widget.TableRow.LayoutParams layout=null;
+
+		layout = new android.widget.TableRow.LayoutParams();
+	  layout.width=android.widget.TableRow.LayoutParams.WRAP_CONTENT;
+		layout.height=android.widget.TableRow.LayoutParams.WRAP_CONTENT;
+		layout.topMargin=0;
+		layout.leftMargin=0;
+		layout.bottomMargin=0;
+		layout.rightMargin=0;
+		
+		if (col.align==rs.android.ui.Column.ALIGN_RIGHT)
+			layout.gravity=android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.RIGHT;
+		else if (col.align==rs.android.ui.Column.ALIGN_CENTRE)
+			layout.gravity=android.view.Gravity.CENTER;
+		else
+			layout.gravity=android.view.Gravity.CENTER_VERTICAL|android.view.Gravity.LEFT;
+		
+		return layout;
 	}
 
 	public android.graphics.drawable.StateListDrawable Get_Branch_Drawable()
@@ -873,7 +911,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 	public Long[] On_Get_List()
 	{
-		rs.android.Util.Show_Note(this, "Workbuddy_Activity_List.On_Get_List()");
+		rs.android.ui.Util.Show_Note(this, "Workbuddy_Activity_List.On_Get_List()");
 		return null;
 	}
 

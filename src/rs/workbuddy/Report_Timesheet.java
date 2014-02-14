@@ -48,6 +48,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	{
 		Long[] ids;
 		String type_name;
+		rs.android.ui.Column col;
 
 		this.Add_Column("date", "Date");
 		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
@@ -56,12 +57,14 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			for (Long id: ids)
 			{
 				type_name = rs.workbuddy.db.Event_Type.Get_Name(this.db, id);
-				this.Add_Column("mins_" + id, type_name + "\n(Minutes)");
-				this.Add_Column("hrs_" + id, type_name + "\n(Hours)");
+				col = this.Add_Column("mins_" + id, type_name + "\n(Minutes)");
+				col.align = rs.android.ui.Column.ALIGN_RIGHT;
+				col = this.Add_Column("hrs_" + id, type_name + "\n(Hours)");
+				col.align = rs.android.ui.Column.ALIGN_RIGHT;
 			}
 		}
 	}
-	
+
 	public void Set_Title()
 	{
 		java.sql.Date[] week_days;
@@ -88,7 +91,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		android.widget.TextView cell=null;
 
 		if (col_id.equals("date"))
-		  cell = New_Header_Cell("Totals");
+		  cell = New_Footer_Cell("Totals");
 
 		else if (col_id.startsWith("mins"))
 		{
@@ -103,9 +106,9 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 				tot_dur_min = null;
 
 			total_dur_str = rs.android.Util.To_String(tot_dur_min, "n/a", "#,##0.##");
-			cell=New_Header_Cell(total_dur_str);
+			cell = New_Footer_Cell(total_dur_str);
 		}
-		
+
 		else if (col_id.startsWith("hrs"))
 		{
 			week_start = rs.android.Util.Week_First_Day(this.week_of);
@@ -117,11 +120,11 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 				tot_dur_hr = (double)total_dur / (double)1000 / (double)60 / (double)60;
 			else
 				tot_dur_hr = null;
-			
+
 			total_dur_str = rs.android.Util.To_String(tot_dur_hr, "n/a", "#,##0.##");
-			cell=New_Header_Cell(total_dur_str);
+			cell = New_Footer_Cell(total_dur_str);
 		}
-		
+
 		return cell;
 	}
 
@@ -139,7 +142,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		if (col_id.equals("date"))
 		{
 			cell = this.New_Cell(rs.android.Util.To_String(date, "n/a", "EEEE"));
-			cell.setTextSize(18);
+			//cell.setTextSize(18);
 		}
 
 		else if (col_id.startsWith("mins"))
@@ -152,7 +155,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				dur_min = null;
 
-			cell = New_Cell(rs.android.Util.To_String(dur_min, "n/a", "#,##0.##"));
+			cell = New_Cell(rs.android.Util.To_String(dur_min, null, "#,##0.##"));
 		}
 
 		else if (col_id.startsWith("hrs"))
@@ -165,7 +168,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				dur_hr = null;
 
-			cell = New_Cell(rs.android.Util.To_String(dur_hr, "n/a", "#,##0.##"));
+			cell = New_Cell(rs.android.Util.To_String(dur_hr, null, "#,##0.##"));
 		}
 
 		return cell;
@@ -309,31 +312,36 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		if (rs.android.Util.NotEmpty(week_of) && rs.android.Util.NotEmpty(template_name))
 		{
-			prog_label = new android.widget.TextView(this);
-			prog_label.setText("Creating timesheet from template \"" + template_name + "\"...");
-			prog_label.setPadding(20, 20, 20, 0);
-			prog_label.setTextSize(15);
-			this.table_layout.addView(prog_label, 0);
+			if (rs.android.util.File.Exists(template_name))
+			{
+				prog_label = new android.widget.TextView(this);
+				prog_label.setText("Creating timesheet from template \"" + template_name + "\"...");
+				prog_label.setPadding(20, 20, 20, 0);
+				prog_label.setTextSize(15);
+				this.table_layout.addView(prog_label, 0);
 
-			this.prog_bar = new rs.android.ui.Progress_Bar(this);
-			this.prog_bar.setIndeterminate(false);
-			this.prog_bar.setMax(rs.android.Zip.Count_Entries(template_name));
-			this.prog_bar.setProgress(0);
-			this.prog_bar.setPadding(20, 0, 20, 20);
-			this.table_layout.addView(this.prog_bar, 1);
+				this.prog_bar = new rs.android.ui.Progress_Bar(this);
+				this.prog_bar.setIndeterminate(false);
+				this.prog_bar.setMax(rs.android.Zip.Count_Entries(template_name));
+				this.prog_bar.setProgress(0);
+				this.prog_bar.setPadding(20, 0, 20, 20);
+				this.table_layout.addView(this.prog_bar, 1);
 
-			zip = new rs.workbuddy.Timesheet_Template();
-			zip.ctx = this;
-			zip.week_of = this.week_of;
-			zip.db = this.db;
-			zip.template_name = template_name;
-			zip.timesheet_name = "timesheet.docx";
-			zip.prog_bar = this.prog_bar;
-			zip.on_finish_listener = this;
-			zip.project_id = this.project_id;
+				zip = new rs.workbuddy.Timesheet_Template();
+				zip.ctx = this;
+				zip.week_of = this.week_of;
+				zip.db = this.db;
+				zip.template_name = template_name;
+				zip.timesheet_name = "timesheet.docx";
+				zip.prog_bar = this.prog_bar;
+				zip.on_finish_listener = this;
+				zip.project_id = this.project_id;
 
-			thread = new java.lang.Thread(zip);
-			thread.start();
+				thread = new java.lang.Thread(zip);
+				thread.start();
+			}
+			else
+				rs.android.ui.Util.Show_Note(this, "Template not found.");
 		}
 	}
 

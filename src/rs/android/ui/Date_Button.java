@@ -25,7 +25,7 @@ rs.android.ui.Date_Dialog.On_Date_Set_Listener
 		}
 		catch (Exception e)
 		{
-			rs.android.Util.Show_Error(this.getContext(), e);
+			rs.android.ui.Util.Show_Error(this.getContext(), e);
 		}
 	}
 

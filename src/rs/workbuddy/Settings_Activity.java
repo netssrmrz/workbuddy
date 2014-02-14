@@ -163,7 +163,7 @@ implements android.preference.Preference.OnPreferenceChangeListener
 		
 		filename=Settings_Activity.Get_Backup_Filename(this);
 		rs.workbuddy.Db.Backup(filename);
-		rs.android.Util.Show_Note(this, "Export to file \""+filename+"\" in Downloads directory complete.");
+		rs.android.ui.Util.Show_Note(this, "Export to file \""+filename+"\" in Downloads directory complete.");
 	}
 	
 	public void On_Import()
@@ -172,7 +172,7 @@ implements android.preference.Preference.OnPreferenceChangeListener
 
 		filename=Settings_Activity.Get_Backup_Filename(this);
 		rs.workbuddy.Db.Restore(filename);
-		rs.android.Util.Show_Note(this, "Import from file \""+filename+"\" in Downloads directory complete.");
+		rs.android.ui.Util.Show_Note(this, "Import from file \""+filename+"\" in Downloads directory complete.");
 	}
 	
 	public boolean onPreferenceChange(android.preference.Preference p, Object newValue)

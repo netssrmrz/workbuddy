@@ -13,12 +13,26 @@ implements java.io.Serializable
 	public static Long[] Select_Home_Ids(rs.android.Db db)
 	{
 		Long[] res=null;
+		String sql;
 
-		res = (Long[])db.Select_Column(Long.class, 
-		  "select p.id " +
-			"from Project p " +
-			"left join Status_Type s on s.id=p.status_type_id " +
-			"where s.display_home=1");
+		sql =
+			"select p.id " +
+			"from project p " +
+			"left join " +
+			"(SELECT project_id, max(start_date) last_date " +
+			"FROM work_event " +
+			"group by project_id " +
+			"order by start_date desc) d on d.project_id=p.id " +
+			"left join status_type s on s.id=p.status_type_id " +
+			"where s.display_home=1 " +
+			"order by last_date desc ";
+
+		res = (Long[])db.Select_Column(Long.class, sql);
+		if (rs.android.Util.NotEmpty(res) && res.length>8)
+		{
+			res=java.util.Arrays.copyOf(res, 8);
+		}
+		
 		return res;
 	}
 
@@ -75,20 +89,20 @@ implements java.io.Serializable
 	{
     Integer c=null;
 		int res=0;
-		
+
 		c = (Integer)db.Select_Value(Integer.class, 
 		  "select count(*) from project where parent_id=?", parent_id);
-		if (c!=null)
-			res=c.intValue();
+		if (c != null)
+			res = c.intValue();
 		return res;
 	}
-	
+
 	public static Long[] Select_Root_Projects(rs.android.Db db)
 	{
 		return (Long[])db.Select_Column(Long.class, 
 		  "select id from project where parent_id is null order by name asc");
 	}
-	
+
 	public static Long[] Select_Children(rs.android.Db db, Long parent_id)
 	{
 		return (Long[])db.Select_Column(Long.class, 
@@ -125,13 +139,13 @@ implements java.io.Serializable
 	{
 		boolean res=false;
 		Long[] children;
-		
-		children=Select_Children(db, id);
+
+		children = Select_Children(db, id);
 		if (rs.android.Util.NotEmpty(children))
-			res=true;
+			res = true;
 		return res;
 	}
-	
+
 	public static int Count_Parents(rs.android.Db db, Long id)
 	{
 		int res=0;
@@ -139,7 +153,7 @@ implements java.io.Serializable
 
 		ids = Select_Parents(db, id);
 		if (rs.android.Util.NotEmpty(ids))
-			res=ids.length;
+			res = ids.length;
 		return res;
 	}
 
@@ -172,31 +186,45 @@ implements java.io.Serializable
 		}
 		return res;
 	}
-	
+
 	public static Integer Get_Colour(rs.android.Db db, Long id)
 	{
 		Integer res;
 		Long status_type_id;
 
-		status_type_id=(Long)db.Select_Value(Long.class, "select status_type_id from Project where id=?", id);
+		status_type_id = (Long)db.Select_Value(Long.class, "select status_type_id from Project where id=?", id);
 		res = rs.workbuddy.db.Status_Type.Get_Colour(db, status_type_id);
 		if (res == null)
 			res = 0xffffffff;
 		return res;
 	}
-	
+
 	public Integer Get_Event_Count(rs.android.Db db)
 	{
 		return Count_Events(db, this.id);
 	}
-	
+
 	public static int Count_Events(rs.android.Db db, Long id)
 	{
 		return (Integer)db.Select_Value(Integer.class, "select count(*) from Work_Event where project_id=?", id);
 	}
-	
+
 	public static int Delete(rs.android.Db db, Long id)
 	{
 		return db.Delete(id, Project.class);
+	}
+
+	public static Long Select_Last_Used(rs.android.Db db, java.sql.Date date)
+	{
+		Long res=null;
+		String sql;
+
+		sql =
+		  "SELECT e.project_id " +
+			"FROM Work_Event e " +
+			"where e.start_date<? and e.project_id is not null " +
+			"order by e.start_date desc";
+		res = (Long)db.Select_Value(Long.class, sql, date);
+		return res;
 	}
 }

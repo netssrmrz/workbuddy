@@ -322,4 +322,24 @@ implements java.io.Serializable
 	{
 		return rs.workbuddy.db.Event_Type.Get_Name(db, this.event_type_id);
 	}
+	
+	public boolean Is_Break(rs.android.Db db)
+	{
+		boolean res=false;
+		Long break_id;
+		
+		break_id=rs.workbuddy.db.Event_Type.Select_By_Name(db, 
+		  rs.workbuddy.db.Event_Type.NAME_BREAK);
+		if (this.event_type_id.equals(break_id))
+			res=true;
+		return res;
+	}
+	
+	public void Set_Default_Project(rs.android.Db db)
+	{
+		if (this.project_id==null && this.Is_Break(db))
+		{
+			this.project_id=Project.Select_Last_Used(db, this.start_date);
+		}
+	}
 }

@@ -28,7 +28,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 		this.Add_Field("Start Time", start_time_button);
 
 		this.project_spinner=new Project_Spinner(this, this.db);
-		((Project_Adapter)this.project_spinner.getAdapter()).view_text_size=20;
+		//((Project_Adapter)this.project_spinner.getAdapter()).view_text_size=25;
 		this.Add_Field("Project", project_spinner);
 
 		// event notes

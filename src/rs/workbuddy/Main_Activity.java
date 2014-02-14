@@ -1,8 +1,9 @@
 package rs.workbuddy;
 import android.widget.*;
-import rs.workbuddy.db.*;
-import android.view.*;
-import java.sql.*;
+//import android.widget.*;
+//import rs.workbuddy.db.*;
+//import android.view.*;
+//import java.sql.*;
 
 public class Main_Activity 
 extends rs.workbuddy.Workbuddy_Activity
@@ -65,58 +66,102 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
   @Override
   public void onCreate(android.os.Bundle state)
 	{
-		try
+		super.onCreate(state);
+		
+		rs.android.Util.ctx = this;
+
+		main_layout = new android.widget.LinearLayout(this);
+
+		if (rs.android.ui.Util.Is_Landscape_Mode(this))
 		{
-			super.onCreate(state);
-
-			rs.android.Util.ctx = this;
-
-			this.clock = new rs.android.ui.Guage_View(this);
-			this.clock.setPadding(0, 10, 0, 0);
-
-			clock_text = new android.widget.TextView(this);
-			clock_text.setTextColor(0xffbbbbbb);
-			clock_text.setTextSize(25);
-			clock_text.setTextAlignment(android.widget.TextView.TEXT_ALIGNMENT_CENTER);
-			clock_text.setGravity(android.view.Gravity.CENTER);
-			clock_text.setPadding(0, 0, 0, 0);
-
-			event_text = new android.widget.TextView(this);
-			event_text.setTextColor(0xffbbbbbb);
-			event_text.setTextSize(15);
-			event_text.setTextAlignment(android.widget.TextView.TEXT_ALIGNMENT_CENTER);
-			event_text.setGravity(android.view.Gravity.CENTER);
-			event_text.setPadding(0, 0, 0, 0);
-
-			this.event_type_layout = new android.widget.LinearLayout(this);
-			this.event_type_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-			this.event_type_layout.setPadding(0, 0, 0, 0);
-
-			this.project_layout = new android.widget.LinearLayout(this);
-			this.project_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-			this.project_layout.setPadding(0, 0, 0, 0);
-
-			main_layout = new android.widget.LinearLayout(this);
+			main_layout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+			main_layout.addView(this.Create_Clock(), 
+				new android.widget.LinearLayout.LayoutParams(
+					0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 50f));
+			main_layout.addView(this.Create_Buttons(), 
+				new android.widget.LinearLayout.LayoutParams(
+					0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 50f));
+		}
+		else
+		{
 			main_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-			main_layout.addView(clock, new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 5f));	
-			main_layout.addView(clock_text, new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.5f));
-			main_layout.addView(event_text, new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.5f));
-			main_layout.addView(this.event_type_layout);
-			main_layout.addView(this.project_layout);
+			main_layout.addView(this.Create_Clock(), 
+				new android.widget.LinearLayout.LayoutParams(
+					android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 75f));
+			main_layout.addView(this.Create_Buttons(), 
+				new android.widget.LinearLayout.LayoutParams(
+					android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 25f));
+		}
 
-			this.setContentView(main_layout);
-		}
-		catch (Exception e)
-		{
-			rs.android.Util.Show_Error(this, e);
-		}
+		this.setContentView(main_layout);
   }
+
+	public android.widget.LinearLayout Create_Buttons()
+	{
+		android.widget.LinearLayout button_frame;
+
+		this.event_type_layout = new android.widget.LinearLayout(this);
+		this.event_type_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+		this.event_type_layout.setPadding(0, 0, 0, 0);
+		//rs.android.ui.Border_Drawable.Add_Border(this.event_type_layout, 0xffff0000);
+
+		this.project_layout = new android.widget.LinearLayout(this);
+		this.project_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+		this.project_layout.setPadding(0, 0, 0, 0);
+		//rs.android.ui.Border_Drawable.Add_Border(this.project_layout, 0xffff0000);
+
+		button_frame = new android.widget.LinearLayout(this);
+		button_frame.setOrientation(android.widget.LinearLayout.VERTICAL);
+		button_frame.addView(this.event_type_layout,
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 20f));
+		button_frame.addView(this.project_layout,
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 80f));
+
+		return button_frame;
+	}
+
+	public android.widget.LinearLayout Create_Clock()
+	{
+		android.widget.LinearLayout clock_frame;
+
+		this.clock = new rs.android.ui.Guage_View(this);
+		this.clock.setPadding(0, 10, 0, 0);
+
+		clock_text = new android.widget.TextView(this);
+		clock_text.setTextColor(0xffbbbbbb);
+		clock_text.setTextSize(25);
+		clock_text.setTextAlignment(android.widget.TextView.TEXT_ALIGNMENT_CENTER);
+		clock_text.setGravity(android.view.Gravity.CENTER);
+		clock_text.setPadding(0, 0, 0, 0);
+
+		event_text = new android.widget.TextView(this);
+		event_text.setTextColor(0xffbbbbbb);
+		event_text.setTextSize(15);
+		event_text.setTextAlignment(android.widget.TextView.TEXT_ALIGNMENT_CENTER);
+		event_text.setGravity(android.view.Gravity.CENTER);
+		event_text.setPadding(0, 0, 0, 0);
+
+		clock_frame = new android.widget.LinearLayout(this);
+		clock_frame.setOrientation(android.widget.LinearLayout.VERTICAL);
+		clock_frame.addView(clock,
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 85f));
+		clock_frame.addView(clock_text,
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 7f));
+		clock_frame.addView(event_text,
+			new android.widget.LinearLayout.LayoutParams(
+				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 8f));
+
+		return clock_frame;
+	}
 
   public void onClick(android.view.View v)
   {
 		Long rounding=null;
-		Work_Event event, prev_event;
-		rs.workbuddy.db.Event_Type event_type;
+		Work_Event event;
 
 		//android.util.Log.d("workbuddy", "onClick()");
 		rounding = rs.workbuddy.Settings_Activity.Get_Rounding(this);
@@ -125,13 +170,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		event.id = null;
 		event.notes = null;
 		event.start_date = rs.android.Util.Round_Date(rs.android.Util.Now(), rounding);
-		// if user selected a break event with no particular project
-		if (rs.android.Util.Equals(event.Get_Type_Name(this.db), "Break") && event.project_id == null)
-		{
-			prev_event = Work_Event.Select_Prev_Event(this.db, event.start_date);
-			if (prev_event != null && prev_event.project_id != null)
-				event.project_id = prev_event.project_id;
-		}
+		event.Set_Default_Project(this.db);
 		event.Save(this.db);
 
 		this.Update_UI();
@@ -162,6 +201,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		this.dlg_event.start_date = rs.android.Util.Date_Set_Time(this.dlg_event.start_date, time);
 		this.dlg_event.id = null;
 		this.dlg_event.notes = null;
+		this.dlg_event.Set_Default_Project(this.db);
 		this.dlg_event.Save(this.db);
 
 		this.Update_UI();
@@ -361,8 +401,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		  this.project_layout.removeAllViews();
 		  rs.android.ui.Util.Add_Views(this.project_layout, this.Build_Project_Rows(this.db));
     }
-    this.last_update_time=rs.android.Util.Now();
-    
+    this.last_update_time = rs.android.Util.Now();
+
 	  // update duration header
 		this.event_text.setText(this.Get_Prev_Event_Description(this.db, now));
 

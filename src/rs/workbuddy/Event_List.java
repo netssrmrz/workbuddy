@@ -136,7 +136,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	@Override
 	public void On_Update_Row(int c)
 	{
-		rs.workbuddy.Border_Drawable border;
+		rs.android.ui.Border_Drawable border;
 		Long id;
 		android.view.View row;
 		Work_Event event, next_event=null;
@@ -153,12 +153,12 @@ extends rs.workbuddy.Workbuddy_Activity_List
 
 			if (next_event != null && rs.android.Util.Date_Get_Day_Of_Week(next_event.start_date) != rs.android.Util.Date_Get_Day_Of_Week(event.start_date))
 			{
-				border = new rs.workbuddy.Border_Drawable();
+				border = new rs.android.ui.Border_Drawable();
 				border.top = false;
 				border.right = false;
 				border.left = false;
-				border.bottom_paint.setColor(0xff44bb44);
-
+				border.bottom_paint.setColor(0xff008800);
+				
 				row = this.table_layout.getChildAt(c);
 				row.setBackgroundDrawable(border);
 			}

@@ -162,7 +162,7 @@ extends android.graphics.drawable.Drawable
 		}
 		catch (Exception e)
 		{
-			rs.android.Util.Show_Error(this.ctx, e);
+			rs.android.ui.Util.Show_Error(this.ctx, e);
 		}
 	}
 

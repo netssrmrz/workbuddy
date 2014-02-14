@@ -290,12 +290,12 @@ public class Db
 								err_msg += "Field value class: " + field_val.getClass().getName();
 							else
 							  err_msg += "Field value class: n/a";
-							rs.android.Util.Show_Message(this.context, err_msg);
+							rs.android.ui.Util.Show_Message(this.context, err_msg);
 						}
             catch (java.lang.Exception e)
 						{
 							if (this.context != null)
-								rs.android.Util.Show_Error(this.context, e);
+								rs.android.ui.Util.Show_Error(this.context, e);
 						}
           }
         }
@@ -1095,7 +1095,7 @@ public class Db
 		out_filepath = "/data/data/rs.workbuddy/databases/"+db_name;
 		in_filepath= android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+in_filename;
 
-		rs.android.Util.Copy_File(in_filepath, out_filepath);
+		rs.android.util.File.Copy_File(in_filepath, out_filepath);
 		return true;
 	}
 	
@@ -1106,7 +1106,7 @@ public class Db
 		in_filepath = "/data/data/rs.workbuddy/databases/"+db_name;
 		out_filepath= android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+out_filename;
 		
-		rs.android.Util.Copy_File(in_filepath, out_filepath);
+		rs.android.util.File.Copy_File(in_filepath, out_filepath);
 		return true;
 	}
 	

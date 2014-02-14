@@ -118,30 +118,22 @@ extends android.view.View
 
 	public void onDraw(android.graphics.Canvas canvas) 
 	{
-		//db.Log("rs.android.ui.Gauge_View.onDraw()");
-		try
+		if (this.draw)
 		{
-			if (this.draw)
+			// gauge face
+			canvas.drawCircle(this.cx, this.cy, this.r, this.face_paint);
+
+			// gauge interior
+			canvas.drawArc(this.inner_bounds, 0, 180, false, this.night_paint);
+			canvas.drawArc(this.inner_bounds, 180, 180, false, this.day_paint);
+
+			if (rs.android.Util.NotEmpty(this.bars))
 			{
-				// gauge face
-				canvas.drawCircle(this.cx, this.cy, this.r, this.face_paint);
-
-				// gauge interior
-				canvas.drawArc(this.inner_bounds, 0, 180, false, this.night_paint);
-				canvas.drawArc(this.inner_bounds, 180, 180, false, this.day_paint);
-
-				if (rs.android.Util.NotEmpty(this.bars))
+				for (Bar bar: this.bars)
 				{
-					for (Bar bar: this.bars)
-					{
-						bar.Draw(canvas);
-					}
+					bar.Draw(canvas);
 				}
 			}
-		}
-		catch (Exception e)
-		{
-			rs.android.Util.Show_Error(this.getContext(), e);
 		}
 	}
 
@@ -154,7 +146,7 @@ extends android.view.View
 		}
 		catch (Exception e)
 		{
-			rs.android.Util.Show_Error(this.getContext(), e);
+			rs.android.ui.Util.Show_Error(this.getContext(), e);
 		}
 	}
 

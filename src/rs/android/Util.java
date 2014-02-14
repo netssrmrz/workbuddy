@@ -13,23 +13,6 @@ public class Util
   public static final int ROUND_DATE_DAY=1;
 	public static final long MILLIS_PER_DAY=1000*60*60*24;
 	
-	public static void Dump_Dir(java.io.File dir)
-	{
-		String[] filenames;
-		
-		if (dir!=null && dir.isDirectory())
-		{
-		  filenames=dir.list();
-		  if (NotEmpty(filenames))
-		  {
-			  for (String filename: filenames)
-				{
-					android.util.Log.d("Dump_Dir", filename);
-				}
-		  }
-		}
-	}
-	
 	public static Class<?> Class_For_Name(String name)
 	{
 		Class<?> res=null;
@@ -37,66 +20,6 @@ public class Util
 		try {res=Class.forName(name);}
 		catch (java.lang.ClassNotFoundException e) {res=null;}
 		
-		return res;
-	}
-	
-	public static void Copy_File(String in_filepath, String out_filepath)
-	{
-		java.io.FileInputStream in_stream;
-		java.io.OutputStream out_stream;
-		byte[] buffer = new byte[1024];
-		int length;
-
-		try
-		{
-			in_stream = new java.io.FileInputStream(in_filepath);
-			out_stream = new java.io.FileOutputStream(out_filepath);
-			
-			while ((length = in_stream.read(buffer)) > 0)
-			{
-				out_stream.write(buffer, 0, length);
-			}
-
-			out_stream.flush();
-			out_stream.close();
-			in_stream.close();			
-		}
-		catch (Exception e)
-		{
-			android.util.Log.d("rs.android.Util.Copy_File()", e.toString());
-		}
-	}
-	
-	public static android.net.Uri Save_File(String name, String data)
-	{
-		String state;
-		java.io.File sd_dir, csv_file;
-		java.io.FileOutputStream csv_stream;
-		android.net.Uri res=null;
-		
-		state = android.os.Environment.getExternalStorageState();
-		if (android.os.Environment.MEDIA_MOUNTED.equals(state))
-		{
-			sd_dir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
-			sd_dir.mkdirs();
-			if (rs.android.Util.NotEmpty(data))
-			{
-				csv_file = new java.io.File(sd_dir, name);
-				try
-				{
-					csv_stream = new java.io.FileOutputStream(csv_file);
-					csv_stream.write(data.getBytes());
-					csv_stream.close();
-				}
-				catch (Exception e)
-				{
-					csv_file=null;
-				}
-				
-				if (csv_file!=null)
-				  res = android.net.Uri.fromFile(csv_file);
-			}
-		}
 		return res;
 	}
 	
@@ -139,25 +62,6 @@ public class Util
       }
       res=Round(res, round);
     }
-    return res;
-  }
-  
-  public static android.graphics.PointF To_Canvas_Pt(android.graphics.RectF world_window, 
-      android.graphics.RectF canvas_window, float x, float y)
-  {
-    android.graphics.PointF res=null;
-    float cw, ww;
-    
-    res=new android.graphics.PointF();
-    
-    cw=canvas_window.right-canvas_window.left;
-    ww=world_window.right-world_window.left;
-    res.x=((x-world_window.left)*cw/ww)+canvas_window.left;
-    
-    cw=canvas_window.bottom-canvas_window.top;
-    ww=world_window.top-world_window.bottom;
-    res.y=canvas_window.bottom-((y-world_window.bottom)*cw/ww);
-    
     return res;
   }
       
@@ -276,74 +180,6 @@ public class Util
     }
     
     return res;
-  }
-  
-  @SuppressWarnings("unchecked")
-  public static void SetWidgets(android.app.Activity activity, java.lang.Class<? extends Object> ids_class) 
-  {
-    int id;
-    android.view.View widget;
-    String id_name, tag;
-    java.lang.reflect.Field activity_field;
-    java.util.Collection<Object> list;
-    
-    for (java.lang.reflect.Field field: ids_class.getFields())
-    {
-      if (field.getType().equals(int.class))
-      {
-        try 
-        {
-          id=field.getInt(null);
-          id_name=field.getName();
-        }
-        catch (java.lang.Exception e) 
-        {
-          id=0;
-          id_name=null;
-        }
-
-        widget=activity.findViewById(id);
-        if (widget!=null)
-        {
-          tag=(String)widget.getTag();
-          if (rs.android.Util.NotEmpty(tag))
-            id_name=tag;
-          
-          try {activity_field=activity.getClass().getField(id_name);}
-          catch (java.lang.Exception e) {activity_field=null;}
-          if (activity_field!=null)
-          {
-            if (rs.android.Util.IsGenericList(activity_field, widget.getClass()))
-            {
-              try {list=(java.util.Collection<Object>)activity_field.get(activity);}
-              catch (java.lang.Exception e) {list=null;}
-              if (list==null)
-              {
-                try {list=(java.util.Collection<Object>)activity_field.getType().newInstance();}
-                catch (java.lang.Exception e) {list=null;}
-                if (list!=null)
-                {
-                  try {activity_field.set(activity, list);}
-                  catch (java.lang.Exception e) {e.printStackTrace();}
-                }
-              }
-              if (list!=null)
-                list.add(widget);
-            }
-            else
-            {
-              try {activity_field.set(activity, widget);} 
-              catch (java.lang.Exception e) {e.printStackTrace();}
-            }
-          }
-          
-          if (activity instanceof android.view.View.OnClickListener)
-            if (!(widget instanceof android.widget.ListView))
-              widget.setOnClickListener((android.view.View.OnClickListener)activity);
-          widget.setOnCreateContextMenuListener(activity);
-        }
-      }
-    }
   }
   
   /**
@@ -1344,60 +1180,7 @@ public class Util
     }
 		return res;
   }
-  
-	public static void Show_Obj(android.content.Context ctx, Object obj)
-	{
-		String obj_msg;
-		
-		obj_msg=Objs_To_String(obj);
-		Show_Message(ctx, obj_msg);
-	}
-	
-	public static void Show_Message(android.content.Context ctx, String msg)
-	{
-		android.app.AlertDialog dlg;
-		
-		//android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_LONG).show();
-		dlg = new android.app.AlertDialog.Builder(ctx).create();
-		dlg.setTitle("Message");
-		dlg.setMessage(msg);
-		dlg.show();
-	}
-
-	public static void Show_Stack(android.content.Context ctx)
-	{
-		StackTraceElement[] elems;
-		String msg;
-		
-		elems=Thread.currentThread().getStackTrace();
-		if (NotEmpty(elems))
-		{
-			msg="";
-			for (StackTraceElement elem: elems)
-			{
-				msg+=elem.toString()+"\n";
-			}
-			Show_Message(ctx, msg);
-		}
-	}
-	
-	public static void Show_Note(android.content.Context ctx, String msg)
-	{
-		android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_LONG).show();
-	}
-	
-	public static void Show_Error(android.content.Context ctx, Exception e)
-	{
-		java.io.ByteArrayOutputStream buffer;
-		java.io.PrintStream stream;
-
-		buffer=new java.io.ByteArrayOutputStream();
-		stream=new java.io.PrintStream(buffer);
-		e.printStackTrace(stream);
-
-		rs.android.Util.Show_Message(ctx, buffer.toString());
-	}
-	
+  	
 	public static String Serialise(Object obj)
 	{
 		java.io.ObjectOutputStream so;
