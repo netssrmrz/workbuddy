@@ -75,7 +75,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 
 		this.event.notes = Get_Text(this.notes_text);
 		
-		this.event.start_date=rs.android.Util.Date_Set_Time(
+		this.event.start_date=rs.android.util.Date.Date_Set_Time(
 		  this.start_date_button.date, this.start_time_button.time);
 
 		this.db.Save(this.event);

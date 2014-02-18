@@ -2,6 +2,7 @@ package rs.workbuddy;
 import java.io.*;
 import android.widget.*;
 import android.net.*;
+import rs.android.ui.*;
 
 public class Report_Timesheet
 extends Workbuddy_Activity_List
@@ -70,8 +71,8 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		java.sql.Date[] week_days;
 
 		if (this.week_of == null)
-		  this.week_of = rs.android.Util.Now();
-		week_days = rs.android.Util.Week(this.week_of);
+		  this.week_of = rs.android.util.Date.Now();
+		week_days = rs.android.util.Date.Week(this.week_of);
 		if (rs.android.Util.NotEmpty(week_days))
 		{
 			this.title =
@@ -95,8 +96,10 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		else if (col_id.startsWith("mins"))
 		{
-			week_start = rs.android.Util.Week_First_Day(this.week_of);
-			week_end = rs.android.Util.Add_Days(week_start, 7);
+			week_start = rs.android.util.Date.Week_First_Day(this.week_of);
+			android.util.Log.d("On_Get_Col_Footer_View", "week start: "+rs.android.Util.To_String(week_start, null, "EEEE dd/MM/yyyy h.mm.ss a"));
+			week_end = rs.android.util.Date.Add_Days(week_start, 7);
+			android.util.Log.d("On_Get_Col_Footer_View", "week end: "+rs.android.Util.To_String(week_end, null, "EEEE dd/MM/yyyy h.mm.ss a"));
 			event_type_id = rs.android.Util.To_Long(col_id.substring(5));
 			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
 			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
@@ -111,8 +114,8 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		else if (col_id.startsWith("hrs"))
 		{
-			week_start = rs.android.Util.Week_First_Day(this.week_of);
-			week_end = rs.android.Util.Add_Days(week_start, 7);
+			week_start = rs.android.util.Date.Week_First_Day(this.week_of);
+			week_end = rs.android.util.Date.Add_Days(week_start, 7);
 			event_type_id = rs.android.Util.To_Long(col_id.substring(4));
 			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
 			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
@@ -183,7 +186,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	@Override
 	public Long[] On_Get_List()
 	{
-		return rs.android.Util.Week_In_Millis(this.week_of);
+		return rs.android.util.Date.Week_In_Millis(this.week_of);
 	}
 
 	@Override
@@ -240,7 +243,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	{
 		java.sql.Date next_week;
 
-		next_week = rs.android.Util.Add_Days(this.week_of, date_diff);
+		next_week = rs.android.util.Date.Add_Days(this.week_of, date_diff);
 		if ((date_diff > 0 && !next_week.after(this.max_day)) || 
 		  (date_diff < 0 && !next_week.before(this.min_day)))
 		{

@@ -28,10 +28,10 @@ android.app.DatePickerDialog.OnDateSetListener
 		int year, month, day;
 
 		if (init==null)
-		  init = rs.android.Util.Now();
-		year = rs.android.Util.Date_Get_Year(init);
-		month = rs.android.Util.Date_Get_Month(init);
-		day = rs.android.Util.Date_Get_Day(init);
+		  init = rs.android.util.Date.Now();
+		year = rs.android.util.Date.Date_Get_Year(init);
+		month = rs.android.util.Date.Date_Get_Month(init);
+		day = rs.android.util.Date.Date_Get_Day(init);
 		dlg = new android.app.DatePickerDialog(this.ctx, this, year, month, day);
 		dlg.setButton(android.content.DialogInterface.BUTTON_NEGATIVE, "Cancel", this);
 		dlg.setButton(android.content.DialogInterface.BUTTON_POSITIVE, "Done", this);
@@ -50,7 +50,7 @@ android.app.DatePickerDialog.OnDateSetListener
 		
 		if (this.dlg_ok && this.on_date_set_listener!=null)
 		{
-			date=rs.android.Util.New_Date(year, month+1, day);
+			date=rs.android.util.Date.New_Date(year, month+1, day);
 			this.on_date_set_listener.On_Date_Set(date);
 		}
 		this.dlg_ok = false;

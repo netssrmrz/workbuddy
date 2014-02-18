@@ -91,8 +91,8 @@ implements java.io.Serializable
 
 		//android.util.Log.d("workbuddy.Select_Day_Events", "project_id: " + project_id);
 
-    day_start = (java.sql.Date)rs.android.Util.Round(day, rs.android.Util.ROUND_DATE_DAY);
-    day_end = rs.android.Util.Add_Days(day_start, 1);
+    day_start = (java.sql.Date)rs.android.Util.Round(day, rs.android.util.Date.ROUND_DATE_DAY);
+    day_end = rs.android.util.Date.Add_Days(day_start, 1);
 		res = Select_Timespan_Events(db, day_start, day_end, event_type, project_id, null);
 
     return res;
@@ -175,7 +175,7 @@ implements java.io.Serializable
       res = (java.sql.Date)db.Select_Value(java.sql.Date.class, sql, this.start_date);
 			if (res == null)
 			{
-				now = rs.android.Util.Now();
+				now = rs.android.util.Date.Now();
 				if (start_date.getTime() < now.getTime())
 					res = now;
 			}

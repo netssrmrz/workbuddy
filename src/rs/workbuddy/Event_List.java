@@ -47,8 +47,8 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		java.sql.Date[] week_days;
 		
 		if (this.week_of==null)
-		  this.week_of = rs.android.Util.Now();
-		week_days = rs.android.Util.Week(this.week_of);
+		  this.week_of = rs.android.util.Date.Now();
+		week_days = rs.android.util.Date.Week(this.week_of);
 		if (rs.android.Util.NotEmpty(week_days))
 		{
 			this.title =
@@ -114,8 +114,9 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		java.sql.Date week[];
 		String order_by=null;
 		
-		week=rs.android.Util.Week(this.week_of);
-    res = Work_Event.Select_Timespan_Events(this.db, week[0], rs.android.Util.Add_Days(week[6], 1), null, null, order_by);
+		week=rs.android.util.Date.Week(this.week_of);
+    res = Work_Event.Select_Timespan_Events(this.db, week[0], 
+		  rs.android.util.Date.Add_Days(week[6], 1), null, null, order_by);
 		return res;
 	}
 
@@ -151,7 +152,9 @@ extends rs.workbuddy.Workbuddy_Activity_List
 				next_event = rs.workbuddy.Work_Event.Select(this.db, id);
 			}
 
-			if (next_event != null && rs.android.Util.Date_Get_Day_Of_Week(next_event.start_date) != rs.android.Util.Date_Get_Day_Of_Week(event.start_date))
+			if (next_event != null && 
+			  rs.android.util.Date.Date_Get_Day_Of_Week(next_event.start_date) != 
+				rs.android.util.Date.Date_Get_Day_Of_Week(event.start_date))
 			{
 				border = new rs.android.ui.Border_Drawable();
 				border.top = false;
@@ -181,7 +184,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	{
 		java.sql.Date next_week;
 
-		next_week = rs.android.Util.Add_Days(this.week_of, date_diff);
+		next_week = rs.android.util.Date.Add_Days(this.week_of, date_diff);
 		if ((date_diff>0 && !next_week.after(this.max_day)) || 
 		  (date_diff<0 && !next_week.before(this.min_day)))
 		{

@@ -1,5 +1,5 @@
 package rs.workbuddy;
-import android.widget.*;
+//import android.widget.*;
 //import android.widget.*;
 //import rs.workbuddy.db.*;
 //import android.view.*;
@@ -103,12 +103,12 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		this.event_type_layout = new android.widget.LinearLayout(this);
 		this.event_type_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
 		this.event_type_layout.setPadding(0, 0, 0, 0);
-		//rs.android.ui.Border_Drawable.Add_Border(this.event_type_layout, 0xffff0000);
+		//rs.android.ui.Border_Drawable.Add_Border(this.event_type_layout, 0xff00ff00);
 
 		this.project_layout = new android.widget.LinearLayout(this);
 		this.project_layout.setOrientation(android.widget.LinearLayout.VERTICAL);
 		this.project_layout.setPadding(0, 0, 0, 0);
-		//rs.android.ui.Border_Drawable.Add_Border(this.project_layout, 0xffff0000);
+		//rs.android.ui.Border_Drawable.Add_Border(this.project_layout, 0xff00ff00);
 
 		button_frame = new android.widget.LinearLayout(this);
 		button_frame.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -118,6 +118,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		button_frame.addView(this.project_layout,
 			new android.widget.LinearLayout.LayoutParams(
 				android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 80f));
+		//rs.android.ui.Border_Drawable.Add_Border(button_frame, 0xffff0000);
 
 		return button_frame;
 	}
@@ -169,7 +170,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		event = (Work_Event)v.getTag();
 		event.id = null;
 		event.notes = null;
-		event.start_date = rs.android.Util.Round_Date(rs.android.Util.Now(), rounding);
+		event.start_date = rs.android.util.Date.Round_Date(rs.android.util.Date.Now(), rounding);
 		event.Set_Default_Project(this.db);
 		event.Save(this.db);
 
@@ -198,7 +199,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 	public void On_Time_Set(java.sql.Date time)
 	{
-		this.dlg_event.start_date = rs.android.Util.Date_Set_Time(this.dlg_event.start_date, time);
+		this.dlg_event.start_date = rs.android.util.Date.Date_Set_Time(this.dlg_event.start_date, time);
 		this.dlg_event.id = null;
 		this.dlg_event.notes = null;
 		this.dlg_event.Set_Default_Project(this.db);
@@ -331,11 +332,14 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		ids = rs.workbuddy.Project.Select_Home_Ids(db);
 		if (rs.android.Util.NotEmpty(ids))
 		{
-			no_rows = (ids.length / BUTTONS_PER_ROW) + 1;
+			no_rows = ((ids.length-1) / BUTTONS_PER_ROW) + 1;
 
 			res = new android.view.ViewGroup[no_rows];
 			for (c = 0; c < res.length; c++)
+			{
 				res[c] = new android.widget.LinearLayout(this);
+				//rs.android.ui.Border_Drawable.Add_Border(res[c], 0xff0000ff);
+			}
 
 			for (c = 0; c < ids.length; c++)
 				res[c / BUTTONS_PER_ROW].addView(this.New_Project_Button(db, ids[c], event_type_id), 
@@ -385,7 +389,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 		//this.Do_Stuff();
 		//this.db.Log("rs.workbuddy.Main_Activity.On_Update_UI()");
-		now = rs.android.Util.Now();
+		now = rs.android.util.Date.Now();
 
 		// set event type buttons
 		if (!this.has_type_buttons)
@@ -401,7 +405,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		  this.project_layout.removeAllViews();
 		  rs.android.ui.Util.Add_Views(this.project_layout, this.Build_Project_Rows(this.db));
     }
-    this.last_update_time = rs.android.Util.Now();
+    this.last_update_time = rs.android.util.Date.Now();
 
 	  // update duration header
 		this.event_text.setText(this.Get_Prev_Event_Description(this.db, now));
@@ -412,7 +416,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 		// update clock
 		this.clock.bars = null;
-		b = New_Bar(Work_Event.Select_Prev_Event_Id(this.db, rs.android.Util.Today()));
+		b = New_Bar(Work_Event.Select_Prev_Event_Id(this.db, rs.android.util.Date.Today()));
 		this.clock.Add_Bar(b);
 
 		ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, now, null, null);
@@ -435,8 +439,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 
 		if (id != null)
 		{
-			today_time = rs.android.Util.Today().getTime();
-			tomorrow_time = today_time + rs.android.Util.MILLIS_PER_DAY;
+			today_time = rs.android.util.Date.Today().getTime();
+			tomorrow_time = today_time + rs.android.util.Date.MILLIS_PER_DAY;
 
 			we = rs.workbuddy.Work_Event.Select(this.db, id);
 			start_time = we.start_date.getTime();
@@ -455,8 +459,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 				duration = tomorrow_time - start_time;
 			}
 
-			sr = ((float)start_time - (float)today_time) / (float)rs.android.Util.MILLIS_PER_DAY;
-			lr = (float)duration / (float)rs.android.Util.MILLIS_PER_DAY;
+			sr = ((float)start_time - (float)today_time) / (float)rs.android.util.Date.MILLIS_PER_DAY;
+			lr = (float)duration / (float)rs.android.util.Date.MILLIS_PER_DAY;
 
 			b = new rs.android.ui.Bar(this);
 			b.start_angle = 360 * sr;

@@ -363,7 +363,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			this.Build_Header_Row(this.table_layout);
 
 			ids = On_Get_List();
-			this.last_refresh_at=rs.android.Util.Now();
+			this.last_refresh_at=rs.android.util.Date.Now();
 			this.Insert_Rows(ids);
 
 			this.Build_Footer_Row(this.table_layout);

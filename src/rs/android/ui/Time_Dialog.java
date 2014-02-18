@@ -27,9 +27,9 @@ android.app.TimePickerDialog.OnTimeSetListener
 		int hour, minute;
 
 		if (init==null)
-		  init = rs.android.Util.Now();
-		hour = rs.android.Util.Date_Get_Hour(init);
-		minute = rs.android.Util.Date_Get_Minute(init);
+		  init = rs.android.util.Date.Now();
+		hour = rs.android.util.Date.Date_Get_Hour(init);
+		minute = rs.android.util.Date.Date_Get_Minute(init);
 		dlg = new android.app.TimePickerDialog(this.ctx, this, hour, minute, false);
 		dlg.setButton(android.content.DialogInterface.BUTTON_NEGATIVE, "Cancel", this);
 		dlg.setButton(android.content.DialogInterface.BUTTON_POSITIVE, "Done", this);
@@ -48,7 +48,7 @@ android.app.TimePickerDialog.OnTimeSetListener
 
 		if (this.dlg_ok && this.on_time_set_listener!=null)
 		{
-			date=rs.android.Util.New_Time(hour, minute, 0);
+			date=rs.android.util.Date.New_Time(hour, minute, 0);
 			this.on_time_set_listener.On_Time_Set(date);
 		}
 		this.dlg_ok = false;

@@ -44,7 +44,7 @@ implements java.lang.Runnable
 			if (rs.android.Util.NotEmpty(bookmarks))
 			{
 				buff = new java.lang.StringBuilder();
-				this.week = rs.android.Util.Week(this.week_of);
+				this.week = rs.android.util.Date.Week(this.week_of);
 				for (rs.android.Bookmark b: bookmarks)
 				{
 					buff.append(data.substring(pos, b.end_pos));
@@ -130,7 +130,7 @@ implements java.lang.Runnable
 		}
 		else if (id.equals("wb_date"))
 		{
-			date = rs.android.Util.Now();
+			date = rs.android.util.Date.Now();
 			res = rs.android.Util.To_String(date, "n/a", "dd/MM/yyyy");
 		}
 		else if (id.startsWith("wb_sun_"))
@@ -177,7 +177,9 @@ implements java.lang.Runnable
 		event_type_id = this.Find_Event_Type(event_type);
 		if (event_type_id != null)
 		{
-			ids = Work_Event.Select_Timespan_Events(this.db, week[0], rs.android.Util.Add_Days(week[6], 1), event_type_id, this.project_id, null);
+			ids = Work_Event.Select_Timespan_Events(this.db, week[0], 
+			  rs.android.util.Date.Add_Days(week[6], 1), event_type_id, 
+				this.project_id, null);
 			if (rs.android.Util.NotEmpty(ids))
 			{
 				dur = Work_Event.Get_Events_Duration(this.db, ids);

@@ -22,7 +22,7 @@ public class Log
 		if (obj != null)
 		{
 			l = new Log();
-			l.log_date = rs.android.Util.Now();
+			l.log_date = rs.android.util.Date.Now();
 			l.obj_class = obj_class.getName();
 			l.obj_id = id;
 			if (obj != null)
