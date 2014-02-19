@@ -146,7 +146,7 @@ public class Db
 				else if (field_value instanceof Short) values.put(field_name, (Short)field_value);
 				else if (field_value instanceof String) values.put(field_name, (String)field_value);
 				else if (field_value instanceof java.util.Date) values.put(field_name, ((java.util.Date)field_value).getTime());
-				else values.put(field_name, rs.android.Util.To_String(field_value));
+				else values.put(field_name, rs.android.util.Type.To_String(field_value));
 			}
     }
   }
@@ -208,7 +208,7 @@ public class Db
       for (java.lang.reflect.Field field : Get_Fields(obj.getClass()))
       {
 				field_name = field.getName();
-				field_value = rs.android.Util.GetObjFieldValue(obj, field_name);
+				field_value = rs.android.util.Type.GetObjFieldValue(obj, field_name);
 				Put_Content_Value(values, field_name, field_value);
       }
     }
@@ -242,7 +242,7 @@ public class Db
             field = (java.lang.reflect.Field)this.cache.get(cache_key);
           else
           {
-            field = Util.FindClassField(obj_class, field_name);
+            field = rs.android.util.Type.FindClassField(obj_class, field_name);
             this.cache.put(cache_key, field);
           }
 
@@ -357,21 +357,21 @@ public class Db
       {
         //if (obj_class==byte[].class) res=query_res.getBlob(col);
         if (obj_class == Double.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == Float.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == Integer.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == Long.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == Short.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == String.class) 
-          res = Util.To_String(obj);
+          res = rs.android.util.Type.To_String(obj);
         else if (obj_class == java.util.Date.class) 
-          res = Util.To_String(((java.util.Date)obj).getTime());
+          res = rs.android.util.Type.To_String(((java.util.Date)obj).getTime());
         else if (obj_class == java.sql.Date.class) 
-          res = Util.To_String(((java.sql.Date)obj).getTime());
+          res = rs.android.util.Type.To_String(((java.sql.Date)obj).getTime());
         else 
           res = null;
       }
@@ -638,7 +638,7 @@ public class Db
     query_res = Execute_SQL(sql, params);
     if (Util.NotEmpty(query_res))
     {
-      res = Util.NewGenericList(obj_class);
+      res = rs.android.util.Type.NewGenericList(obj_class);
       while (query_res.moveToNext())
       {
         obj = NewObjFromCursor(obj_class, query_res);
@@ -696,7 +696,7 @@ public class Db
       }
       else
       {
-        id = rs.android.Util.GetObjFieldValue(obj, "id");
+        id = rs.android.util.Type.GetObjFieldValue(obj, "id");
         if (id == null)
 				{
           if (this.Insert(obj) > 0)
@@ -731,7 +731,7 @@ public class Db
         id = this.conn.insert(table_name, null, values);
 				if (id != -1)
 				{
-          Util.SetObjFieldValue(obj, "id", id);
+          rs.android.util.Type.SetObjFieldValue(obj, "id", id);
 					res = id;
 					
 					if (this.log)
@@ -739,7 +739,7 @@ public class Db
 				}
 				else
 				{
-				  Util.SetObjFieldValue(obj, "id", null);
+				  rs.android.util.Type.SetObjFieldValue(obj, "id", null);
 				}
       }
     }
@@ -763,9 +763,9 @@ public class Db
       values = BuildSaveParams(obj);
       if (rs.android.Util.NotEmpty(values))
       {
-        id = (Long)Util.GetObjFieldValue(obj, "id");
+        id = (Long)rs.android.util.Type.GetObjFieldValue(obj, "id");
         id_param = new String[1];
-        id_param[0] = Util.To_String(id);
+        id_param[0] = rs.android.util.Type.To_String(id);
         update_res = this.conn.update(table_name, values, "id=?", id_param);
 				if (update_res > 0)
 				{
@@ -804,7 +804,7 @@ public class Db
 
     if (obj != null)
     {
-			id = (Long)Util.GetObjFieldValue(obj, "id");
+			id = (Long)rs.android.util.Type.GetObjFieldValue(obj, "id");
 			res=this.Delete(id, obj.getClass());
     }
     return res;
@@ -871,9 +871,9 @@ public class Db
           {
             if (field_class == java.sql.Date.class) 
             {
-              field_val_long = rs.android.Util.To_Long(field_val);
+              field_val_long = rs.android.util.Type.To_Long(field_val);
               field_val_date = new java.sql.Date(field_val_long);
-              field_val = Util.To_String(field_val_date);
+              field_val = rs.android.util.Type.To_String(field_val_date);
             }
           }
         }
@@ -917,9 +917,9 @@ public class Db
             {
               if (field_class == java.sql.Date.class) 
               {
-                field_val_long = rs.android.Util.To_Long(field_val);
+                field_val_long = rs.android.util.Type.To_Long(field_val);
                 field_val_date = new java.sql.Date(field_val_long);
-                field_val = Util.To_String(field_val_date);
+                field_val = rs.android.util.Type.To_String(field_val_date);
               }
             }
           }
@@ -974,9 +974,9 @@ public class Db
 							{
 								if (field_class == java.sql.Date.class) 
 								{
-									field_val_long = rs.android.Util.To_Long(field_val);
+									field_val_long = rs.android.util.Type.To_Long(field_val);
 									field_val_date = new java.sql.Date(field_val_long);
-									field_val = Util.To_String(field_val_date);
+									field_val = rs.android.util.Type.To_String(field_val_date);
 								}
 								else if (field_class == String.class)
 								{
@@ -1126,9 +1126,9 @@ public class Db
 		{
 			Class<?> res=null;
 			
-			res=rs.android.Util.Class_For_Name("rs.workbuddy."+this.name);
+			res=rs.android.util.Type.Class_For_Name("rs.workbuddy."+this.name);
 			if (res==null)
-				res=rs.android.Util.Class_For_Name("rs.workbuddy.db."+this.name);
+				res=rs.android.util.Type.Class_For_Name("rs.workbuddy.db."+this.name);
 			
 			return res;
 		}

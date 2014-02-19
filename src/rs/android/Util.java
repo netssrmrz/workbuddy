@@ -10,16 +10,6 @@ public class Util
 {
   public static android.content.Context ctx=null;
   
-	public static Class<?> Class_For_Name(String name)
-	{
-		Class<?> res=null;
-		
-		try {res=Class.forName(name);}
-		catch (java.lang.ClassNotFoundException e) {res=null;}
-		
-		return res;
-	}
-	
   public static Object Add(Object val, Object inc)
   {
     Object res=val;
@@ -49,7 +39,7 @@ public class Util
     {
       for (Object obj: objs)
       {
-        field_val=GetObjFieldValue(obj, field_name);
+        field_val=rs.android.util.Type.GetObjFieldValue(obj, field_name);
         if (res==null)
           res=field_val;
         else if (field_val instanceof java.sql.Date && ((java.sql.Date)res).after((java.sql.Date)field_val))
@@ -72,7 +62,7 @@ public class Util
     {
       for (Object obj: objs)
       {
-        field_val=GetObjFieldValue(obj, field_name);
+        field_val=rs.android.util.Type.GetObjFieldValue(obj, field_name);
         if (res==null)
           res=field_val;
         else if (field_val instanceof java.sql.Date && ((java.sql.Date)res).before((java.sql.Date)field_val))
@@ -118,19 +108,6 @@ public class Util
 		return res;
 	}
 	
-  /**
-   * 
-   * Used to test whether strings, arrays, JDBC result sets, and lists are empty, or if a given 
-   * JDBC connection is open.
-   *
-   * @param obj Object to test.
-   * 
-   * @return Boolean indicating "true" if the corresponding object is not empty and "false" if the 
-   * object is empty or null.
-   * 
-   * @author Esteban Ramirez
-   * 
-   */
   public static boolean NotEmpty(Object obj) 
   {
     boolean res=false;
@@ -180,305 +157,6 @@ public class Util
     return res;
   }
   
-  /**
-   * 
-   * Used to extract the value of a given objects field by name. This function will use a
-   * case-insensitive search to execute the first getter method it finds matching the given
-   * name. 
-   * 
-   * @param obj Object whose field value will be retrieved.
-   * 
-   * @param field_name String of getter method to use.
-   * 
-   * @return Object representing the value of the specified field.
-   * 
-   * @author Esteban Ramirez
-   *
-   */
-  public static Object GetObjFieldValue(Object obj, String field_name)
-  {
-    Object res=null;
-    java.lang.reflect.Method method;
-    java.lang.reflect.Field field;
-    Class<? extends Object> class_type;
-
-    if (obj!=null && NotEmpty(field_name))
-    {
-      class_type=obj.getClass();
-      
-      field=FindClassField(class_type, field_name);
-      if (NotEmpty(field))
-      {
-        try
-        {
-          res=field.get(obj);
-        } 
-        catch (java.lang.Exception e)
-        {
-          res=null;
-          e.printStackTrace();
-        } 
-      }
-      else
-      {
-        method=FindClassMethod(class_type, "get"+field_name);
-        if (NotEmpty(method))
-        {
-          try
-          {
-            res=method.invoke(obj, (Object[])null);
-          } 
-          catch (java.lang.Exception e)
-          {
-            res=null;
-            e.printStackTrace();
-          } 
-        }
-      }
-    }
-    return res;
-  }
-
-  public static boolean SetObjFieldValue(Object obj, 
-	  String field_name, Object val) 
-  {
-    java.lang.reflect.Method method;
-    java.lang.reflect.Field field;
-    Class<? extends Object> class_type;
-    Object[] params;
-		boolean res=false;
-
-    if (obj!=null && NotEmpty(field_name))
-    {
-      class_type=obj.getClass();
-      
-      field=FindClassField(class_type, field_name);
-      if (NotEmpty(field))
-      {
-				try {field.set(obj, val); res=true;}
-				catch (Exception e) { res=false; }
-      }
-      else
-      {
-        method=FindClassMethod(class_type, "set"+field_name);
-        if (NotEmpty(method))
-        {
-          params=new Object[1];
-          params[0]=val;
-          try {method.invoke(obj, params); res=true;}
-					catch (Exception e) {res=false;}
-        }
-      }
-    }
-		return res;
-  }
-
-  /**
-   * 
-   * Used to find class methods by name whilst ignoring string case.
-   * 
-   * @param obj_class Class to be searched.
-   * 
-   * @param name String name of method to search for.
-   * 
-   * @return First method with a matching name. Note that parameters are ignored. 
-   * 
-   * @author Esteban Ramirez
-   *
-   */
-  public static java.lang.reflect.Method FindClassMethod(Class<? extends Object> obj_class, String name)
-  {
-    java.lang.reflect.Method res=null;
-    java.lang.reflect.Method[] methods=null;
-    int c;
-    
-    if (NotEmpty(obj_class) && NotEmpty(name))
-    {
-      name=name.toLowerCase();
-      methods=obj_class.getMethods();
-      if (NotEmpty(methods))
-      {
-        for (c=0; c<methods.length; c++)
-        {
-          if (methods[c].getName().toLowerCase().equals(name))
-          {
-            res=methods[c];
-            break;
-          }
-        }
-      }
-    }
-    return res;
-  }
-  
-  public static java.lang.reflect.Field FindClassField(Class<? extends Object> obj_class, String name)
-  {
-    java.lang.reflect.Field res=null;
-    java.lang.reflect.Field[] fields=null;
-    int c;
-    
-    if (NotEmpty(obj_class) && NotEmpty(name))
-    {
-      name=name.toLowerCase();
-      fields=obj_class.getFields();
-      if (NotEmpty(fields))
-      {
-        for (c=0; c<fields.length; c++)
-        {
-          if (fields[c].getName().toLowerCase().equals(name))
-          {
-            res=fields[c];
-            break;
-          }
-        }
-      }
-    }
-    return res;
-  }  
-
-  /**
-   * 
-   * Used to convert an object of any type into a string without worrying if the object is a null.
-   * Same as ToString(Object, java.lang.String) but assumes the default string will be an
-   * empty string.
-   * 
-   * @param obj Object to convert into a string.
-   * 
-   * @return String representing converted object.
-   * 
-   * @author Esteban Ramirez
-   * @throws IOException 
-   *
-   */
-  public static java.lang.String To_String(Object obj)
-  {
-    return To_String(obj, "", null);
-  }
-
-  public static java.lang.String To_String(Object obj, String def)
-  {
-    return To_String(obj, def, null);
-  }
-
-  /**
-   * 
-   * Used to convert an object of any type into a string without worrying if the object is a null.
-   * Will also convert date, time, and byte arrays to strings.
-   * 
-   * @param obj Object to convert into a string.
-   * 
-   * @param def Default string to return if the object is null.
-   * 
-   * @return String representing converted object.
-   * 
-   * @author Esteban Ramirez
-   * @throws IOException 
-   *
-   */
-  public static java.lang.String To_String(Object obj, java.lang.String def, String format)
-  {
-    String res=null, fields_str, true_str, false_str;
-    java.text.SimpleDateFormat date_format;
-    java.text.DecimalFormat num_format;
-    Object field_val;
-    String[] format_vals;
-    //java.io.InputStream is;
-    //java.sql.Clob clob;
-    //long size;
-    //byte[] clob_data;
-    
-    res=def;
-    if (obj!=null)
-    {
-      if (obj instanceof String && NotEmpty(obj))
-        res=obj.toString().trim();
-      else if (obj instanceof java.sql.Timestamp)
-      {
-        if (!NotEmpty(format))
-          format="dd/MM/yyyy HH:mm:ss";
-        date_format=new java.text.SimpleDateFormat(format);
-        res=date_format.format(obj);
-      }
-      else if (obj instanceof java.sql.Date)
-      {
-        if (!NotEmpty(format))
-          format="dd/MM/yyyy HH:mm:ss";
-        date_format=new java.text.SimpleDateFormat(format);
-        res=date_format.format(obj);
-      }
-      else if (obj instanceof java.lang.Double)
-      {
-        if (!NotEmpty(format))
-          format="#,##0.##";
-        num_format=new java.text.DecimalFormat(format);
-        res=num_format.format(obj);
-      }
-      else if (obj instanceof Float)
-      {
-        if (!NotEmpty(format))
-          format="#,##0.##";
-        num_format=new java.text.DecimalFormat(format);
-        res=num_format.format(obj);
-      }
-      else if (obj instanceof java.lang.Long)
-        res=obj.toString();
-      else if (obj instanceof byte[])
-        res=new String((byte[])obj);
-      else if (obj instanceof java.math.BigDecimal)
-        res=obj.toString();
-      else if (obj instanceof java.util.Collection<?>)
-      {
-        for (Object list_obj: (java.util.Collection<?>)obj)
-        {
-					res=rs.android.Util.AppendStr(res, rs.android.Util.To_String(list_obj), ", ");
-          /*fields_str=null;
-          for (java.lang.reflect.Field field: list_obj.getClass().getFields())
-          {
-            try {field_val=field.get(list_obj);}
-            catch (java.lang.Exception e) {field_val=null;}
-            fields_str=AppendStr(fields_str, field.getName()+": "+To_String(field_val, "null", null), ", ", null);
-          }
-          res+=fields_str+"\n";*/
-        }
-      }
-      else if (obj instanceof java.lang.Boolean)
-      {
-        true_str="true";
-        false_str="false";
-        if (NotEmpty(format))
-        {
-          format_vals=format.split(",");
-          if (format_vals.length>0 && NotEmpty(format_vals[0]))
-            true_str=Trim(format_vals[0]);
-          if (format_vals.length>1 && NotEmpty(format_vals[1]))
-            false_str=Trim(format_vals[1]);
-        }
-        
-        if (((java.lang.Boolean)obj).booleanValue())
-          res=true_str;
-        else
-          res=false_str;
-      }
-      /*else if (obj instanceof java.sql.Clob)
-      {
-        clob=(java.sql.Clob)obj;
-        size=clob.length();
-        if (size>0)
-        {
-          clob_data=new byte[(int)size];
-          is=clob.getAsciiStream();
-          is.read(clob_data);
-          
-          res=new String(clob_data);
-        }
-      }*/
-      else
-        res=obj.toString();
-    }
-        
-    return res;
-  }
-
   public static String Trim(String str)
   {
     String res=null;
@@ -487,56 +165,7 @@ public class Util
       res=str.trim();
     return res;
   }
-  public static java.lang.Integer To_Int(Object obj)
-  {
-    java.lang.Integer res=null;
-    
-    if (obj!=null)
-    {
-      if (obj instanceof java.lang.String)
-      {
-        res=java.lang.Integer.parseInt((String)obj);
-      }
-      else if (obj instanceof java.lang.Integer)
-        res=(java.lang.Integer)obj;
-      else if (obj instanceof java.lang.Double)
-        res=((java.lang.Double)obj).intValue();
-      //else if (obj instanceof java.sql.Timestamp)
-        //res=((java.sql.Timestamp)obj).getTime();
-      //else if (obj instanceof java.util.Date)
-        //res=(java.lang.Integer)obj;
-      else
-        res=java.lang.Integer.parseInt(To_String(obj));
-    }
-    return res;
-  }
-
-  public static java.lang.Long To_Long(Object obj)
-  {
-    java.lang.Long res=null;
-    
-    if (obj!=null)
-    {
-      if (obj instanceof java.lang.String)
-      {
-        res=java.lang.Long.parseLong((String)obj);
-      }
-      else if (obj instanceof java.lang.Long)
-        res=(java.lang.Long)obj;
-      else if (obj instanceof java.lang.Integer)
-        res=((java.lang.Integer)obj).longValue();
-      else if (obj instanceof java.lang.Double)
-        res=((java.lang.Double)obj).longValue();
-      //else if (obj instanceof java.sql.Timestamp)
-        //res=((java.sql.Timestamp)obj).getTime();
-      //else if (obj instanceof java.util.Date)
-        //res=(java.lang.Integer)obj;
-      else
-        res=java.lang.Long.parseLong(To_String(obj));
-    }
-    return res;
-  }
-
+  
   public static String Remove_Other_Chars(String ok_chars, String str)
   {
     String res=null;
@@ -560,114 +189,6 @@ public class Util
     return res;
   }
   
-  public static java.lang.Double ToDouble(Object obj)
-  {
-    java.lang.Double res=null;
-    String str;
-    
-    if (obj!=null)
-    {
-      try
-      {
-        if (obj instanceof java.lang.String)
-        {
-          str=Remove_Other_Chars("1234567890.-", (String)obj);
-          res=java.lang.Double.parseDouble(str);
-        }
-        else if (obj instanceof java.lang.Integer)
-          res=((java.lang.Integer)obj).doubleValue();
-        else if (obj instanceof java.lang.Double)
-          res=(java.lang.Double)obj;
-        //else if (obj instanceof java.sql.Timestamp)
-          //res=((java.sql.Timestamp)obj).getTime();
-        //else if (obj instanceof java.util.Date)
-          //res=(java.lang.Integer)obj;
-        else
-        {
-          str=Remove_Other_Chars("1234567890.", To_String(obj));
-          res=java.lang.Double.parseDouble(str);
-        }
-      }
-      catch (NumberFormatException e)
-      {
-        res=null;
-      }
-    }
-    return res;
-  }
-  
-  public static java.lang.Float To_Float(Object obj)
-  {
-    java.lang.Float res=null;
-    String str;
-    
-    if (obj!=null)
-    {
-      try
-      {
-        if (obj instanceof java.lang.String)
-        {
-          str=Remove_Other_Chars("1234567890.", (String)obj);
-          res=java.lang.Float.parseFloat(str);
-        }
-        else if (obj instanceof java.lang.Long)
-          res=((java.lang.Long)obj).floatValue();
-        else if (obj instanceof java.lang.Integer)
-          res=((java.lang.Integer)obj).floatValue();
-        else if (obj instanceof java.lang.Double)
-          res=((java.lang.Double)obj).floatValue();
-        //else if (obj instanceof java.sql.Timestamp)
-          //res=((java.sql.Timestamp)obj).getTime();
-        //else if (obj instanceof java.util.Date)
-        //res=(java.lang.Integer)obj;
-        else if (obj instanceof java.sql.Date)
-          res=new Float(((java.sql.Date)obj).getTime());
-        else
-        {
-          str=Remove_Other_Chars("1234567890.", To_String(obj));
-          res=java.lang.Float.parseFloat(str);
-        }
-      }
-      catch (NumberFormatException e)
-      {
-        res=null;
-      }
-    }
-    return res;
-  }
-  
-  public static boolean IsGenericList(java.lang.reflect.Field field, Class<? extends Object> list_class)
-  {
-    boolean res=false;
-    java.lang.reflect.ParameterizedType gen_type;
-    java.lang.reflect.Type list_type;
-    
-    if (field!=null)
-    {
-      if (field.getGenericType() instanceof java.lang.reflect.ParameterizedType)
-      {
-        gen_type = (java.lang.reflect.ParameterizedType)field.getGenericType();
-        if (list_class!=null)
-        {
-          list_type=gen_type.getActualTypeArguments()[0];
-          if (list_type.equals(list_class))
-            res=true;
-        }
-        else
-          res=true;
-      }
-    }
-    return res;
-  }
-  
-  public static java.util.ArrayList<Object> NewGenericList(Class<? extends Object> list_class)
-  {
-    java.util.ArrayList<Object> res=null;
-    
-    res=new java.util.ArrayList<Object>();
-    return res;
-  }
-  
   public static Object List_Contains(java.util.Collection<?> list, String field_name, String match_type, Object field_val)
   {
     Object res=null, obj_field_val;
@@ -678,8 +199,10 @@ public class Util
       {
         if (obj!=null)
         {
-          obj_field_val=GetObjFieldValue(obj, field_name);
-          if (match_type.equals("ends_with") && To_String(obj_field_val, "").endsWith(To_String(field_val)))
+          obj_field_val=rs.android.util.Type.GetObjFieldValue(obj, field_name);
+          if (match_type.equals("ends_with") && 
+					  rs.android.util.Type.To_String(obj_field_val, "").
+						  endsWith(rs.android.util.Type.To_String(field_val)))
           {
             res=obj;
             break;
@@ -694,8 +217,6 @@ public class Util
     }
     return res;
   }
-
-  // String Functions ==================================================================================================================
   
   public static String AppendStr(Object obja, Object objb, String div)
   {
@@ -716,9 +237,9 @@ public class Util
   {
     java.lang.String res=null, stra, strb;
 
-    stra=To_String(obja, def);
+    stra=rs.android.util.Type.To_String(obja, def);
     
-    strb=To_String(objb, def);
+    strb=rs.android.util.Type.To_String(objb, def);
     if (NotEmpty(strb) && NotEmpty(open_env) && NotEmpty(close_env))
       strb=open_env+strb+close_env;
 
@@ -814,7 +335,7 @@ public class Util
       for (Object obj: objs)
       {
         if (NotEmpty(field_name))
-          val=GetObjFieldValue(obj, field_name);
+          val=rs.android.util.Type.GetObjFieldValue(obj, field_name);
         else
           val=obj;
         res=AppendStr(res, val, separator, null, envelope, envelope, false);
@@ -823,8 +344,6 @@ public class Util
     return res;
   }
 	
-  // Misc. Functions ==================================================================================================================
-  
   public static void Err_To_Log(Exception ex)
   {
     String tag="rs.android.Util.Err_To_Log()";
@@ -833,46 +352,6 @@ public class Util
       android.util.Log.d(tag, ex.getMessage());
   }
 
-  public static String Obj_To_String(Object obj)
-  {
-    String res=null;
-    Object field_val;
-
-    if (obj!=null)
-    {
-      for (java.lang.reflect.Field field: rs.android.Db.Get_Fields(obj.getClass()))
-      {
-        try {field_val=field.get(obj);}
-        catch (java.lang.Exception e) {field_val=null;}
-        res=rs.android.Util.AppendStr(res, field.getName()+": "+rs.android.Util.To_String(field_val, "null"), ", ", null);
-      }
-    }
-    return res;
-  }
-	
-  public static String Objs_To_String(Object obj)
-  {
-    String res=null;
-    int c;
-    Object[] objs;
-    
-    if (obj instanceof java.util.Collection<?>)
-    {
-      objs=((java.util.Collection<?>)obj).toArray();
-      for (c=0; c<objs.length; c++)
-      {
-        res=Obj_To_String(objs[c]);
-        //android.util.Log.d(tag, fields_str);
-      }
-    }
-    else
-    {
-      res=Obj_To_String(obj);
-      //android.util.Log.d(tag, fields_str);
-    }
-		return res;
-  }
-  	
 	public static String Serialise(Object obj)
 	{
 		java.io.ObjectOutputStream so;

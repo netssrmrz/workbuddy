@@ -24,8 +24,8 @@ implements android.widget.SpinnerAdapter
 			
 			for (Object key: map.keySet())
 			{
-				id = rs.android.Util.To_Long(key);
-				item = rs.android.Util.To_String(map.get(key));
+				id = rs.android.util.Type.To_Long(key);
+				item = rs.android.util.Type.To_String(map.get(key));
 
 				ids.add(id);
 				items.add(item);

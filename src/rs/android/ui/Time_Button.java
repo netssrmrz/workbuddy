@@ -37,7 +37,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		this.setText("n/a");
 		if (this.time != null)
 		{  
-			time_str = rs.android.Util.To_String(this.time, "n/a", "h:mm:ss a");
+			time_str = rs.android.util.Type.To_String(this.time, "n/a", "h:mm:ss a");
 			this.setText(time_str);
 		}
 	}

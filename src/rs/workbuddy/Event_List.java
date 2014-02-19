@@ -52,8 +52,8 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		if (rs.android.Util.NotEmpty(week_days))
 		{
 			this.title =
-			  rs.android.Util.To_String(week_days[0], "n/a", "MMMM") + ": " + 
-			  "Week starting " + rs.android.Util.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
+			  rs.android.util.Type.To_String(week_days[0], "n/a", "MMMM") + ": " + 
+			  "Week starting " + rs.android.util.Type.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
 		}
 	}
 	

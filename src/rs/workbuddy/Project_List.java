@@ -58,7 +58,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 
 		else if (col_id.equals("status"))
 		{
-		  cell = this.New_Cell(rs.android.Util.To_String(p.Get_Status_Name(this.db), "n/a"));
+		  cell = this.New_Cell(rs.android.util.Type.To_String(p.Get_Status_Name(this.db), "n/a"));
 			cell.setTextColor(rs.workbuddy.db.Status_Type.Get_Colour(this.db, p.status_type_id));
 			res=cell;
 		}
@@ -67,7 +67,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		  res = this.New_Cell(Build_Path(this.db, p.parent_id));
 		
 		else if (col_id.equals("events"))
-			res=this.New_Cell(rs.android.Util.To_String(p.Get_Event_Count(this.db), "n/a", "#,##0"));
+			res=this.New_Cell(rs.android.util.Type.To_String(p.Get_Event_Count(this.db), "n/a", "#,##0"));
 
 		return res;
 	}
@@ -170,7 +170,7 @@ extends rs.workbuddy.Workbuddy_Activity_List
 			for (Long id: this.selected)
 			  total=total+Project.Count_Events(this.db, id);
 			if (total>0)
-		    res=rs.android.Util.To_String(total, null, "#,##0") + " related activities will also be deleted.";
+		    res=rs.android.util.Type.To_String(total, null, "#,##0") + " related activities will also be deleted.";
 		}
 		return res;
 	}

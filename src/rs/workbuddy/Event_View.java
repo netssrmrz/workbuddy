@@ -40,18 +40,18 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 		{
 			this.type_text.setText(this.event.Get_Type_Name(this.db));
 
-			this.start_text.setText(rs.android.Util.To_String(
+			this.start_text.setText(rs.android.util.Type.To_String(
 																this.event.start_date, "n/a", "EEEE dd/MM/yyyy h:mm:ss a"));
 
-			this.end_text.setText(rs.android.Util.To_String(
+			this.end_text.setText(rs.android.util.Type.To_String(
 															this.event.Get_Event_End(this.db), "n/a",
 															"EEEE dd/MM/yyyy h:mm:ss a"));
 
 			this.duration_text.setText(
-				rs.android.Util.To_String(this.event.Get_Event_Duration_Hr(this.db), "0", "#,##0.##") + " hr" +
-				" (" + rs.android.Util.To_String(this.event.Get_Event_Duration_Min(this.db), "0", "#,##0.##") + " min)");
+				rs.android.util.Type.To_String(this.event.Get_Event_Duration_Hr(this.db), "0", "#,##0.##") + " hr" +
+				" (" + rs.android.util.Type.To_String(this.event.Get_Event_Duration_Min(this.db), "0", "#,##0.##") + " min)");
 
-			this.project_text.setText(rs.android.Util.To_String(
+			this.project_text.setText(rs.android.util.Type.To_String(
 																	this.event.Get_Project_Name(this.db), "n/a"));
 
 			this.notes_text.setText(this.event.notes);

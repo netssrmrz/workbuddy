@@ -180,7 +180,7 @@ implements android.preference.Preference.OnPreferenceChangeListener
 		boolean res=true;
 		String label;
 
-		label = rs.android.Util.To_String(newValue);
+		label = rs.android.util.Type.To_String(newValue);
 		if (p.getKey().equals(SETTING_KEY_ROUND_TO) && !label.equals("None"))
 			label = label + " minutes";
 		p.setSummary(label);
@@ -212,7 +212,7 @@ implements android.preference.Preference.OnPreferenceChangeListener
 			getString(SETTING_KEY_ROUND_TO, "");
 
 		if (rs.android.Util.NotEmpty(round_str) && !round_str.equals("None"))
-			res = rs.android.Util.To_Long(round_str) * 60 * 1000;
+			res = rs.android.util.Type.To_Long(round_str) * 60 * 1000;
 
 		return res;
 	}

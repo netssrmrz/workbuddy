@@ -76,8 +76,8 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		if (rs.android.Util.NotEmpty(week_days))
 		{
 			this.title =
-			  rs.android.Util.To_String(week_days[0], "n/a", "MMMM") + ": " + 
-			  "Week starting " + rs.android.Util.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
+			  rs.android.util.Type.To_String(week_days[0], "n/a", "MMMM") + ": " + 
+			  "Week starting " + rs.android.util.Type.To_String(week_days[0], "n/a", "EEEE dd/MM/yyyy");
 		}
 	}
 
@@ -97,10 +97,10 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		else if (col_id.startsWith("mins"))
 		{
 			week_start = rs.android.util.Date.Week_First_Day(this.week_of);
-			android.util.Log.d("On_Get_Col_Footer_View", "week start: "+rs.android.Util.To_String(week_start, null, "EEEE dd/MM/yyyy h.mm.ss a"));
+			android.util.Log.d("On_Get_Col_Footer_View", "week start: "+rs.android.util.Type.To_String(week_start, null, "EEEE dd/MM/yyyy h.mm.ss a"));
 			week_end = rs.android.util.Date.Add_Days(week_start, 7);
-			android.util.Log.d("On_Get_Col_Footer_View", "week end: "+rs.android.Util.To_String(week_end, null, "EEEE dd/MM/yyyy h.mm.ss a"));
-			event_type_id = rs.android.Util.To_Long(col_id.substring(5));
+			android.util.Log.d("On_Get_Col_Footer_View", "week end: "+rs.android.util.Type.To_String(week_end, null, "EEEE dd/MM/yyyy h.mm.ss a"));
+			event_type_id = rs.android.util.Type.To_Long(col_id.substring(5));
 			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
 			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
 			if (total_dur != null)
@@ -108,7 +108,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				tot_dur_min = null;
 
-			total_dur_str = rs.android.Util.To_String(tot_dur_min, "n/a", "#,##0.##");
+			total_dur_str = rs.android.util.Type.To_String(tot_dur_min, "n/a", "#,##0.##");
 			cell = New_Footer_Cell(total_dur_str);
 		}
 
@@ -116,7 +116,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		{
 			week_start = rs.android.util.Date.Week_First_Day(this.week_of);
 			week_end = rs.android.util.Date.Add_Days(week_start, 7);
-			event_type_id = rs.android.Util.To_Long(col_id.substring(4));
+			event_type_id = rs.android.util.Type.To_Long(col_id.substring(4));
 			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
 			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
 			if (total_dur != null)
@@ -124,7 +124,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				tot_dur_hr = null;
 
-			total_dur_str = rs.android.Util.To_String(tot_dur_hr, "n/a", "#,##0.##");
+			total_dur_str = rs.android.util.Type.To_String(tot_dur_hr, "n/a", "#,##0.##");
 			cell = New_Footer_Cell(total_dur_str);
 		}
 
@@ -144,13 +144,13 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		if (col_id.equals("date"))
 		{
-			cell = this.New_Cell(rs.android.Util.To_String(date, "n/a", "EEEE"));
+			cell = this.New_Cell(rs.android.util.Type.To_String(date, "n/a", "EEEE"));
 			//cell.setTextSize(18);
 		}
 
 		else if (col_id.startsWith("mins"))
 		{
-			event_type_id = rs.android.Util.To_Long(col_id.substring(5));
+			event_type_id = rs.android.util.Type.To_Long(col_id.substring(5));
 			day_event_ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, date, event_type_id, this.project_id);
 			dur = Work_Event.Get_Events_Duration(this.db, day_event_ids);
 			if (dur != null)
@@ -158,12 +158,12 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				dur_min = null;
 
-			cell = New_Cell(rs.android.Util.To_String(dur_min, null, "#,##0.##"));
+			cell = New_Cell(rs.android.util.Type.To_String(dur_min, null, "#,##0.##"));
 		}
 
 		else if (col_id.startsWith("hrs"))
 		{
-			event_type_id = rs.android.Util.To_Long(col_id.substring(4));
+			event_type_id = rs.android.util.Type.To_Long(col_id.substring(4));
 			day_event_ids = rs.workbuddy.Work_Event.Select_Day_Events(this.db, date, event_type_id, this.project_id);
 			dur = Work_Event.Get_Events_Duration(this.db, day_event_ids);
 			if (dur != null)
@@ -171,7 +171,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 			else
 				dur_hr = null;
 
-			cell = New_Cell(rs.android.Util.To_String(dur_hr, null, "#,##0.##"));
+			cell = New_Cell(rs.android.util.Type.To_String(dur_hr, null, "#,##0.##"));
 		}
 
 		return cell;

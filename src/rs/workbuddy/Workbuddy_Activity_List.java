@@ -459,7 +459,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			// set row number
 			row_num_view = (android.widget.TextView)row.getChildAt(0);
 			row_num = row_idx - this.data_start_pos + 1;
-			row_num_view.setText(rs.android.Util.To_String(row_num));
+			row_num_view.setText(rs.android.util.Type.To_String(row_num));
 			data_col++;
 
 			// set row selection checkbox
@@ -598,7 +598,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		android.widget.TextView cell;
 
 		cell = new android.widget.TextView(this);
-		cell.setText(rs.android.Util.To_String(label, "n/a"));
+		cell.setText(rs.android.util.Type.To_String(label, "n/a"));
 		cell.setPadding(10, 5, 10, 5);
 		if (!rs.android.Util.NotEmpty(label))
 			cell.setTextColor(0xff333333);

@@ -42,7 +42,7 @@ rs.android.ui.Date_Dialog.On_Date_Set_Listener
 		this.setText("n/a");
 		if (date != null)
 		{
-			date_str = rs.android.Util.To_String(date, "n/a", "EEEE dd/MM/yyyy");
+			date_str = rs.android.util.Type.To_String(date, "n/a", "EEEE dd/MM/yyyy");
 			this.setText(date_str);
 		}		
 	}

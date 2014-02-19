@@ -277,7 +277,7 @@ public class Util
           catch (java.lang.Exception e) {activity_field=null;}
           if (activity_field!=null)
           {
-            if (rs.android.Util.IsGenericList(activity_field, widget.getClass()))
+            if (rs.android.util.Type.IsGenericList(activity_field, widget.getClass()))
             {
               try {list=(java.util.Collection<Object>)activity_field.get(activity);}
               catch (java.lang.Exception e) {list=null;}
@@ -314,7 +314,7 @@ public class Util
 	{
 		String obj_msg;
 
-		obj_msg=rs.android.Util.Objs_To_String(obj);
+		obj_msg=rs.android.util.Type.Objs_To_String(obj);
 		Show_Message(ctx, obj_msg);
 	}
 

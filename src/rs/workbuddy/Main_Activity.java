@@ -223,7 +223,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 			if (!rs.android.Util.NotEmpty(event_type_name))
 				event_type_name = "Activity";
 			label_str = event_type_name + " since " +
-				rs.android.Util.To_String(we.start_date, null, "h:mma");
+				rs.android.util.Type.To_String(we.start_date, null, "h:mma");
 			if (we.project_id != null)
 				label_str = rs.android.Util.AppendStr(label_str, we.Get_Project_Name(db), "\n");
 
@@ -232,8 +232,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 			if (rs.android.Util.NotEmpty(hrs))
 			{
 				label_str +=
-					" for " + rs.android.Util.To_String(hrs, null, "#,###.##") + " hrs " +
-					"(" + rs.android.Util.To_String(mins, null, "#,###.##") + " min)";
+					" for " + rs.android.util.Type.To_String(hrs, null, "#,###.##") + " hrs " +
+					"(" + rs.android.util.Type.To_String(mins, null, "#,###.##") + " min)";
 			}
 		}
 		return label_str;
@@ -411,7 +411,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		this.event_text.setText(this.Get_Prev_Event_Description(this.db, now));
 
 		// update time header
-		label_str = rs.android.Util.To_String(now, "", "h:mm:ss a, EEEE dd/MM/yyyy");
+		label_str = rs.android.util.Type.To_String(now, "", "h:mm:ss a, EEEE dd/MM/yyyy");
 		this.clock_text.setText(label_str);
 
 		// update clock

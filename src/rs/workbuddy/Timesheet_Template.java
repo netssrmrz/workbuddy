@@ -118,11 +118,11 @@ implements java.lang.Runnable
 		}
 		else if (id.equals("wb_week_ending"))
 		{
-			res = rs.android.Util.To_String(this.week[6], "n/a", "dd/MM/yyyy");
+			res = rs.android.util.Type.To_String(this.week[6], "n/a", "dd/MM/yyyy");
 		}
 		else if (id.equals("wb_week_no"))
 		{
-			res = rs.android.Util.To_String(this.week_of, "n/a", "w");
+			res = rs.android.util.Type.To_String(this.week_of, "n/a", "w");
 		}
 		else if (id.equals("wb_signature_name"))
 		{
@@ -131,7 +131,7 @@ implements java.lang.Runnable
 		else if (id.equals("wb_date"))
 		{
 			date = rs.android.util.Date.Now();
-			res = rs.android.Util.To_String(date, "n/a", "dd/MM/yyyy");
+			res = rs.android.util.Type.To_String(date, "n/a", "dd/MM/yyyy");
 		}
 		else if (id.startsWith("wb_sun_"))
 		{
@@ -185,11 +185,11 @@ implements java.lang.Runnable
 				dur = Work_Event.Get_Events_Duration(this.db, ids);
 				if (bookmark_id.endsWith("_total_hrs") && dur != null)
 				{
-					res = rs.android.Util.To_String(Work_Event.Duration_To_Hrs(dur), null, "#,##0.##");
+					res = rs.android.util.Type.To_String(Work_Event.Duration_To_Hrs(dur), null, "#,##0.##");
 				}
 				else if (bookmark_id.endsWith("_total_mins") && dur != null)
 				{
-					res = rs.android.Util.To_String(Work_Event.Duration_To_Mins(dur), null, "#,##0.##");
+					res = rs.android.util.Type.To_String(Work_Event.Duration_To_Mins(dur), null, "#,##0.##");
 				}
 			}
 		}
@@ -204,7 +204,7 @@ implements java.lang.Runnable
 
 		if (bookmark_id.endsWith("_date"))
 		{
-      res=rs.android.Util.To_String(day, "n/a", "dd/MM/yyyy");
+      res=rs.android.util.Type.To_String(day, "n/a", "dd/MM/yyyy");
 		}
 		else
 		{
@@ -218,24 +218,24 @@ implements java.lang.Runnable
 					if (bookmark_id.endsWith("_start"))
 					{
 						event = Work_Event.Select(this.db, ids[0]);
-						res = rs.android.Util.To_String(event.start_date, "n/a", "h:mm aa");
+						res = rs.android.util.Type.To_String(event.start_date, "n/a", "h:mm aa");
 					}
 					else if (bookmark_id.endsWith("_finish"))
 					{
 						event = Work_Event.Select(this.db, ids[ids.length - 1]);
-						res = rs.android.Util.To_String(event.Get_Event_End(this.db), "n/a", "h:mm aa");
+						res = rs.android.util.Type.To_String(event.Get_Event_End(this.db), "n/a", "h:mm aa");
 					}
 					else if (bookmark_id.endsWith("_total"))
 					{
 						dur = Work_Event.Get_Events_Duration(this.db, ids);
 						if (dur != null)
-							res = rs.android.Util.To_String(Work_Event.Duration_To_Hrs(dur), null, "#,##0.##");
+							res = rs.android.util.Type.To_String(Work_Event.Duration_To_Hrs(dur), null, "#,##0.##");
 					}
 					else if (bookmark_id.endsWith("_total_mins"))
 					{
 						dur = Work_Event.Get_Events_Duration(this.db, ids);
 						if (dur != null)
-							res = rs.android.Util.To_String(Work_Event.Duration_To_Mins(dur), null, "#,##0.##");
+							res = rs.android.util.Type.To_String(Work_Event.Duration_To_Mins(dur), null, "#,##0.##");
 					}
 				}
 			}
