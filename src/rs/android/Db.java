@@ -54,7 +54,6 @@ public class Db
     {
       try
 			{db_stream = new java.io.FileOutputStream(GetDbPath());}
-      //try {db_stream=this.activity.(GetDbPath());}
       catch (java.io.FileNotFoundException e) 
       {
         e.printStackTrace(); 
@@ -596,14 +595,17 @@ public class Db
     return rows.toArray();
   }
 
-  public Object SelectObj(Class<? extends Object> obj_class, long id)
+  public Object SelectObj(Class<? extends Object> obj_class, Long id)
   {
     String sql, table_name;
     Object res=null;
 
-    table_name = DeriveTableName(obj_class);
-    sql = "select * from " + table_name + " where id=?";
-    res = SelectObj(obj_class, sql, id);
+		if (id!=null)
+		{
+      table_name = DeriveTableName(obj_class);
+      sql = "select * from " + table_name + " where id=?";
+      res = SelectObj(obj_class, sql, id);
+		}
     return res;
   }
 
@@ -685,6 +687,7 @@ public class Db
     Object id;
 		boolean res=false;
 
+    //android.util.Log.d("Save()", "entry");
     if (obj != null)
     {
       if (obj instanceof java.util.List<?>)
@@ -720,6 +723,7 @@ public class Db
 		Boolean table_avail;
 		Class<?> obj_class;
 
+    //android.util.Log.d("Insert()", "entry");
     if (obj != null && rs.android.Util.NotEmpty(this.conn))
     {
       values = BuildSaveParams(obj);
@@ -1088,15 +1092,21 @@ public class Db
     return res;
   }
 	
-	public static boolean Restore(String in_filename)
+	public static boolean Restore(String in_filename, android.app.Activity activity)
 	{
 		String in_filepath, out_filepath;
+		boolean res=false;
 
 		out_filepath = "/data/data/rs.workbuddy/databases/"+db_name;
-		in_filepath= android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+in_filename;
+		in_filepath= android.os.Environment.getExternalStoragePublicDirectory
+		  (android.os.Environment.DIRECTORY_DOWNLOADS) + "/"+in_filename;
 
-		rs.android.util.File.Copy_File(in_filepath, out_filepath);
-		return true;
+		if (rs.android.util.File.Exists(in_filename))
+		{
+		  rs.android.util.File.Copy_File(in_filepath, out_filepath);
+			res=true;
+		}
+		return res;
 	}
 	
 	public static boolean Backup(String out_filename)
@@ -1145,12 +1155,22 @@ public class Db
     @Override
     public void onCreate(android.database.sqlite.SQLiteDatabase db)
     {
+			//android.util.Log.d("OpenHelper.onCreate()", "entry");
 			if (rs.android.Util.NotEmpty(tables))
 			{
 				for (Table table: tables)
 				{
 					if (table != null && rs.android.Util.NotEmpty(table.create_sql))
+					{
 						db.execSQL(table.create_sql);
+						if (Util.NotEmpty(table.init_sqls))
+						{
+							for (String init_sql: table.init_sqls)
+							{
+								db.execSQL(init_sql);
+							}
+						}
+					}
 				}
 			}
     }

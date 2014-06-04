@@ -1,4 +1,4 @@
-package rs.workbuddy;
+package rs.workbuddy.project;
 
 public class Project_Status_Spinner
 extends rs.android.ui.Db_Spinner

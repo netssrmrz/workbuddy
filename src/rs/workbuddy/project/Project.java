@@ -1,4 +1,4 @@
-package rs.workbuddy;
+package rs.workbuddy.project;
 import java.util.*;
 
 public class Project
@@ -18,12 +18,12 @@ implements java.io.Serializable
 		sql =
 			"select p.id " +
 			"from project p " +
-			"left join " +
-			"(SELECT project_id, max(start_date) last_date " +
-			"FROM work_event " +
-			"group by project_id " +
-			"order by start_date desc) d on d.project_id=p.id " +
-			"left join status_type s on s.id=p.status_type_id " +
+			  "left join " +
+			    "(SELECT project_id, max(start_date) last_date " +
+			    "FROM work_event " +
+			    "group by project_id " +
+			    "order by start_date desc) d on d.project_id=p.id " +
+			  "left join status_type s on s.id=p.status_type_id " +
 			"where s.display_home=1 " +
 			"order by last_date desc ";
 
@@ -38,16 +38,26 @@ implements java.io.Serializable
 
 	public static Long[] Select_Ids(rs.android.Db db)
 	{
-		return Select_Ids(db, "p.name asc");
+		return Select_Ids(db, null, "p.name asc");
 	}
-
-	public static Long[] Select_Ids(rs.android.Db db, String order_by)
+	
+	public static Long[] Select_Ids(rs.android.Db db, String where, String order_by)
 	{
 		Long[] res=null;
 		String sql;
 
-		sql = db.Build_SQL_Str("p.id", "project p", null, order_by);
+		sql = db.Build_SQL_Str("p.id", "project p", where, order_by);
 		res = (Long[])db.Select_Column(Long.class, sql);
+		return res;
+	}
+	
+	public static Long[] Select_Ids(rs.android.Db db, String where, String order_by, Object ... params)
+	{
+		Long[] res=null;
+		String sql;
+
+		sql = db.Build_SQL_Str("p.id", "project p", where, order_by);
+		res = (Long[])db.Select_Column(Long.class, sql, params);
 		return res;
 	}
 
@@ -97,16 +107,37 @@ implements java.io.Serializable
 		return res;
 	}
 
-	public static Long[] Select_Root_Projects(rs.android.Db db)
+	public static Long[] Select_Root_Projects(rs.android.Db db, String where, 
+	  String order_by)
 	{
-		return (Long[])db.Select_Column(Long.class, 
-		  "select id from project where parent_id is null order by name asc");
+		String sql;
+		Long[] res=null;
+		
+		where=rs.android.Util.AppendStr(where, "(parent_id is null)", " and ");
+		sql = db.Build_SQL_Str("p.id", "project p", where, order_by);
+		res = (Long[])db.Select_Column(Long.class, sql);
+		return res;
 	}
 
-	public static Long[] Select_Children(rs.android.Db db, Long parent_id)
+	public static Long[] Select_Children(rs.android.Db db, Long parent_id, 
+	  String where, String order_by)
 	{
-		return (Long[])db.Select_Column(Long.class, 
-		  "select id from project where parent_id=? order by status_type_id asc, name asc", parent_id);
+		String sql;
+		Long[] res=null;
+		
+		if (parent_id!=null)
+		  where=rs.android.Util.AppendStr(where, "(parent_id=?)", " and ");
+		else
+			where=rs.android.Util.AppendStr(where, "(parent_id is null)", " and ");
+			
+		sql = db.Build_SQL_Str("p.id", "project p", where, order_by);
+		
+		if (parent_id!=null)
+		  res = (Long[])db.Select_Column(Long.class, sql, parent_id);
+		else
+			res = (Long[])db.Select_Column(Long.class, sql);
+			
+		return res;
 	}
 
 	public static boolean Is_Family(rs.android.Db db, Long parent_id, Long child_id)
@@ -115,7 +146,7 @@ implements java.io.Serializable
 		Long[] children;
 		int c;
 
-		children = Project.Select_Children(db, parent_id);
+		children = Project.Select_Children(db, parent_id, null, null);
 		if (rs.android.Util.NotEmpty(children))
 		{
 			if (java.util.Arrays.asList(children).contains(child_id))
@@ -140,7 +171,7 @@ implements java.io.Serializable
 		boolean res=false;
 		Long[] children;
 
-		children = Select_Children(db, id);
+		children = Select_Children(db, id, null, null);
 		if (rs.android.Util.NotEmpty(children))
 			res = true;
 		return res;

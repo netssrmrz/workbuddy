@@ -128,6 +128,30 @@ public class Util
 	public static final float BRANCH_PIC_FRAME_WIDTH=4; 
 	public static final int BRANCH_PIC_COLOR=0xff55bbee;
 	
+	public static android.graphics.drawable.PictureDrawable Get_Test_Pic()
+	{
+		android.graphics.drawable.PictureDrawable drawable;
+		android.graphics.Picture pic;
+		android.graphics.Canvas c;
+		android.graphics.Paint paint;
+
+		paint=new android.graphics.Paint();
+		paint.setColor(0xffff0000);
+		paint.setStrokeWidth(4);
+		paint.setStyle(android.graphics.Paint.Style.STROKE);
+
+		pic=new android.graphics.Picture();
+		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
+		
+		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
+		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, paint);
+
+		pic.endRecording();
+		drawable=new android.graphics.drawable.PictureDrawable(pic);
+
+		return drawable;
+	}
+	
 	public static android.graphics.drawable.PictureDrawable Get_Opened_Pic()
 	{
 		android.graphics.drawable.PictureDrawable pic_drawable;
@@ -147,8 +171,10 @@ public class Util
 		
 		pic=new android.graphics.Picture();
 		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
-		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
-		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		
+		// border
+		//c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
+		  //BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
 		
 		// draw cross
 		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, 
@@ -183,8 +209,10 @@ public class Util
 		
 		pic=new android.graphics.Picture();
 		c=pic.beginRecording((int)BRANCH_WIDTH, (int)BRANCH_WIDTH);
-		c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
-		  BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
+		
+		// border
+		//c.drawRect(BRANCH_FRAME_WIDTH, BRANCH_FRAME_WIDTH, 
+		  //BRANCH_WIDTH-BRANCH_FRAME_WIDTH, BRANCH_WIDTH-BRANCH_FRAME_WIDTH, frame_paint);
 			
 		// draw dash
 		c.drawLine(BRANCH_FRAME_WIDTH+BRANCH_PIC_FRAME_WIDTH, BRANCH_WIDTH/2f, 

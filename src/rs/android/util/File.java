@@ -19,12 +19,13 @@ public class File
 		}
 	}
 	
-	public static void Copy_File(String in_filepath, String out_filepath)
+	public static boolean Copy_File(String in_filepath, String out_filepath)
 	{
 		java.io.FileInputStream in_stream;
 		java.io.OutputStream out_stream;
 		byte[] buffer = new byte[1024];
 		int length;
+		boolean res=false;
 
 		try
 		{
@@ -39,11 +40,13 @@ public class File
 			out_stream.flush();
 			out_stream.close();
 			in_stream.close();			
+			res=true;
 		}
 		catch (Exception e)
 		{
 			android.util.Log.d("rs.android.Util.Copy_File()", e.toString());
 		}
+		return res;
 	}
 	
 	public static android.net.Uri Save_File(String name, String data)

@@ -10,7 +10,7 @@ public class Event_Type
 	public String name;
 	public Boolean display_home_projects;
 	public Integer colour;
-	public String template_id;
+	//public String template_id;
 	
 	public static Integer Get_Colour(rs.android.Db db, Long id)
 	{

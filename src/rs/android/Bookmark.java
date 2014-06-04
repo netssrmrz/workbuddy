@@ -67,11 +67,4 @@ public class Bookmark
 		}
 		return res;
 	}
-
-	public String Replace(String data, String str)
-	{
-		String res=data;
-
-		return res;
-	}
 }

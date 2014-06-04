@@ -47,11 +47,11 @@
 		</activity>
 		<activity 
 			android:label="Work Buddy - Project List"
-			android:name=".Project_List">
+			android:name=".project.Project_List">
 		</activity>
 		<activity 
 			android:label="Work Buddy - Edit Project"
-			android:name=".Project_Add">
+			android:name=".project.Project_Add">
 		</activity>
 
 	</application>

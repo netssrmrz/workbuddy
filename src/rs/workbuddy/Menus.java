@@ -17,13 +17,17 @@ public class Menus
 	public static final int MENUITEM_ADD=3;
 	public static final int MENUITEM_VIEW=4;
 	public static final int MENUITEM_EDIT=5;
-	public static final int MENUITEM_DELETE=6;
-	public static final int MENUITEM_DONE=7;
-	public static final int MENUITEM_SORT=8;
-	public static final int MENUITEM_COLS=9;
-	public static final int MENUITEM_EXPORT=10;
-	public static final int MENUITEM_SEARCH=11;
-	public static final int MENUITEM_IMPORT=13; 
+	public static final int MENUITEM_DELETE=7;
+	public static final int MENUITEM_DONE=8;
+	public static final int MENUITEM_FILTER=9;
+	public static final int MENUITEM_SORT=10;
+	public static final int MENUITEM_COLS=11;
+	public static final int MENUITEM_EXPORT=12;
+	public static final int MENUITEM_SEARCH=13;
+	public static final int MENUITEM_IMPORT=14; 
+	
+	public static final int MENUITEM_PROJECTLIST_MOVE=6;
+	
 	public String ct="rs.workbuddy.Menus";
 
 	public static void Create_Options_Menu(android.view.Menu menu)
@@ -76,6 +80,9 @@ public class Menus
 		item = menu.add(1, MENUITEM_SORT, MENUITEM_SORT, "Sort");
 		item.setVisible(false);
 		
+		item = menu.add(1, MENUITEM_FILTER, MENUITEM_FILTER, "Filter");
+		item.setVisible(false);
+		
 		item = menu.add(1, MENUITEM_FILTER_PROJ, MENUITEM_FILTER_PROJ, "Project");
 		item.setVisible(false);
 		item.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -84,6 +91,9 @@ public class Menus
 		item.setVisible(false);
 		
 		item=menu.add(1, MENUITEM_IMPORT, MENUITEM_IMPORT, "Import");
+		item.setVisible(false);
+		
+		item=menu.add(1, MENUITEM_PROJECTLIST_MOVE, MENUITEM_PROJECTLIST_MOVE, "Move");
 		item.setVisible(false);
 	}
 
@@ -94,7 +104,7 @@ public class Menus
 		if (item.getItemId() == MENUITEM_HOME)
 			ctx.startActivity(new android.content.Intent(ctx, Main_Activity.class));
 		else if (item.getItemId() == MENUITEM_PROJECTS)
-			ctx.startActivity(new android.content.Intent(ctx, Project_List.class));
+			ctx.startActivity(new android.content.Intent(ctx, rs.workbuddy.project.Project_List.class));
 		else if (item.getItemId()==MENUITEM_EVENTS)
 		  ctx.startActivity(new android.content.Intent(ctx, Event_List.class));
 		else if (item.getItemId()==MENUITEM_TIMESHEET)

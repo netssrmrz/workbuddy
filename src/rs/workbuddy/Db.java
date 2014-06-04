@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 public class Db 
 extends rs.android.Db
 {
-  Db(android.content.Context context)
+  public Db(android.content.Context context)
   {
     OpenHelper open_helper;
 		Table t;
@@ -49,11 +49,11 @@ extends rs.android.Db
 			"display_home INTEGER, "+
 			"colour INTEGER)";
 		t.init_sqls=new String[5];
-    t.init_sqls[0]="insert into Status_Type (name, display_home) values ('Pending', 0)";
-    t.init_sqls[1]="insert into Status_Type (name, display_home) values ('In Progress', 1)";
-    t.init_sqls[2]="insert into Status_Type (name, display_home) values ('Completed', 0)";
-    t.init_sqls[3]="insert into Status_Type (name, display_home) values ('On Hold', 0)";
-    t.init_sqls[4]="insert into Status_Type (name, display_home) values ('Cancelled', 0)";
+    t.init_sqls[0]="insert into Status_Type (name, display_home, colour) values ('Pending', 0, 4294967040)";
+    t.init_sqls[1]="insert into Status_Type (name, display_home, colour) values ('In Progress', 1, 4278255360)";
+    t.init_sqls[2]="insert into Status_Type (name, display_home, colour) values ('Completed', 0, 4294901760)";
+    t.init_sqls[3]="insert into Status_Type (name, display_home, colour) values ('On Hold', 0, 4294967040)";
+    t.init_sqls[4]="insert into Status_Type (name, display_home, colour) values ('Cancelled', 0, 4294901760)";
 		this.tables[2]=t;
 		
 		t=new Table();
@@ -66,9 +66,9 @@ extends rs.android.Db
 			"name TEXT, "+
 			"colour INTEGER)";
 		t.init_sqls=new String[3];
-    t.init_sqls[0]="insert into Event_Type (name, display_home_projects, colour, template_id) values ('Work', 1, 4294901760)";
-    t.init_sqls[1]="insert into Event_Type (name, display_home_projects, colour, template_id) values ('Break', 0, 4294967040)";
-    t.init_sqls[2]="insert into Event_Type (name, display_home_projects, colour, temppate_id) values ('Home', 0, 4278255360)";
+    t.init_sqls[0]="insert into Event_Type (name, display_home_projects, colour) values ('Work', 1, 4294901760)";
+    t.init_sqls[1]="insert into Event_Type (name, display_home_projects, colour) values ('Break', 0, 4294967040)";
+    t.init_sqls[2]="insert into Event_Type (name, display_home_projects, colour) values ('Home', 0, 4278255360)";
 		this.tables[3]=t;
 		
 		t=new Table();

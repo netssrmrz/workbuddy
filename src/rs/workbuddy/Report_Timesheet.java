@@ -22,7 +22,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	public boolean is_send;
 	public boolean is_view;
 	public Long project_id;
-	public rs.workbuddy.Project_Adapter projects;
+	public rs.workbuddy.project.Project_SpinnerAdapter projects;
 
 	public Report_Timesheet()
 	{
@@ -38,8 +38,10 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		this.has_col_select = false;
 		this.has_paging = true;
 
-		this.min_day = (java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date asc");
-		this.max_day = (java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date desc");
+		this.min_day = rs.workbuddy.Work_Event.Get_Earliest_Date(this.db);
+		//(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date asc");
+		this.max_day = rs.workbuddy.Work_Event.Get_Latest_Date(this.db); 
+		//(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date desc");
     this.week_of = this.max_day;
 		this.Set_Title();
 	}
@@ -51,16 +53,16 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		String type_name;
 		rs.android.ui.Column col;
 
-		this.Add_Column("date", "Date");
+		this.Add_Column("date", "Date", false, true);
 		ids = rs.workbuddy.db.Event_Type.Select_Ids(this.db);
 		if (rs.android.Util.NotEmpty(ids))
 		{
 			for (Long id: ids)
 			{
 				type_name = rs.workbuddy.db.Event_Type.Get_Name(this.db, id);
-				col = this.Add_Column("mins_" + id, type_name + "\n(Minutes)");
+				col = this.Add_Column("mins_" + id, type_name + "\n(Minutes)", false, false);
 				col.align = rs.android.ui.Column.ALIGN_RIGHT;
-				col = this.Add_Column("hrs_" + id, type_name + "\n(Hours)");
+				col = this.Add_Column("hrs_" + id, type_name + "\n(Hours)", false, true);
 				col.align = rs.android.ui.Column.ALIGN_RIGHT;
 			}
 		}
@@ -97,9 +99,9 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		else if (col_id.startsWith("mins"))
 		{
 			week_start = rs.android.util.Date.Week_First_Day(this.week_of);
-			android.util.Log.d("On_Get_Col_Footer_View", "week start: "+rs.android.util.Type.To_String(week_start, null, "EEEE dd/MM/yyyy h.mm.ss a"));
+			//android.util.Log.d("On_Get_Col_Footer_View", "week start: "+rs.android.util.Type.To_String(week_start, null, "EEEE dd/MM/yyyy h.mm.ss a"));
 			week_end = rs.android.util.Date.Add_Days(week_start, 7);
-			android.util.Log.d("On_Get_Col_Footer_View", "week end: "+rs.android.util.Type.To_String(week_end, null, "EEEE dd/MM/yyyy h.mm.ss a"));
+			//android.util.Log.d("On_Get_Col_Footer_View", "week end: "+rs.android.util.Type.To_String(week_end, null, "EEEE dd/MM/yyyy h.mm.ss a"));
 			event_type_id = rs.android.util.Type.To_Long(col_id.substring(5));
 			week_event_ids = Work_Event.Select_Timespan_Events(this.db, week_start, week_end, event_type_id, this.project_id, null);
 			total_dur = Work_Event.Get_Events_Duration(this.db, week_event_ids);
@@ -192,7 +194,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	@Override
 	public boolean onCreateOptionsMenu(android.view.Menu menu) 
 	{
-		rs.workbuddy.Project_Spinner proj_spinner;
+		rs.workbuddy.project.Project_Spinner proj_spinner;
 		android.view.MenuItem menu_item;
 
 		super.onCreateOptionsMenu(menu);
@@ -200,12 +202,12 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		menu.findItem(Menus.MENUITEM_TIMESHEET_SEND).setVisible(true);
 		menu.findItem(Menus.MENUITEM_TIMESHEET_VIEW).setVisible(true);
 
-		proj_spinner = new Project_Spinner(this, this.db);
-		proj_spinner.setOnItemSelectedListener(this);
-		proj_spinner.Get_Adapter().view_text_size = 15;
+		proj_spinner = new rs.workbuddy.project.Project_Spinner(this, this.db);
+		((rs.workbuddy.project.Project_ListAdapter)proj_spinner.getAdapter()).is_small_spinner=true;
 		menu_item = menu.findItem(Menus.MENUITEM_FILTER_PROJ);
 		menu_item.setActionView(proj_spinner);
 		menu_item.setVisible(true);
+		proj_spinner.setOnItemSelectedListener(this);
 
 		return true;
 	}

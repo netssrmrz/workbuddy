@@ -1,9 +1,4 @@
 package rs.workbuddy;
-//import android.widget.*;
-//import android.widget.*;
-//import rs.workbuddy.db.*;
-//import android.view.*;
-//import java.sql.*;
 
 public class Main_Activity 
 extends rs.workbuddy.Workbuddy_Activity
@@ -13,16 +8,6 @@ android.view.View.OnLongClickListener,
 rs.android.ui.Date_Dialog.On_Date_Set_Listener,
 rs.android.ui.Time_Dialog.On_Time_Set_Listener
 {
-	public class UI_Receiver
-  extends android.content.BroadcastReceiver
-  {
-    @Override
-    public void onReceive(android.content.Context ctx, android.content.Intent intent)
-    {
-      Update_UI();
-    }
-  }
-
 	public class UI_TimerTask extends java.util.TimerTask
 	{
 		public android.content.Context ctx;
@@ -45,8 +30,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	public android.widget.LinearLayout main_layout;
 	public android.widget.LinearLayout event_type_layout;
 	public android.widget.LinearLayout project_layout;
-
-	public UI_Receiver ui_receiver;
+	
 	public java.util.Timer ui_timer;
 	public Work_Event dlg_event;
   public boolean has_type_buttons;
@@ -68,6 +52,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	{
 		super.onCreate(state);
 		
+		this.has_auto_update=true;
 		rs.android.Util.ctx = this;
 
 		main_layout = new android.widget.LinearLayout(this);
@@ -250,7 +235,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		event = (Work_Event)res.getTag();
 		event.project_id = project_id;
 
-		res.setText(res.getText() + ": " + rs.workbuddy.Project.Get_Project_Name(db, project_id));
+		res.setText(res.getText() + ": " + rs.workbuddy.project.Project.Get_Project_Name(db, project_id));
 		res.setTextSize(15);
 
 		return res;
@@ -281,9 +266,11 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		Long[] ids;
 		int no_rows, c;
 
+		//android.util.Log.d("Build_Type_Rows()", "entry");
 		ids = rs.workbuddy.db.Event_Type.Select_Ids(db);
 		if (rs.android.Util.NotEmpty(ids))
 		{
+			//android.util.Log.d("Build_Type_Rows()", "ids found "+ids.length);
 			no_rows = (ids.length / BUTTONS_PER_ROW) + 1;
 
 			res = new android.view.ViewGroup[no_rows];
@@ -294,6 +281,8 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 				res[c / BUTTONS_PER_ROW].addView(this.New_Type_Button(db, ids[c]), 
 					new android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1));
 		}
+		//else
+			//android.util.Log.d("Build_Type_Rows()", "no ids found.");
 		return res;
 	}
 
@@ -329,7 +318,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		Long[] ids;
 		int no_rows, c;
 
-		ids = rs.workbuddy.Project.Select_Home_Ids(db);
+		ids = rs.workbuddy.project.Project.Select_Home_Ids(db);
 		if (rs.android.Util.NotEmpty(ids))
 		{
 			no_rows = ((ids.length-1) / BUTTONS_PER_ROW) + 1;
@@ -400,7 +389,7 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		}
 
 		// set project buttons
-    if (rs.android.Log.Has_Changes(this.db, Project.class, this.last_update_time))
+    if (rs.android.Log.Has_Changes(this.db, rs.workbuddy.project.Project.class, this.last_update_time))
     {
 		  this.project_layout.removeAllViews();
 		  rs.android.ui.Util.Add_Views(this.project_layout, this.Build_Project_Rows(this.db));
@@ -473,18 +462,9 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 	@Override
 	public void On_Resume()
 	{
-		android.content.IntentFilter filter;
 		UI_TimerTask ui_task;
 
 		this.clock.db = this.db;
-
-		if (this.ui_receiver == null)
-		{
-			this.ui_receiver = new UI_Receiver();
-			filter = new android.content.IntentFilter();
-			filter.addAction("UI_UPDATE_ACTION");
-			this.registerReceiver(this.ui_receiver, filter);
-		}
 
 		if (this.ui_timer == null)
 		{
@@ -503,12 +483,6 @@ rs.android.ui.Time_Dialog.On_Time_Set_Listener
 		{
 			this.ui_timer.cancel();
 			this.ui_timer = null;
-		}
-
-		if (this.ui_receiver != null)
-		{
-		  this.unregisterReceiver(this.ui_receiver);
-		  this.ui_receiver = null;
 		}
 	}
 }

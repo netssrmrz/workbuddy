@@ -33,9 +33,8 @@ implements java.lang.Runnable
 		int pos=0;
 
 		if (this.prog_bar != null)
-		{
 			this.prog_bar.Inc();
-		}
+		
 		if (entry.entry.getName().equals("word/document.xml"))
 		{
 			data = new String(entry.data);
@@ -62,6 +61,10 @@ implements java.lang.Runnable
 				buff.append(data.substring(pos));
 				data = buff.toString();
 				entry.data = data.getBytes();
+			}
+			else
+			{
+				this.prog_bar.Show_Msg(this.ctx, "No bookmarks found!");
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 package rs.android.ui;
-import rs.workbuddy.*;
-import java.util.*;
+//import rs.workbuddy.*;
+//import java.util.*;
 
 public class Column_Dialog
 implements 

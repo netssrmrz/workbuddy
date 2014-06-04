@@ -21,14 +21,14 @@ extends rs.workbuddy.Workbuddy_Activity_List
 		this.menuitem_add_class = Event_Add.class;
 		this.list_obj_class=Work_Event.class;
 
-		this.Add_Column("date", "Date");
-		this.Add_Column("time", "Time");
-		this.Add_Column("full_time", "Full Time");
-		this.Add_Column("activity", "Activity");
-		this.Add_Column("hrs", "Hrs");
-		this.Add_Column("mins", "Mins");
-    this.Add_Column("project", "Project", true);
-		this.Add_Column("proj_or_note", "Project / Notes", true);
+		this.Add_Column("date", "Date", false, true);
+		this.Add_Column("time", "Time", false, true);
+		this.Add_Column("full_time", "Full Time", false, false);
+		this.Add_Column("activity", "Activity", false, true);
+		this.Add_Column("hrs", "Hrs", false, false);
+		this.Add_Column("mins", "Mins", false, false);
+    this.Add_Column("project", "Project", true, false);
+		this.Add_Column("proj_or_note", "Project / Notes", true, true);
 	}
 
 	@Override
@@ -36,8 +36,10 @@ extends rs.workbuddy.Workbuddy_Activity_List
 	{
 		super.onCreate(state);
 		
-		this.min_day=(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date asc");
-		this.max_day=(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date desc");
+		this.min_day=rs.workbuddy.Work_Event.Get_Earliest_Date(this.db);
+		//(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date asc");
+		this.max_day=rs.workbuddy.Work_Event.Get_Latest_Date(this.db);
+		//(java.sql.Date)this.db.Select_Value(java.sql.Date.class, "select start_date from Work_Event order by start_date desc");
     this.week_of=this.max_day;
 		this.Set_Title();
 	}

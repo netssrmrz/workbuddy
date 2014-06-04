@@ -1,6 +1,6 @@
 package rs.android.ui;
 
-public class Sort_Option
+public class Filter_Option
 {
 	public int id;
 	public String label;
@@ -9,7 +9,7 @@ public class Sort_Option
 	{
 		String res=null;
 
-		res=prefix+".Sort_Option.active";
+		res=prefix+".Filter_Option.active";
 		return res;
 	}
 

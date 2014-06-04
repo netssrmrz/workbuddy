@@ -118,13 +118,12 @@ implements android.preference.Preference.OnPreferenceChangeListener
 		text_pref.setSummary(this.ps.getSharedPreferences().getString(SETTING_KEY_TIMESHEET_SIG, null));
 		ps.addPreference(text_pref);
 		
-
 		text_pref = new android.preference.EditTextPreference(this);
 		text_pref.setKey(SETTING_KEY_BACKUP);
+		text_pref.setDefaultValue(rs.workbuddy.Db.db_name+"_copy.db");
 		text_pref.setTitle("Import / Export Database Filename");
 		text_pref.setOnPreferenceChangeListener(this);
 		text_pref.setSummary(this.ps.getSharedPreferences().getString(SETTING_KEY_BACKUP, null));
-		text_pref.setDefaultValue(rs.workbuddy.Db.db_name+"_copy.db");
 		ps.addPreference(text_pref);
 		
 		this.setPreferenceScreen(ps);
@@ -169,10 +168,21 @@ implements android.preference.Preference.OnPreferenceChangeListener
 	public void On_Import()
 	{
 		String filename;
+		Db db;
 
 		filename=Settings_Activity.Get_Backup_Filename(this);
-		rs.workbuddy.Db.Restore(filename);
-		rs.android.ui.Util.Show_Note(this, "Import from file \""+filename+"\" in Downloads directory complete.");
+		if (rs.workbuddy.Db.Restore(filename, this))
+		{
+		  rs.android.ui.Util.Show_Note(this, "Import from file \""+filename+
+			"\" in Downloads directory complete.");
+			
+			db=new rs.workbuddy.Db(this);
+			rs.android.Log.Save_Restore(db);
+			db.Close();
+		}
+		else
+			rs.android.ui.Util.Show_Note(this, "Import file \""+filename+
+			"\" not found in Downloads directory.");
 	}
 	
 	public boolean onPreferenceChange(android.preference.Preference p, Object newValue)

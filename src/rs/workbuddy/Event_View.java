@@ -59,7 +59,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 	}
 
 	@Override
-	void On_Load_Obj(Long id)
+	public void On_Load_Obj(Long id)
 	{
 		this.event = Work_Event.Select(this.db, id);
 	}

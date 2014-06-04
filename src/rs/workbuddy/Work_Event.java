@@ -9,12 +9,34 @@ implements java.io.Serializable
 	public String notes;
 	public Long project_id;
 
+	public static java.sql.Date Get_Earliest_Date(rs.android.Db db)
+	{
+		java.sql.Date res=null;
+		
+		res = (java.sql.Date)db.Select_Value(java.sql.Date.class, 
+		  "select start_date from Work_Event order by start_date asc");
+		if (res==null)
+			res=rs.android.util.Date.Week_First_Day(rs.android.util.Date.Now());
+		return res;
+	}
+	
+	public static java.sql.Date Get_Latest_Date(rs.android.Db db)
+	{
+		java.sql.Date res=null;
+
+		res = (java.sql.Date)db.Select_Value(java.sql.Date.class, 
+		  "select start_date from Work_Event order by start_date desc");
+		if (res==null)
+			res=rs.android.util.Date.Week_First_Day(rs.android.util.Date.Now());
+		return res;
+	}
+	
 	public String Get_Project_Name(rs.android.Db db)
 	{
 		String res=null;
-		Project project;
+		rs.workbuddy.project.Project project;
 
-		project = Project.Select(db, this.project_id);
+		project = rs.workbuddy.project.Project.Select(db, this.project_id);
 		if (project != null)
 		  res = project.name;
 		return res;
@@ -36,7 +58,11 @@ implements java.io.Serializable
     {
 			id = Work_Event.Select_Prev_Event_Id(db, this.start_date);
 			we = Work_Event.Select(db, id);
-			if (!(rs.android.Util.Equals(we.event_type_id, this.event_type_id) && rs.android.Util.Equals(we.project_id, this.project_id)))
+			if (
+			  we==null ||
+			  !(rs.android.Util.Equals(we.event_type_id, this.event_type_id) && 
+			  rs.android.Util.Equals(we.project_id, this.project_id))
+				)
 			{
 				db.Save(this);
 			}
@@ -66,7 +92,7 @@ implements java.io.Serializable
 				for (Long event_id: event_ids)
 				{
 					event_project_id = Work_Event.Select_Project_Id(db, event_id);
-					if (event_project_id != null && (project_id.equals(event_project_id) || Project.Is_Family(db, project_id, event_project_id)))
+					if (event_project_id != null && (project_id.equals(event_project_id) || rs.workbuddy.project.Project.Is_Family(db, project_id, event_project_id)))
 					{
 						child_events.add(event_id);
 					}
@@ -303,7 +329,8 @@ implements java.io.Serializable
 		if (rs.android.Util.NotEmpty(db))
 		{
 			id = Select_Prev_Event_Id(db, date);
-			res = (Work_Event)db.SelectObj(Work_Event.class, id);
+			if (id!=null)
+			  res = (Work_Event)db.SelectObj(Work_Event.class, id);
 		}
 		return res;
 	}
@@ -339,7 +366,7 @@ implements java.io.Serializable
 	{
 		if (this.project_id==null && this.Is_Break(db))
 		{
-			this.project_id=Project.Select_Last_Used(db, this.start_date);
+			this.project_id=rs.workbuddy.project.Project.Select_Last_Used(db, this.start_date);
 		}
 	}
 }

@@ -25,7 +25,20 @@ extends android.widget.ProgressBar
 		}
 	}
 	
+	public class Show_Msg
+	implements java.lang.Runnable
+	{
+		public android.content.Context ctx;
+		public String msg;
+		
+		public void run()
+		{
+			rs.android.ui.Util.Show_Note(this.ctx, msg);
+		}
+	}
+	
 	public android.os.Handler handler;
+	public android.content.Context ctx;
 	
 	public void Set_Progress(int val)
 	{
@@ -48,5 +61,15 @@ extends android.widget.ProgressBar
 	{
 		super(ctx, null, android.R.attr.progressBarStyleHorizontal);
 		this.handler=new android.os.Handler();
+	}
+	
+	public void Show_Msg(android.content.Context ctx, String msg)
+	{
+		Show_Msg msg_fn;
+		
+		msg_fn=new Show_Msg();
+		msg_fn.ctx=ctx;
+		msg_fn.msg=msg;
+		this.handler.post(msg_fn);
 	}
 }

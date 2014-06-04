@@ -125,8 +125,8 @@ public class Util
         res=false;
       else if (obj instanceof android.database.sqlite.SQLiteDatabase && !((android.database.sqlite.SQLiteDatabase)obj).isOpen())
         res=false;
-      //else if (obj instanceof Db && NotEmpty(((Db)obj).conn))
-        //res=true;
+      else if (obj instanceof Db && !NotEmpty(((Db)obj).conn))
+        res=false;
 			//else if (obj instanceof int[] && ((int[])obj).length<=0)
 			  //res=false;
       else if (obj.getClass().isArray() && ((Object[])obj).length<=0)

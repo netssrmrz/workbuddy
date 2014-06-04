@@ -28,11 +28,12 @@ public class Column
 	public void Load(android.content.Context ctx, String prefix)
 	{
 		String key;
+		android.content.SharedPreferences prefs;
 		
 		key=this.Key(prefix);
-		this.visible = android.preference.PreferenceManager.
-		  getDefaultSharedPreferences(ctx).
-			getBoolean(key, true);
+		prefs=android.preference.PreferenceManager.getDefaultSharedPreferences(ctx);
+		if (prefs.contains(key))
+		  this.visible = prefs.getBoolean(key, true);
 	}
 	
 	public String Key(String prefix)

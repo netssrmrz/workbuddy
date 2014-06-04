@@ -5,8 +5,20 @@ extends
 android.app.Activity
 implements android.content.DialogInterface.OnClickListener
 {
+	public class UI_Receiver
+  extends android.content.BroadcastReceiver
+  {
+    @Override
+    public void onReceive(android.content.Context ctx, android.content.Intent intent)
+    {
+      Update_UI();
+    }
+  }
+	
   public rs.workbuddy.Db db;
 	public android.view.Menu menu;
+	public UI_Receiver ui_receiver;
+	public boolean has_auto_update;
 
 	public void Update_UI()
 	{
@@ -54,6 +66,8 @@ implements android.content.DialogInterface.OnClickListener
 		  On_Edit_Cols();
 		else if (item.getItemId()==Menus.MENUITEM_SORT)
 			On_Sort();
+		else if (item.getItemId()==Menus.MENUITEM_FILTER)
+			On_Filter();
 		else if (item.getItemId()==Menus.MENUITEM_DELETE)
 		{
 			msg=rs.android.Util.AppendStr("Are you sure?", this.On_Get_Delete_Msg(), "\n");
@@ -75,13 +89,23 @@ implements android.content.DialogInterface.OnClickListener
 	@Override
 	public void onResume()
 	{
+		android.content.IntentFilter filter;
+		
 		super.onResume();
 
 		if (this.db == null)
 			this.db = new Db(this);
 
 		On_Resume();
-
+		
+		if (this.has_auto_update && this.ui_receiver == null)
+		{
+			this.ui_receiver = new UI_Receiver();
+			filter = new android.content.IntentFilter();
+			filter.addAction("UI_UPDATE_ACTION");
+			this.registerReceiver(this.ui_receiver, filter);
+		}
+		
 		Update_UI();
 	}
 
@@ -89,6 +113,13 @@ implements android.content.DialogInterface.OnClickListener
 	public void onPause()
 	{
 		On_Pause();
+		
+		if (this.ui_receiver != null)
+		{
+		  this.unregisterReceiver(this.ui_receiver);
+		  this.ui_receiver = null;
+		}
+		
 		if (this.db != null)
 		{
 			this.db.Close();
@@ -166,5 +197,10 @@ implements android.content.DialogInterface.OnClickListener
 	public void On_Sort()
 	{
 		
+	}
+	
+	public void On_Filter()
+	{
+
 	}
 }

@@ -1,15 +1,16 @@
 package rs.workbuddy;
-import java.sql.*;
-import android.widget.*;
-import android.widget.TableRow.*;
-import rs.android.ui.*;
+//import java.sql.*;
+//import android.widget.*;
+//import android.widget.TableRow.*;
+//import rs.android.ui.*;
 
 public class Workbuddy_Activity_List
 extends rs.workbuddy.Workbuddy_Activity
 implements 
 android.view.View.OnClickListener,
 rs.android.ui.Column_Dialog.On_Column_Set_Listener,
-rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
+rs.android.ui.Sort_Dialog.On_Sort_Set_Listener,
+rs.android.ui.Filter_Dialog.On_Filter_Set_Listener
 {
 	public static final int ACT_RES_REFRESH_UI=1;
 
@@ -19,6 +20,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	public java.util.ArrayList<Long> selected;
 	public java.util.ArrayList<rs.android.ui.Column> cols;
 	public java.util.ArrayList<rs.android.ui.Sort_Option> sort_options;
+	public java.util.ArrayList<rs.android.ui.Filter_Option> filter_options;
 	public boolean refresh_data;
 	public String ct="rs.workbuddy.Workbuddy_Activity_List";
 	public java.lang.Class<?> menuitem_edit_class;
@@ -104,6 +106,9 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 
 		if (rs.android.Util.NotEmpty(this.sort_options))
 		  menu.findItem(Menus.MENUITEM_SORT).setVisible(true);
+			
+		if (rs.android.Util.NotEmpty(this.filter_options))
+		  menu.findItem(Menus.MENUITEM_FILTER).setVisible(true);
 
 		if (this.has_paging)
 		{
@@ -352,7 +357,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 	@Override
 	public void On_Update_UI()
 	{
-		Long ids[];
+		Long ids[]=null;
 
 		if (this.refresh_data /*&& 
 		  rs.android.Log.Has_Changes(this.db, this.list_obj_class, this.last_refresh_at)*/)
@@ -362,7 +367,10 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 			this.Build_Title_Row(this.table_layout);
 			this.Build_Header_Row(this.table_layout);
 
-			ids = On_Get_List();
+			if (this.has_tree_layout)
+				ids = this.On_Get_Children(null);
+			else
+			  ids = this.On_Get_List();
 			this.last_refresh_at=rs.android.util.Date.Now();
 			this.Insert_Rows(ids);
 
@@ -402,6 +410,11 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		{
 			no_data = new android.widget.TextView(this);
 			no_data.setText("No Data Available");
+			no_data.setGravity(android.view.Gravity.CENTER);
+			no_data.setPadding(0,20,10,0);
+			no_data.setTextSize(21);
+			no_data.setTextColor(0xff555555);
+			//rs.android.ui.Border_Drawable.Add_Border(no_data, 0xffff0000);
 			this.table_layout.addView(no_data);
 		}
 	}
@@ -532,6 +545,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 				if (rs.android.Util.NotEmpty(line))
 				{
 					cell = this.New_Cell(line);
+					//rs.android.ui.Border_Drawable.Add_Border(cell, 0xffff0000);
 					if (rs.android.Util.NotEmpty(line_views))
 					{
 						cell.setTextColor(0xff999999);
@@ -551,7 +565,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 					linear = new android.widget.LinearLayout(this);
 					linear.setOrientation(android.widget.LinearLayout.VERTICAL);
 					linear.setPadding(0, 0, 0, 0);
-					//rs.workbuddy.Border_Drawable.Add_Border(res, 0xffff0000);
+					//rs.android.ui.Border_Drawable.Add_Border(linear, 0xffff0000);
 					for (android.widget.TextView v: line_views)
 					{
 						layout = new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -603,6 +617,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		if (!rs.android.Util.NotEmpty(label))
 			cell.setTextColor(0xff333333);
 		//rs.workbuddy.Border_Drawable.Add_Border(cell, 0xff00ff00);
+		//android.util.Log.d("New_Cell()", rs.android.util.Type.To_String(cell.getTextSize()));
 		return cell;
 	}
 	
@@ -616,12 +631,13 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		return cell;
 	}
 	
-	public rs.android.ui.Column Add_Column(String id, String title)
+	/*public rs.android.ui.Column Add_Column(String id, String title)
 	{
-		return this.Add_Column(id, title, false);
-	}
+		return this.Add_Column(id, title, false, true);
+	}*/
 
-	public rs.android.ui.Column Add_Column(String id, String title, boolean wrap)
+	public rs.android.ui.Column Add_Column(String id, String title, boolean wrap,
+	  boolean visible)
 	{
 		rs.android.ui.Column col;
 
@@ -631,7 +647,7 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		col = new rs.android.ui.Column();
 		col.id = id;
 		col.title = title;
-		col.visible = true;
+		col.visible = visible;
 		col.wrap = wrap;
 		this.cols.add(col);
 		
@@ -651,6 +667,19 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		this.sort_options.add(sort);
 	}
 
+	public void Add_Filter(int id, String title)
+	{
+		rs.android.ui.Filter_Option filter;
+
+		if (this.filter_options == null)
+			this.filter_options = new java.util.ArrayList<rs.android.ui.Filter_Option>();
+
+		filter = new rs.android.ui.Filter_Option();
+		filter.id = id;
+		filter.label = title;
+		this.filter_options.add(filter);
+	}
+	
 	public void On_Build_Header_Row(android.widget.TableRow row)
 	{
 		int c;
@@ -946,6 +975,16 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		dlg.Show();
 	}
 
+	@Override
+	public void On_Filter()
+	{
+		rs.android.ui.Filter_Dialog dlg;
+
+		dlg = new rs.android.ui.Filter_Dialog(this, this);
+		dlg.options = this.filter_options;
+		dlg.Show();
+	}
+	
 	public void On_Sort_Set(rs.android.ui.Sort_Option which)
 	{
 		rs.android.ui.Sort_Option.Save(this, this.getClass().getName(), which.id);
@@ -953,6 +992,13 @@ rs.android.ui.Sort_Dialog.On_Sort_Set_Listener
 		this.Update_UI();
 	}
 
+	public void On_Filter_Set(rs.android.ui.Filter_Option which)
+	{
+		rs.android.ui.Filter_Option.Save(this, this.getClass().getName(), which.id);
+		this.refresh_data = true;
+		this.Update_UI();
+	}
+	
 	public void On_Create_Columns()
 	{
 

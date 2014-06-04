@@ -1,4 +1,4 @@
-package rs.workbuddy;
+package rs.workbuddy.project;
 
 public class Project_Add
 extends 
@@ -6,8 +6,8 @@ rs.workbuddy.Workbuddy_Activity_Add
 {
 	public android.widget.EditText name_text;
 	public android.widget.EditText notes_text;
-	public rs.workbuddy.Project_Spinner parent_spinner;
-	public rs.workbuddy.Project_Status_Spinner status_spinner;
+	public rs.workbuddy.project.Project_Spinner parent_spinner;
+	public rs.workbuddy.project.Project_Status_Spinner status_spinner;
 	public Project project;
 
   @Override
@@ -17,11 +17,11 @@ rs.workbuddy.Workbuddy_Activity_Add
 		name_text = new android.widget.EditText(this);
 		this.Add_Field("Name", name_text);
 
-		parent_spinner = new rs.workbuddy.Project_Spinner(this, this.db);
-		((Project_Adapter)this.parent_spinner.getAdapter()).view_text_size=20;
+		parent_spinner = new rs.workbuddy.project.Project_Spinner(this, this.db);
+		//((Project_SpinnerAdapter)this.parent_spinner.getAdapter()).view_text_size=20;
 		this.Add_Field("Parent", parent_spinner);
 		
-		status_spinner=new rs.workbuddy.Project_Status_Spinner(this, this.db);
+		status_spinner=new rs.workbuddy.project.Project_Status_Spinner(this, this.db);
 		this.Add_Field("Status", status_spinner);
 
 		// project notes
@@ -46,19 +46,23 @@ rs.workbuddy.Workbuddy_Activity_Add
 	}
 
 	@Override
-	void On_New_Obj()
+	public void On_New_Obj()
 	{
 		this.project = new Project();
+		if (this.getIntent().hasExtra("parent_id"))
+		{
+			this.project.parent_id = getIntent().getLongExtra("parent_id", 0);
+		}
 	}
 
 	@Override
-	void On_Load_Obj(Long id)
+	public void On_Load_Obj(Long id)
 	{
 		this.project = Project.Select(this.db, id);
 	}
 
 	@Override
-	void On_Save_Obj()
+	public void On_Save_Obj()
 	{
 		project.notes = Get_Text(this.notes_text);
 		project.name = Get_Text(this.name_text);

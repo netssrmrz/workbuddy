@@ -101,19 +101,19 @@ rs.workbuddy.Workbuddy_Activity
 		}
 	}
 
-	void On_New_Obj()
+	public void On_New_Obj()
 	{
 	}
 
-	void On_Load_Obj(Long id)
+	public void On_Load_Obj(Long id)
 	{
 	}
 
-	void On_Save_Obj()
+	public void On_Save_Obj()
 	{
 	}
 
-	void On_Create_UI(android.view.ViewGroup view)
+	public void On_Create_UI(android.view.ViewGroup view)
 	{
 	}
 }

@@ -6,7 +6,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 	public rs.workbuddy.Event_Type_Spinner type_spinner;
 	public rs.android.ui.Date_Button start_date_button;
 	public rs.android.ui.Time_Button start_time_button;
-	public rs.workbuddy.Project_Spinner project_spinner;
+	public rs.workbuddy.project.Project_Spinner project_spinner;
 	public android.widget.EditText notes_text;
 	public Work_Event event;
 
@@ -27,7 +27,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 		start_time_button = new rs.android.ui.Time_Button(this);
 		this.Add_Field("Start Time", start_time_button);
 
-		this.project_spinner=new Project_Spinner(this, this.db);
+		this.project_spinner=new rs.workbuddy.project.Project_Spinner(this, this.db);
 		//((Project_Adapter)this.project_spinner.getAdapter()).view_text_size=25;
 		this.Add_Field("Project", project_spinner);
 
@@ -39,6 +39,7 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 	@Override
 	public void On_Update_UI()
 	{
+		//android.util.Log.d("On_Update_UI", rs.android.util.Type.Obj_To_String(this.event));
 		this.type_spinner.Set_Selection(this.event.event_type_id);
 
 		this.start_date_button.Set_Date(this.event.start_date);
@@ -55,19 +56,19 @@ extends rs.workbuddy.Workbuddy_Activity_Add
 	}
 
 	@Override
-	void On_New_Obj()
+	public void On_New_Obj()
 	{
 		this.event = new Work_Event();
 	}
 
 	@Override
-	void On_Load_Obj(Long id)
+	public void On_Load_Obj(Long id)
 	{
 		this.event = Work_Event.Select(this.db, id);
 	}
 
 	@Override
-	void On_Save_Obj()
+	public void On_Save_Obj()
 	{
 		this.event.event_type_id = this.type_spinner.Get_Selected_Id();
 
