@@ -24,7 +24,7 @@ implements rs.workbuddy.project.Project_Dialog.On_Project_Set_Listener
 		menuitem_add_class=Project_Add.class;
 		this.list_obj_class=Project.class;
 
-		this.Add_Column("name", "Name", false, true);
+		this.Add_Column("name", "Name", true, true);
 		this.Add_Column("status", "Status", false, true);
 		this.Add_Column("parents", "Parents", true, false);
 		col=this.Add_Column("events", "Activities", false, false);
