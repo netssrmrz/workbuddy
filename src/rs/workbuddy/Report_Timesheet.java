@@ -203,7 +203,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 		menu.findItem(Menus.MENUITEM_TIMESHEET_VIEW).setVisible(true);
 
 		proj_spinner = new rs.workbuddy.project.Project_Spinner(this, this.db);
-		((rs.workbuddy.project.Project_ListAdapter)proj_spinner.getAdapter()).is_small_spinner=true;
+		((rs.workbuddy.project.Project_ListAdapter)proj_spinner.getAdapter()).is_small_spinner = true;
 		menu_item = menu.findItem(Menus.MENUITEM_FILTER_PROJ);
 		menu_item.setActionView(proj_spinner);
 		menu_item.setVisible(true);
@@ -213,7 +213,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 	}
 
 	public void onItemSelected(AdapterView<?> parent, 
-	  android.view.View view, int position, long itemId)
+                             android.view.View view, int position, long itemId)
 	{
 		if (itemId == rs.android.ui.Db_Adapter.ID_NA)
 			this.project_id = null;
@@ -247,7 +247,7 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 		next_week = rs.android.util.Date.Add_Days(this.week_of, date_diff);
 		if ((date_diff > 0 && !next_week.after(this.max_day)) || 
-		  (date_diff < 0 && !next_week.before(this.min_day)))
+        (date_diff < 0 && !next_week.before(this.min_day)))
 		{
 			this.week_of = next_week;
 			this.Set_Title();
@@ -352,42 +352,102 @@ rs.workbuddy.Template_Dialog.On_Template_Set_Listener
 
 	public void On_Finish(android.net.Uri timesheet_uri)
 	{
-		android.content.Intent intent=null;
-		String mime;
-		android.webkit.MimeTypeMap type_map;
-		android.content.pm.PackageManager pm;
-
 		this.table_layout.removeView(this.prog_bar);
 		this.table_layout.removeView(this.prog_label);
 
 		if (this.is_send)
+    {
+      this.is_send = false;
+      Start_Send_Docx(timesheet_uri);
+    }
+		else if (this.is_view)
 		{
-			this.is_send = false;
-			intent = new android.content.Intent(android.content.Intent.ACTION_SEND, timesheet_uri);
-			intent.putExtra(android.content.Intent.EXTRA_STREAM, timesheet_uri);
-		}
-		if (this.is_view)
-		{
-			this.is_view = false;
-			intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, timesheet_uri);
-		}
-
-		if (intent != null)
-		{
-			pm = this.getPackageManager();
-			type_map = android.webkit.MimeTypeMap.getSingleton();
-			if (type_map.hasExtension("docx"))
-			  mime = type_map.getMimeTypeFromExtension("docx");
-			else
-			//mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-				mime = "application/msword";
-
-			intent.setType(mime);
-			//intent.setData(timesheet_uri);
-			intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-
-			intent = android.content.Intent.createChooser(intent, "Select");
-			this.startActivity(intent);
-		}
+      this.is_view = false;
+      Start_View_Docx(timesheet_uri);
+    }
 	}
+
+  public void Start_Send_Docx(android.net.Uri timesheet_uri)
+  {
+    android.content.Intent intent=null;
+    String mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    String action=android.content.Intent.ACTION_SEND;
+
+    intent = new android.content.Intent();
+    intent.setAction(action);
+    intent.setType(mime);
+    intent.putExtra(android.content.Intent.EXTRA_STREAM, timesheet_uri);
+    if (App_Avail(intent))
+      this.startActivity(intent);
+    else
+      rs.android.ui.Util.Show_Note(this, "No application to send documents found.");
+  }
+
+  public void Start_View_Docx(android.net.Uri timesheet_uri)
+  {
+    android.content.Intent intent=null;
+    String mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    String action=android.content.Intent.ACTION_VIEW;
+
+    intent = new android.content.Intent();
+    intent.setAction(action);
+    intent.setDataAndType(timesheet_uri, mime);
+    if (App_Avail(intent))
+      this.startActivity(intent);
+    else
+      rs.android.ui.Util.Show_Note(this, "No application to view documents found.");
+  }
+
+  /*public void Start_Edit_Docx(android.net.Uri timesheet_uri)
+   {
+   android.content.Intent intent=null;
+   String mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+   String action=android.content.Intent.ACTION_EDIT;
+
+   intent = new android.content.Intent();
+   intent.setAction(action);
+   intent.setDataAndType(timesheet_uri, mime);
+   this.startActivity(intent);
+   }
+
+   public void Start_Edit_Msword(android.net.Uri timesheet_uri)
+   {
+   android.content.Intent intent=null;
+   String mime="application/msword";
+   String action=android.content.Intent.ACTION_EDIT;
+
+   intent = new android.content.Intent();
+   intent.setType(mime);
+   intent.setAction(action);
+   intent.setData(timesheet_uri);
+   intent.putExtra(android.content.Intent.EXTRA_STREAM, timesheet_uri);
+   this.startActivity(intent);
+   }
+
+   public void Start_View_Msword(android.net.Uri timesheet_uri)
+   {
+   android.content.Intent intent=null;
+   String mime="application/msword";
+   String action=android.content.Intent.ACTION_VIEW;
+
+   intent = new android.content.Intent();
+   intent.setType(mime);
+   intent.setAction(action);
+   intent.setData(timesheet_uri);
+   intent.putExtra(android.content.Intent.EXTRA_STREAM, timesheet_uri);
+   this.startActivity(intent);
+   }*/
+
+  public boolean App_Avail(android.content.Intent intent)
+  {
+    boolean res=false;
+    android.content.pm.PackageManager pm;
+
+    pm = this.getPackageManager();
+    if (intent.resolveActivity(pm) != null) 
+      res = true;
+      //res=false;
+
+    return res;
+  }
 }
